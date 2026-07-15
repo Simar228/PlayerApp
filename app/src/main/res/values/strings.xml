@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Sound</string>
+    <string name="all_songs">All songs</string>
+    <string name="sort_by_name">Name</string>
+    <string name="sort_by_artist">Artist</string>
+    <string name="sort_by_album">Album</string>
+    <string name="sort_by_genre">Genre</string>
+</resources>

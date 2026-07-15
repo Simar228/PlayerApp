@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sound</string>
+    <string name="all_songs">Все песни</string>
+    <string name="sort_by_name">Название</string>
+    <string name="sort_by_artist">Артист</string>
+    <string name="sort_by_album">Альбом</string>
+    <string name="sort_by_genre">Жанр</string>
+</resources>
