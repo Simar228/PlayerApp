@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -54,7 +55,13 @@ fun AppUi(
     val showBottomBar =
         isMainScreen && !isSongPageStillVisible
 
+    LifecycleStartEffect(playerViewModel) {
+        playerViewModel.startPositionUpdates()
 
+        onStopOrDispose {
+            playerViewModel.stopPositionUpdates()
+        }
+    }
     Scaffold(
         modifier = modifier
             .fillMaxSize()

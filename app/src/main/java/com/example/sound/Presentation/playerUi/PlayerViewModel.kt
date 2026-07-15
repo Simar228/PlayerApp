@@ -16,11 +16,14 @@ import androidx.media3.session.SessionToken
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.PlayerQueueRepository
 import com.example.sound.service.PlaybackService
+import com.google.common.util.concurrent.ListenableFuture
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,8 +32,18 @@ class PlayerViewModel @Inject constructor(
     private val playerQueueRepository: PlayerQueueRepository,
     @ApplicationContext context: Context
 ) : ViewModel() {
+
+
+    private var pendingPlaybackRequest: PendingPlaybackRequest? = null
+    private val _connectionState =
+        MutableStateFlow<PlayerConnectionState>(
+            PlayerConnectionState.Connecting
+        )
+    val connectionState = _connectionState.asStateFlow()
+    private val controllerFuture: ListenableFuture<MediaController>
+    private var positionUpdatesJob: Job? = null
     private var controller: MediaController? = null
-    private val _isPlaying = MutableStateFlow(true)
+    private val _isPlaying = MutableStateFlow(false)
     val isPlaying = _isPlaying.asStateFlow()
     private val _currentSong = MutableStateFlow<Song?>(null)
     val currentSong = _currentSong.asStateFlow()
@@ -67,39 +80,48 @@ class PlayerViewModel @Inject constructor(
     }
 
     init {
-
+        Log.d(TAG, "ViewModelStarted")
         val sessionToken = SessionToken(
             context,
             ComponentName(context, PlaybackService::class.java)
         )
-        val controllerFuture = MediaController.Builder(context, sessionToken)
+        controllerFuture = MediaController.Builder(context, sessionToken)
             .buildAsync()
-
         controllerFuture.addListener(
             {
-                controller = controllerFuture.get()
-                controller?.addListener(playerListener)
+                try {
+                    controller = controllerFuture.get()
+                    controller?.addListener(playerListener)
+                    _connectionState.value = PlayerConnectionState.Ready
+                    val pendingRequest = pendingPlaybackRequest
+                    pendingPlaybackRequest = null
+                    pendingRequest?.let { request ->
+                        playSong(
+                            queueSongs = request.queueSongs,
+                            selectedSong = request.selectedSong
+                        )
+                    }
+                    Log.d(TAG, "MediaController is ready")
+
+
+                } catch (error: Exception) {
+                    _currentSong.value = null
+                    controller = null
+                    Log.e(TAG, "Error connecting MediaController", error)
+                    _connectionState.value = PlayerConnectionState.Error(error)
+                }
             },
             ContextCompat.getMainExecutor(context)
         )
-        viewModelScope.launch {
-            while (true) {
-                delay(100L)
-
-                val mediaController = controller
-                if (mediaController?.isPlaying == true) {
-                    _currentPosition.value =
-                        mediaController.currentPosition.coerceAtLeast(0L)
-                }
-            }
-        }
     }
+
 
     private fun updateDuration() {
         _duration.value = controller?.duration ?: C.TIME_UNSET
     }
 
     private fun playSong(queueSongs: List<Song>, selectedSong: Song) {
+        Log.d(TAG, "Get song: ${selectedSong.title}")
         val mediaItems = queueSongs.map { song ->
             MediaItem.Builder()
                 .setMediaId(song.id.toString())
@@ -128,8 +150,23 @@ class PlayerViewModel @Inject constructor(
 
 
     fun sendSong(queueSongs: List<Song>, song: Song) {
-        _currentSong.value = song
-        playSong(queueSongs, song)
+        when (_connectionState.value) {
+            PlayerConnectionState.Connecting -> {
+                _currentSong.value = song
+                pendingPlaybackRequest = PendingPlaybackRequest(
+                    queueSongs = queueSongs,
+                    selectedSong = song
+                )
+            }
+
+            PlayerConnectionState.Ready -> {
+                playSong(queueSongs, song)
+            }
+
+            is PlayerConnectionState.Error -> {
+                Log.w(TAG, "Cannot play song: controller connection failed")
+            }
+        }
     }
 
     fun sendEvent(event: PlayerUIEvent) {
@@ -149,18 +186,44 @@ class PlayerViewModel @Inject constructor(
 
             is PlayerUIEvent.NextSong -> {
                 controller?.seekToNextMediaItem()
-                _currentSong.value = controller?.currentMediaItem?.toSong()
             }
 
             is PlayerUIEvent.PreviousSong -> {
                 controller?.seekToPreviousMediaItem()
-                _currentSong.value = controller?.currentMediaItem?.toSong()
             }
         }
     }
+
+    override fun onCleared() {
+        Log.d(TAG, "ViewModelCleared")
+        stopPositionUpdates()
+        controller?.removeListener(playerListener)
+        MediaController.releaseFuture(controllerFuture)
+        controller = null
+        super.onCleared()
+    }
+
+    fun startPositionUpdates() {
+        if (positionUpdatesJob?.isActive == true) return
+        positionUpdatesJob = viewModelScope.launch {
+            while (isActive) {
+                val mediaController = controller
+                if (mediaController?.isPlaying == true) {
+                    _currentPosition.value = mediaController.currentPosition.coerceAtLeast(0L)
+                }
+                delay(250L)
+            }
+        }
+    }
+
+    fun stopPositionUpdates() {
+        positionUpdatesJob?.cancel()
+        positionUpdatesJob = null
+    }
+
 }
 
-private fun MediaItem.toSong(): Song{
+private fun MediaItem.toSong(): Song {
     return Song(
         id = mediaId.toLong(),
         title = mediaMetadata.title?.toString().orEmpty(),
@@ -174,3 +237,10 @@ private fun MediaItem.toSong(): Song{
     )
 
 }
+
+private data class PendingPlaybackRequest(
+    val queueSongs: List<Song>,
+    val selectedSong: Song
+)
+
+const val TAG = "PlayerViewModel"
