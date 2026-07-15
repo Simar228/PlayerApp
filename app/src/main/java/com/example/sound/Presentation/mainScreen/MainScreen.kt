@@ -21,9 +21,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -46,6 +43,7 @@ fun MainScreen(
     playerViewModel: PlayerViewModel,
     modifier: Modifier,
 ) {
+
     val lazyColumnState = rememberLazyListState()
     val songs by mainViewModel.songsQueue.collectAsStateWithLifecycle()
     LaunchedEffect(songs.size) {
@@ -55,9 +53,7 @@ fun MainScreen(
         lazyColumnState.scrollToItem(0)
     }
 
-    var buttonState by remember {
-        mutableIntStateOf(0)
-    }
+    val currentButton by mainViewModel.currentDirectionOfSort.collectAsStateWithLifecycle()
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -120,46 +116,47 @@ fun MainScreen(
             ) {
                 item {
                     SortButton(
-                        isActive = buttonState == 0,
-                        text = stringResource(R.string.sort_by_name)
-                    ) {isUp ->
+                        isActive = currentButton[0].isActive,
+                        text = stringResource(R.string.sort_by_name),
+                        isUp = currentButton[0].isUp
+                    ) {
                         mainViewModel.sortQueueSong(
-                            MainScreenEvents.SortByTitle(isUp)
+                            MainScreenEvents.SortByTitle(currentButton[0].isUp)
                         )
-                        buttonState = 0
                     }
                 }
                 item {
                     SortButton(
-                        isActive = buttonState == 1,
-                        text = stringResource(R.string.sort_by_artist)
-                    ) {isUp ->
+                        isActive = currentButton[1].isActive,
+                        text = stringResource(R.string.sort_by_artist),
+                        isUp = currentButton[1].isUp
+                    ) {
                         mainViewModel.sortQueueSong(
-                            MainScreenEvents.SortByArtist(isUp)
+                            MainScreenEvents.SortByArtist(currentButton[1].isUp)
                         )
-                        buttonState = 1
                     }
                 }
                 item {
                     SortButton(
-                        isActive = buttonState == 2,
-                        text = stringResource(R.string.sort_by_album)
-                    ) {isUp ->
+                        isActive = currentButton[2].isActive,
+                        text = stringResource(R.string.sort_by_album),
+                        isUp = currentButton[2].isUp
+                    ) {
                         mainViewModel.sortQueueSong(
-                            MainScreenEvents.SortByAlbum(isUp)
+                            MainScreenEvents.SortByAlbum(currentButton[2].isUp)
                         )
-                        buttonState = 2
+
                     }
                 }
                 item {
                     SortButton(
-                        isActive = buttonState == 3,
-                        text = stringResource(R.string.sort_by_genre)
-                    ) {isUp ->
+                        isActive = currentButton[3].isActive,
+                        text = stringResource(R.string.sort_by_genre),
+                        isUp = currentButton[3].isUp
+                    ) {
                         mainViewModel.sortQueueSong(
-                            MainScreenEvents.SortByGenre(isUp)
+                            MainScreenEvents.SortByGenre(currentButton[3].isUp)
                         )
-                        buttonState = 3
                     }
                 }
             }

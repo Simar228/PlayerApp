@@ -25,6 +25,7 @@ fun AppNavHost(
     songs: List<Song>,
     modifier: Modifier = Modifier,
 ) {
+
     LaunchedEffect(songs.size) {
         Log.d("SongsDebug", "AppNavHost received ${songs.size} songs")
     }
@@ -51,12 +52,14 @@ fun AppNavHost(
         ) {
             composable<Routes.SongsRoute> {
                 val mainViewModel: MainViewModel = viewModel()
-                mainViewModel.setQueueSong(songs)
+                LaunchedEffect(songs) {
+                    mainViewModel.setQueueSong(songs)
+                }
                 MainScreen(
                     mainViewModel = mainViewModel,
                     modifier = Modifier,
                     playerViewModel = playerViewModel
-                    )
+                )
             }
             composable<Routes.AlbumsRoute> {
                 Log.d("Navigation", "albums is open")

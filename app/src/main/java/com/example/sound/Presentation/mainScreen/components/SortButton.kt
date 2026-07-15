@@ -30,11 +30,11 @@ import com.example.sound.R
 
 @Composable
 fun SortButton(
+    isUp: Boolean,
     text: String,
     isActive: Boolean,
-    onClick: (Boolean) -> Unit
+    onClick: () -> Unit,
 ) {
-    var isUp by remember { mutableStateOf(true) }
     val rotationAngle by animateFloatAsState(
         targetValue = if (isUp) -90f else 90f,
         animationSpec = tween(
@@ -61,8 +61,7 @@ fun SortButton(
             vertical = 4.dp
         ),
         onClick = {
-            if(isActive) isUp = !isUp
-            onClick(isUp)
+            onClick()
         },
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isActive) MaterialTheme.colorScheme.primary else Color.Transparent
@@ -89,6 +88,7 @@ fun SortButton(
 @Preview
 private fun PreviewSortButton() {
     SortButton(
+        true,
         "Артист",
         true,
     ) { }
