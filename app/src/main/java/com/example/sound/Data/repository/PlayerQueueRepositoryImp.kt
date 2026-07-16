@@ -6,11 +6,11 @@ import com.example.sound.Data.local.queue.QueueDao
 import com.example.sound.Data.local.queue.toDomain
 import com.example.sound.Data.local.queue.toEntity
 import com.example.sound.Domain.model.PlayerState
+import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.repository.PlayerQueueRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
-import com.example.sound.Domain.model.QueueItem
 
 class PlayerQueueRepositoryImpl @Inject constructor(
     private val queueDao: QueueDao,
@@ -28,14 +28,12 @@ class PlayerQueueRepositoryImpl @Inject constructor(
         return queueDao.getQueue().map { it.toDomain() }
     }
 
-    override suspend fun saveQueue(queue: List<QueueItem>) {
-        queueDao.clearQueue()
 
+    override suspend fun saveQueue(queue: List<QueueItem>) {
         val entities = queue.mapIndexed { index, item ->
             item.toEntity().copy(position = index)
         }
-
-        queueDao.insertQueueItems(entities)
+        queueDao.replaceQueue(entities)
     }
 
     override suspend fun savePlayerState(
