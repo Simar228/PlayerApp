@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 
-class MainViewModel() : ViewModel()  {
+class MainViewModel() : ViewModel() {
 
 
     private val _songsQueue = MutableStateFlow<List<Song>>(emptyList())
@@ -31,7 +31,7 @@ class MainViewModel() : ViewModel()  {
                 true,
                 false,
 
-            ),
+                ),
             SortButtonValue(
                 3,
                 true,
@@ -41,7 +41,7 @@ class MainViewModel() : ViewModel()  {
     )
     val currentDirectionOfSort = _currentDirectionOfSort.asStateFlow()
 
-    fun setQueueSong(songs: List<Song>){
+    fun setQueueSong(songs: List<Song>) {
         _songsQueue.value = songs
     }
 
@@ -51,47 +51,49 @@ class MainViewModel() : ViewModel()  {
 
     fun sortQueueSong(
         sortBy: MainScreenEvents
-    ){
-        when(sortBy){
+    ) {
+        when (sortBy) {
             is MainScreenEvents.SortByTitle -> {
-                _currentDirectionOfSort.value = _currentDirectionOfSort.value.choose(0,)
+                _currentDirectionOfSort.value = _currentDirectionOfSort.value.choose(0)
                 val isUp = _currentDirectionOfSort.value[0].isUp
-                if(isUp){
+                if (isUp) {
                     _songsQueue.value = _songsQueue.value.sortedWith(
                         compareBy<Song> { it.title == null }
                             .thenBy { it.title?.lowercase().orEmpty() }
                     )
-                }else{
+                } else {
                     _songsQueue.value = _songsQueue.value.sortedWith(
                         compareBy<Song> { it.title == null }
                             .thenByDescending { it.title?.lowercase().orEmpty() }
                     )
                 }
             }
+
             is MainScreenEvents.SortByArtist -> {
-                _currentDirectionOfSort.value = _currentDirectionOfSort.value.choose(1,)
+                _currentDirectionOfSort.value = _currentDirectionOfSort.value.choose(1)
                 val isUp = _currentDirectionOfSort.value[1].isUp
-                if(isUp){
+                if (isUp) {
                     _songsQueue.value = _songsQueue.value.sortedWith(
                         compareBy<Song> { it.artist == null }
                             .thenBy { it.artist?.lowercase().orEmpty() }
                     )
-                }else{
+                } else {
                     _songsQueue.value = _songsQueue.value.sortedWith(
                         compareBy<Song> { it.artist == null }
                             .thenByDescending { it.artist?.lowercase().orEmpty() }
                     )
                 }
             }
+
             is MainScreenEvents.SortByAlbum -> {
-                _currentDirectionOfSort.value = _currentDirectionOfSort.value.choose(2,)
+                _currentDirectionOfSort.value = _currentDirectionOfSort.value.choose(2)
                 val isUp = _currentDirectionOfSort.value[2].isUp
-                if(isUp){
+                if (isUp) {
                     _songsQueue.value = _songsQueue.value.sortedWith(
                         compareBy<Song> { it.album == null }
                             .thenBy { it.album?.lowercase().orEmpty() }
                     )
-                }else{
+                } else {
                     _songsQueue.value = _songsQueue.value.sortedWith(
                         compareBy<Song> { it.album == null }
                             .thenByDescending { it.album?.lowercase().orEmpty() }
@@ -100,14 +102,14 @@ class MainViewModel() : ViewModel()  {
             }
 
             is MainScreenEvents.SortByGenre -> {
-                _currentDirectionOfSort.value = _currentDirectionOfSort.value.choose(3,)
+                _currentDirectionOfSort.value = _currentDirectionOfSort.value.choose(3)
                 val isUp = _currentDirectionOfSort.value[3].isUp
-                if(isUp){
+                if (isUp) {
                     _songsQueue.value = _songsQueue.value.sortedWith(
                         compareBy<Song> { it.genre == null }
                             .thenBy { it.genre?.lowercase().orEmpty() }
                     )
-                }else{
+                } else {
                     _songsQueue.value = _songsQueue.value.sortedWith(
                         compareBy<Song> { it.genre == null }
                             .thenByDescending { it.genre?.lowercase().orEmpty() }
