@@ -272,7 +272,7 @@ private fun PlayerArtworkPlaceholder() {
 fun PreviewPlayerUI() {
     PlayerContent(
         song = Song(
-            id = 1,
+            id = "1",
             title = "Пока-Пока",
             artist = "CUPSIZE",
             duration = 90000,

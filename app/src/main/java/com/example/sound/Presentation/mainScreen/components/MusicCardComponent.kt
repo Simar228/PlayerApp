@@ -149,7 +149,7 @@ private fun formatDuration(durationMillis: Long): String {
 private fun PreviewMusicCard(){
     MusicCard(
         song = Song(
-            id = 1,
+            id = "",
             title = "Пока-Пока",
             artist = "CUPSIZE",
             duration = 90000,

@@ -3,7 +3,7 @@ package com.example.sound.Domain.model
 import android.net.Uri
 
 data class Song(
-    val id: Long,
+    val id: String,
     val title: String?,
     val artist: String?,
     val duration: Long,

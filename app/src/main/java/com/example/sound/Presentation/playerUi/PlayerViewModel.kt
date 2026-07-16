@@ -124,7 +124,7 @@ class PlayerViewModel @Inject constructor(
         Log.d(TAG, "Get song: ${selectedSong.title}")
         val mediaItems = queueSongs.map { song ->
             MediaItem.Builder()
-                .setMediaId(song.id.toString())
+                .setMediaId(song.id)
                 .setUri(song.uri)
                 .setMediaMetadata(
                     MediaMetadata.Builder()
@@ -225,7 +225,7 @@ class PlayerViewModel @Inject constructor(
 
 private fun MediaItem.toSong(): Song {
     return Song(
-        id = mediaId.toLong(),
+        id = mediaId,
         title = mediaMetadata.title?.toString().orEmpty(),
         artist = mediaMetadata.artist?.toString().orEmpty(),
         duration = 0L,

@@ -188,7 +188,7 @@ class MediaStoreSongProvider @Inject constructor(
 
                     // Преобразуем текущую строку системного Cursor в модель приложения.
                     songs += Song(
-                        id = id,
+                        id = contentUri.toString(),
                         title = cursor.stringOrNull(MediaStore.Audio.Media.TITLE)
                             ?: displayName?.substringBeforeLast('.')
                             ?: "Без названия",

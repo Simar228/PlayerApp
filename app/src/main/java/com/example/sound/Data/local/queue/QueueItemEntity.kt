@@ -1,6 +1,7 @@
 package com.example.sound.Data.local.queue
 
 import android.net.Uri
+import androidx.core.net.toUri
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -13,8 +14,8 @@ data class QueueItemEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
 
-    @ColumnInfo(defaultValue = "0")
-    val songId: Long,
+    @ColumnInfo(defaultValue = "''")
+    val songId: String,
     val songUri: String,
     val position: Int,
     val title: String?,
@@ -34,7 +35,7 @@ fun QueueItemEntity.toDomain(): QueueItem {
             title = title,
             artist = artist,
             duration = duration,
-            uri = Uri.parse(songUri),
+            uri = songUri.toUri(),
             album = album,
             genre = genre,
             art = artUri?.let(Uri::parse)

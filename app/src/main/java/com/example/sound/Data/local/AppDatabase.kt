@@ -24,7 +24,7 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_1_2 = Migration(1, 2) { database ->
             database.execSQL(
                 "ALTER TABLE queue_items " +
-                        "ADD COLUMN songId INTEGER NOT NULL DEFAULT 0"
+                        "ADD COLUMN songId TEXT NOT NULL DEFAULT ''"
             )
 
             database.execSQL("DELETE FROM queue_items")

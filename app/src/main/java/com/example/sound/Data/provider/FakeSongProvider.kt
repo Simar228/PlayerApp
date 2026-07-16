@@ -17,7 +17,7 @@ class FakeSongProvider @Inject constructor(
     fun loadSongs(): List<Song> {
     return listOf(
         Song(
-            id = 1,
+            id = "1",
             title = "Пока-Пока",
             artist = "CUPSIZE",
             duration = 90000,
@@ -27,7 +27,7 @@ class FakeSongProvider @Inject constructor(
             art = Uri.parse("android.resource://${context.packageName}/${R.drawable.art_zmp}")
         ),
         Song(
-            id = 2,
+            id = "2",
             title = "Я ПЫЛЬ",
             artist = "MORGENSHTERN",
             duration = 120000,
@@ -37,7 +37,7 @@ class FakeSongProvider @Inject constructor(
             art = null
         ),
         Song(
-            id = 1,
+            id = "3",
             title = "Это было в России",
             artist = "Монеточка",
             duration = 240000,
