@@ -56,7 +56,6 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.9.8")
     implementation("com.google.dagger:hilt-android:2.59.2")
     implementation(libs.androidx.navigation.runtime.ktx)
-    implementation(libs.androidx.compose.ui.test)
     implementation(libs.androidx.compose.runtime)
     ksp("com.google.dagger:hilt-compiler:2.59.2")
     implementation("androidx.media3:media3-ui-compose:1.10.1")
