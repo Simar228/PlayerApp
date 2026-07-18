@@ -19,7 +19,7 @@ import com.example.sound.R
 
 @Composable
 fun PermissionScreen(
-    onRequestPermission: () -> Unit,
+    onOpenSettings: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -40,7 +40,7 @@ fun PermissionScreen(
             textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(24.dp))
-        Button(onClick = onRequestPermission) {
+        Button(onClick = onOpenSettings) {
             Text(text = stringResource(R.string.grant_permission))
         }
     }

@@ -1,9 +1,11 @@
 package com.example.sound
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -17,6 +19,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import com.example.sound.Domain.repository.SongRepository
 import com.example.sound.Presentation.AppUi
 import com.example.sound.Presentation.SongsUiState
@@ -95,6 +98,24 @@ class MainActivity() : ComponentActivity() {
                             songsUiState = SongsUiState.PermissionDenied
                         }
                     }
+
+                val appSettingsLauncher =
+                    rememberLauncherForActivityResult(
+                        contract = ActivityResultContracts.StartActivityForResult()
+                    ) {
+                        val permissionGranted =
+                            ContextCompat.checkSelfPermission(
+                                context,
+                                permission
+                            ) == PackageManager.PERMISSION_GRANTED
+
+                        if (permissionGranted) {
+                            loadSongs()
+                        } else {
+                            songsUiState = SongsUiState.PermissionDenied
+                        }
+                    }
+
                 LaunchedEffect(Unit) {
                     val checkResult = ContextCompat.checkSelfPermission(
                         context,
@@ -124,8 +145,13 @@ class MainActivity() : ComponentActivity() {
 
                     SongsUiState.PermissionDenied -> {
                         PermissionScreen(
-                            onRequestPermission = {
-                                audioPermissionLauncher.launch(permission)
+                            onOpenSettings = {
+                                val intent = Intent(
+                                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                    "package:${context.packageName}".toUri()
+                                )
+
+                                appSettingsLauncher.launch(intent)
                             }
                         )
                     }
