@@ -26,10 +26,6 @@ fun AppNavHost(
     modifier: Modifier = Modifier,
 ) {
 
-    LaunchedEffect(songs.size) {
-        Log.d("SongsDebug", "AppNavHost received ${songs.size} songs")
-    }
-
     NavHost(
         navController = navController,
         startDestination = Routes.MainGraph,
@@ -46,10 +42,10 @@ fun AppNavHost(
             fadeOut(animationSpec = tween(250))
         }
     ) {
-
         navigation<Routes.MainGraph>(
             startDestination = Routes.SongsRoute
         ) {
+
             composable<Routes.SongsRoute> {
                 val mainViewModel: MainViewModel = viewModel()
                 LaunchedEffect(songs) {
@@ -61,6 +57,7 @@ fun AppNavHost(
                     playerViewModel = playerViewModel
                 )
             }
+
             composable<Routes.AlbumsRoute> {
                 Log.d("Navigation", "albums is open")
             }
@@ -69,6 +66,7 @@ fun AppNavHost(
                 Log.d("Navigation", "queue is open")
             }
         }
+
         composable<Routes.SongPageRoute> {
             SongPage(
                 viewModel = playerViewModel,
@@ -89,3 +87,6 @@ fun AppNavHost(
         }
     }
 }
+
+
+const val TAG = "AppNavHost"

@@ -6,4 +6,11 @@
     <string name="sort_by_artist">Артист</string>
     <string name="sort_by_album">Альбом</string>
     <string name="sort_by_genre">Жанр</string>
+    <string name="permission_required_title">Нужен доступ к музыке</string>
+    <string name="permission_required_message">Разрешите доступ к аудиофайлам, чтобы Sound мог показать музыку с этого устройства.</string>
+    <string name="grant_permission">Разрешить доступ</string>
+    <string name="loading_songs">Загрузка песен…</string>
+    <string name="song_loading_error">Не удалось загрузить песни</string>
+    <string name="song_loading_error_message">Проверьте доступ к музыке и попробуйте снова.</string>
+    <string name="retry">Повторить</string>
 </resources>

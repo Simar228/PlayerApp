@@ -5,4 +5,11 @@
     <string name="sort_by_artist">Artist</string>
     <string name="sort_by_album">Album</string>
     <string name="sort_by_genre">Genre</string>
+    <string name="permission_required_title">Music access required</string>
+    <string name="permission_required_message">Allow access to audio files so Sound can show the music stored on this device.</string>
+    <string name="grant_permission">Grant access</string>
+    <string name="loading_songs">Loading songs…</string>
+    <string name="song_loading_error">Couldn’t load songs</string>
+    <string name="song_loading_error_message">Check access to your music and try again.</string>
+    <string name="retry">Try again</string>
 </resources>

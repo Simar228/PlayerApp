@@ -17,15 +17,19 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
-import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.SongRepository
 import com.example.sound.Presentation.AppUi
+import com.example.sound.Presentation.SongsUiState
+import com.example.sound.Presentation.errorScreen.ErrorScreen
+import com.example.sound.Presentation.loadingScreen.LoadingScreen
+import com.example.sound.Presentation.permissionScreen.PermissionScreen
 import com.example.sound.ui.theme.SoundTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 @AndroidEntryPoint
 class MainActivity() : ComponentActivity() {
@@ -40,8 +44,8 @@ class MainActivity() : ComponentActivity() {
                 val context = LocalContext.current
                 val coroutineScope = rememberCoroutineScope()
 
-                var songs by remember {
-                    mutableStateOf<List<Song>>(emptyList())
+                var songsUiState by remember {
+                    mutableStateOf<SongsUiState>(SongsUiState.Loading)
                 }
 
                 val permission =
@@ -54,14 +58,21 @@ class MainActivity() : ComponentActivity() {
                 fun loadSongs() {
                     coroutineScope.launch {
                         Log.d(SONGS_DEBUG_TAG, "loadSongs() started")
-                        val loadedSongs = withContext(Dispatchers.IO) {
-                            songRepository.getSong()
+                        songsUiState = SongsUiState.Loading
+                        try {
+                            val loadedSongs = withContext(Dispatchers.IO) {
+                                songRepository.getSong()
+                            }
+                            Log.d(
+                                SONGS_DEBUG_TAG,
+                                "loadSongs() returned ${loadedSongs.size} songs"
+                            )
+                            songsUiState = SongsUiState.Success(loadedSongs)
+                        } catch (exception: CancellationException) {
+                            throw exception
+                        } catch (exception: Exception) {
+                            songsUiState = SongsUiState.Error(exception.toString())
                         }
-                        Log.d(
-                            SONGS_DEBUG_TAG,
-                            "loadSongs() returned ${loadedSongs.size} songs"
-                        )
-                        songs = loadedSongs
                     }
                 }
 
@@ -76,15 +87,14 @@ class MainActivity() : ComponentActivity() {
                         Log.d(
                             SONGS_DEBUG_TAG,
                             "Permission result: granted=$granted, " +
-                                "checkSelfPermission=$checkResult"
+                                    "checkSelfPermission=$checkResult"
                         )
                         if (granted) {
                             loadSongs()
                         } else {
-                            // Пользователь отказал в доступе
+                            songsUiState = SongsUiState.PermissionDenied
                         }
                     }
-
                 LaunchedEffect(Unit) {
                     val checkResult = ContextCompat.checkSelfPermission(
                         context,
@@ -96,9 +106,9 @@ class MainActivity() : ComponentActivity() {
                     Log.d(
                         SONGS_DEBUG_TAG,
                         "Android SDK=${Build.VERSION.SDK_INT}, " +
-                            "permission=$permission, " +
-                            "checkSelfPermission=$checkResult, " +
-                            "granted=$permissionGranted"
+                                "permission=$permission, " +
+                                "checkSelfPermission=$checkResult, " +
+                                "granted=$permissionGranted"
                     )
 
                     if (permissionGranted) {
@@ -107,10 +117,31 @@ class MainActivity() : ComponentActivity() {
                         audioPermissionLauncher.launch(permission)
                     }
                 }
+                when (val state = songsUiState) {
+                    SongsUiState.Loading -> {
+                        LoadingScreen()
+                    }
 
-                AppUi(
-                    songs = songs
-                )
+                    SongsUiState.PermissionDenied -> {
+                        PermissionScreen(
+                            onRequestPermission = {
+                                audioPermissionLauncher.launch(permission)
+                            }
+                        )
+                    }
+
+                    is SongsUiState.Success -> {
+                        AppUi(songs = state.songs)
+                    }
+
+                    is SongsUiState.Error -> {
+                        ErrorScreen(
+                            onRetry = {
+                                loadSongs()
+                            }
+                        )
+                    }
+                }
             }
         }
     }

@@ -1,6 +1,5 @@
 package com.example.sound.Presentation
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.LifecycleStartEffect
@@ -31,9 +29,6 @@ fun AppUi(
     songs: List<Song>,
     modifier: Modifier = Modifier,
 ) {
-    LaunchedEffect(songs.size) {
-        Log.d("SongsDebug", "AppUi received ${songs.size} songs")
-    }
     val playerViewModel: PlayerViewModel = viewModel()
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -71,16 +66,14 @@ fun AppUi(
                 Column(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    songs.getOrNull(0)?.let {
-                        PlayerUI(
-                            viewModel = playerViewModel,
-                            onClick = {
-                                navController.navigate(Routes.SongPageRoute) {
-                                    launchSingleTop = true
-                                }
-                            },
-                        )
-                    }
+                    PlayerUI(
+                        viewModel = playerViewModel,
+                        onClick = {
+                            navController.navigate(Routes.SongPageRoute) {
+                                launchSingleTop = true
+                            }
+                        },
+                    )
                     BottomNavigation(
                         navController = navController,
                     )
