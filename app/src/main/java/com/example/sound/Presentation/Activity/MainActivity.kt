@@ -20,7 +20,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sound.Domain.repository.SongRepository
+import com.example.sound.Presentation.Activity.MainActivityViewModel
 import com.example.sound.Presentation.AppUi
 import com.example.sound.Presentation.SongsUiState
 import com.example.sound.Presentation.errorScreen.ErrorScreen
@@ -36,49 +39,22 @@ import kotlin.coroutines.cancellation.CancellationException
 
 @AndroidEntryPoint
 class MainActivity() : ComponentActivity() {
-    @Inject
-    lateinit var songRepository: SongRepository
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContent {
+            val viewModel: MainActivityViewModel = viewModel()
+
             SoundTheme {
                 val context = LocalContext.current
-                val coroutineScope = rememberCoroutineScope()
-
-                var songsUiState by remember {
-                    mutableStateOf<SongsUiState>(SongsUiState.Loading)
-                }
-
+                val songsUiState by viewModel.songsUiState.collectAsStateWithLifecycle()
                 val permission =
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         Manifest.permission.READ_MEDIA_AUDIO
                     } else {
                         Manifest.permission.READ_EXTERNAL_STORAGE
                     }
-
-                fun loadSongs() {
-                    coroutineScope.launch {
-                        Log.d(SONGS_DEBUG_TAG, "loadSongs() started")
-                        songsUiState = SongsUiState.Loading
-                        try {
-                            val loadedSongs = withContext(Dispatchers.IO) {
-                                songRepository.getSong()
-                            }
-                            Log.d(
-                                SONGS_DEBUG_TAG,
-                                "loadSongs() returned ${loadedSongs.size} songs"
-                            )
-                            songsUiState = SongsUiState.Success(loadedSongs)
-                        } catch (exception: CancellationException) {
-                            throw exception
-                        } catch (exception: Exception) {
-                            songsUiState = SongsUiState.Error(exception.toString())
-                        }
-                    }
-                }
-
                 val audioPermissionLauncher =
                     rememberLauncherForActivityResult(
                         contract = ActivityResultContracts.RequestPermission()
@@ -93,12 +69,11 @@ class MainActivity() : ComponentActivity() {
                                     "checkSelfPermission=$checkResult"
                         )
                         if (granted) {
-                            loadSongs()
+                            viewModel.loadSongs()
                         } else {
-                            songsUiState = SongsUiState.PermissionDenied
+                            viewModel.permissionDenied()
                         }
                     }
-
                 val appSettingsLauncher =
                     rememberLauncherForActivityResult(
                         contract = ActivityResultContracts.StartActivityForResult()
@@ -110,9 +85,9 @@ class MainActivity() : ComponentActivity() {
                             ) == PackageManager.PERMISSION_GRANTED
 
                         if (permissionGranted) {
-                            loadSongs()
+                            viewModel.loadSongs()
                         } else {
-                            songsUiState = SongsUiState.PermissionDenied
+                            viewModel.permissionDenied()
                         }
                     }
 
@@ -133,11 +108,12 @@ class MainActivity() : ComponentActivity() {
                     )
 
                     if (permissionGranted) {
-                        loadSongs()
+                        viewModel.loadSongs()
                     } else {
                         audioPermissionLauncher.launch(permission)
                     }
                 }
+
                 when (val state = songsUiState) {
                     SongsUiState.Loading -> {
                         LoadingScreen()
@@ -163,7 +139,7 @@ class MainActivity() : ComponentActivity() {
                     is SongsUiState.Error -> {
                         ErrorScreen(
                             onRetry = {
-                                loadSongs()
+                                viewModel.loadSongs()
                             }
                         )
                     }
