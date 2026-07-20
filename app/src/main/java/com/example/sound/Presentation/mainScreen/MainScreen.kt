@@ -121,7 +121,7 @@ fun MainScreen(
                         isUp = currentButton[0].isUp
                     ) {
                         mainViewModel.sortQueueSong(
-                            MainScreenEvents.SortByTitle(currentButton[0].isUp)
+                            MainSortScreenEvents.SortByTitle(currentButton[0].isUp)
                         )
                     }
                 }
@@ -132,7 +132,7 @@ fun MainScreen(
                         isUp = currentButton[1].isUp
                     ) {
                         mainViewModel.sortQueueSong(
-                            MainScreenEvents.SortByArtist(currentButton[1].isUp)
+                            MainSortScreenEvents.SortByArtist(currentButton[1].isUp)
                         )
                     }
                 }
@@ -143,7 +143,7 @@ fun MainScreen(
                         isUp = currentButton[2].isUp
                     ) {
                         mainViewModel.sortQueueSong(
-                            MainScreenEvents.SortByAlbum(currentButton[2].isUp)
+                            MainSortScreenEvents.SortByAlbum(currentButton[2].isUp)
                         )
 
                     }
@@ -155,7 +155,7 @@ fun MainScreen(
                         isUp = currentButton[3].isUp
                     ) {
                         mainViewModel.sortQueueSong(
-                            MainScreenEvents.SortByGenre(currentButton[3].isUp)
+                            MainSortScreenEvents.SortByGenre(currentButton[3].isUp)
                         )
                     }
                 }

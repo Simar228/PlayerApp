@@ -1,6 +1,5 @@
 package com.example.sound.Presentation.mainScreen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.sound.Domain.model.Song
 import com.example.sound.Presentation.mainScreen.components.SortButtonValue
@@ -45,15 +44,11 @@ class MainViewModel() : ViewModel() {
         _songsQueue.value = songs
     }
 
-    init {
-        Log.d(TAG, "Init")
-    }
-
     fun sortQueueSong(
-        sortBy: MainScreenEvents
+        sortBy: MainSortScreenEvents
     ) {
         when (sortBy) {
-            is MainScreenEvents.SortByTitle -> {
+            is MainSortScreenEvents.SortByTitle -> {
                 _currentDirectionOfSort.value = _currentDirectionOfSort.value.choose(0)
                 val isUp = _currentDirectionOfSort.value[0].isUp
                 if (isUp) {
@@ -69,7 +64,7 @@ class MainViewModel() : ViewModel() {
                 }
             }
 
-            is MainScreenEvents.SortByArtist -> {
+            is MainSortScreenEvents.SortByArtist -> {
                 _currentDirectionOfSort.value = _currentDirectionOfSort.value.choose(1)
                 val isUp = _currentDirectionOfSort.value[1].isUp
                 if (isUp) {
@@ -85,7 +80,7 @@ class MainViewModel() : ViewModel() {
                 }
             }
 
-            is MainScreenEvents.SortByAlbum -> {
+            is MainSortScreenEvents.SortByAlbum -> {
                 _currentDirectionOfSort.value = _currentDirectionOfSort.value.choose(2)
                 val isUp = _currentDirectionOfSort.value[2].isUp
                 if (isUp) {
@@ -101,7 +96,7 @@ class MainViewModel() : ViewModel() {
                 }
             }
 
-            is MainScreenEvents.SortByGenre -> {
+            is MainSortScreenEvents.SortByGenre -> {
                 _currentDirectionOfSort.value = _currentDirectionOfSort.value.choose(3)
                 val isUp = _currentDirectionOfSort.value[3].isUp
                 if (isUp) {
@@ -116,14 +111,9 @@ class MainViewModel() : ViewModel() {
                     )
                 }
             }
+
         }
     }
-
-    override fun onCleared() {
-        Log.d(TAG, "onCleared")
-        super.onCleared()
-    }
-
 }
 
 const val TAG = "MainViewModel"
