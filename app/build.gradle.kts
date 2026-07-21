@@ -15,6 +15,10 @@ android {
         version = release(36)
     }
 
+    sourceSets {
+        getByName("androidTest").assets.directories.add("$projectDir/schemas")
+    }
+
     defaultConfig {
         applicationId = "com.example.sound"
         minSdk = 24
@@ -41,6 +45,9 @@ android {
     buildFeatures {
         compose = true
     }
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -50,7 +57,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
     implementation("androidx.navigation:navigation-runtime:2.9.8")
     implementation("androidx.navigation:navigation-compose:2.9.8")
     implementation("com.google.dagger:hilt-android:2.59.2")

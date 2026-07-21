@@ -1,16 +1,22 @@
 package com.example.sound.Presentation.mainScreen
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.sound.Domain.model.Song
 import com.example.sound.Presentation.mainScreen.components.SortButtonValue
 import com.example.sound.Presentation.mainScreen.components.choose
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
 
 
 class MainViewModel() : ViewModel() {
 
 
+    private val _mainNavigationEvents = Channel<MainNavigationEvents>()
+    val mainNavigationEvents = _mainNavigationEvents.receiveAsFlow()
     private val _songsQueue = MutableStateFlow<List<Song>>(emptyList())
     val songsQueue = _songsQueue.asStateFlow()
     private val _currentDirectionOfSort = MutableStateFlow(
@@ -113,6 +119,13 @@ class MainViewModel() : ViewModel() {
             }
 
         }
+    }
+
+    fun openSongMenuBottomSheet(songId: String) {
+        viewModelScope.launch {
+            _mainNavigationEvents.send(MainNavigationEvents.OpenSongMenuBottomSheet(songId))
+        }
+
     }
 }
 

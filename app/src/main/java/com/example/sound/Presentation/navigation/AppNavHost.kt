@@ -11,12 +11,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
 import androidx.navigation.navigation
+import androidx.navigation.toRoute
 import com.example.sound.Domain.model.Song
+import com.example.sound.Presentation.mainScreen.MainNavigationEvents
 import com.example.sound.Presentation.mainScreen.MainScreen
 import com.example.sound.Presentation.mainScreen.MainViewModel
 import com.example.sound.Presentation.playerUi.PlayerViewModel
 import com.example.sound.Presentation.songPage.SongPage
+import com.example.sound.Presentation.utill.SongMenuBottomSheet
 
 @Composable
 fun AppNavHost(
@@ -48,6 +52,15 @@ fun AppNavHost(
 
             composable<Routes.SongsRoute> {
                 val mainViewModel: MainViewModel = viewModel()
+                LaunchedEffect(mainViewModel) {
+                    mainViewModel.mainNavigationEvents.collect { events ->
+                        when(events){
+                            is MainNavigationEvents.OpenSongMenuBottomSheet -> {
+                                navController.navigate(Routes.SongBottomSheet(events.songId))
+                            }
+                        }
+                    }
+                }
                 LaunchedEffect(songs) {
                     mainViewModel.setQueueSong(songs)
                 }
@@ -67,6 +80,56 @@ fun AppNavHost(
             }
         }
 
+        dialog<Routes.SongBottomSheet> { backStackEntry ->
+            val route = backStackEntry.toRoute<Routes.SongBottomSheet>()
+            val song = songs.firstOrNull { it.id == route.songId }
+            if (song == null) {
+                LaunchedEffect(route.songId) {
+                    navController.popBackStack()
+                }
+                return@dialog
+            }
+            SongMenuBottomSheet(
+                isFavorite = false,
+                onDismissRequest = {
+                    navController.popBackStack()
+                },
+
+                onPlayNextClick = {
+                    // playerViewModel.playNext(song)
+                },
+
+                onAddToQueueClick = {
+                    // playerViewModel.addToQueue(song)
+                },
+
+                onFavoriteClick = {
+                    // mainViewModel.toggleFavorite(song.id)
+                },
+
+                onAddToPlaylistClick = {
+                    // открыть выбор плейлиста
+                },
+
+                onArtistClick = {
+                    // navController.navigate(Routes.Artist(song.artist))
+                },
+
+                onAlbumClick = {
+                    // navController.navigate(Routes.Album(song.album))
+                },
+
+                onEditClick = {
+                    // открыть редактирование
+                },
+
+                onShareClick = {
+                    // отправить Intent.ACTION_SEND
+                },
+                song = song
+            )
+        }
+        
         composable<Routes.SongPageRoute> {
             SongPage(
                 viewModel = playerViewModel,

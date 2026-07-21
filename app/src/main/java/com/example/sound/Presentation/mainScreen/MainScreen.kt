@@ -175,7 +175,9 @@ fun MainScreen(
                         onClick = {
                             playerViewModel.sendSong(songs, song)
                         },
-                        onMenuClick = {},
+                        onMenuClick = {
+                            mainViewModel.openSongMenuBottomSheet(song.id)
+                        },
                     )
                 }
                 item {

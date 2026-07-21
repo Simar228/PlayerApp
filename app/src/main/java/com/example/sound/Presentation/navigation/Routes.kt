@@ -6,6 +6,10 @@ sealed interface Routes {
 
 
     @Serializable
+    data class SongBottomSheet(
+        val songId: String
+    ) : Routes
+    @Serializable
     data object MainGraph: Routes
     @Serializable
     data object SongsRoute : Routes

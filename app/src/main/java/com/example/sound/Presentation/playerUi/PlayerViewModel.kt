@@ -25,13 +25,25 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.util.concurrent.Executor
 import javax.inject.Inject
 
 @HiltViewModel
-class PlayerViewModel @Inject constructor(
+class PlayerViewModel internal constructor(
     private val playerQueueRepository: PlayerQueueRepository,
-    @ApplicationContext context: Context
+    private val controllerFuture: ListenableFuture<MediaController>,
+    private val controllerListenerExecutor: Executor
 ) : ViewModel() {
+
+    @Inject
+    constructor(
+        playerQueueRepository: PlayerQueueRepository,
+        @ApplicationContext context: Context
+    ) : this(
+        playerQueueRepository = playerQueueRepository,
+        controllerFuture = createControllerFuture(context),
+        controllerListenerExecutor = ContextCompat.getMainExecutor(context)
+    )
 
 
     private var pendingPlaybackRequest: PendingPlaybackRequest? = null
@@ -40,7 +52,6 @@ class PlayerViewModel @Inject constructor(
             PlayerConnectionState.Connecting
         )
     val connectionState = _connectionState.asStateFlow()
-    private val controllerFuture: ListenableFuture<MediaController>
     private var positionUpdatesJob: Job? = null
     private var controller: MediaController? = null
     private val _isPlaying = MutableStateFlow(false)
@@ -81,12 +92,6 @@ class PlayerViewModel @Inject constructor(
 
     init {
         Log.d(TAG, "ViewModelStarted")
-        val sessionToken = SessionToken(
-            context,
-            ComponentName(context, PlaybackService::class.java)
-        )
-        controllerFuture = MediaController.Builder(context, sessionToken)
-            .buildAsync()
         controllerFuture.addListener(
             {
                 try {
@@ -111,7 +116,7 @@ class PlayerViewModel @Inject constructor(
                     _connectionState.value = PlayerConnectionState.Error(error)
                 }
             },
-            ContextCompat.getMainExecutor(context)
+            controllerListenerExecutor
         )
     }
 
@@ -219,6 +224,18 @@ class PlayerViewModel @Inject constructor(
     fun stopPositionUpdates() {
         positionUpdatesJob?.cancel()
         positionUpdatesJob = null
+    }
+
+    private companion object {
+        fun createControllerFuture(context: Context): ListenableFuture<MediaController> {
+            val sessionToken = SessionToken(
+                context,
+                ComponentName(context, PlaybackService::class.java)
+            )
+
+            return MediaController.Builder(context, sessionToken)
+                .buildAsync()
+        }
     }
 
 }
