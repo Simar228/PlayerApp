@@ -13,17 +13,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.sound.Domain.repository.SongRepository
-import com.example.sound.Presentation.Activity.MainActivityViewModel
+import com.example.sound.Presentation.activity.MainActivityViewModel
 import com.example.sound.Presentation.AppUi
 import com.example.sound.Presentation.SongsUiState
 import com.example.sound.Presentation.errorScreen.ErrorScreen
@@ -31,11 +26,6 @@ import com.example.sound.Presentation.loadingScreen.LoadingScreen
 import com.example.sound.Presentation.permissionScreen.PermissionScreen
 import com.example.sound.ui.theme.SoundTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import kotlin.coroutines.cancellation.CancellationException
 
 @AndroidEntryPoint
 class MainActivity() : ComponentActivity() {

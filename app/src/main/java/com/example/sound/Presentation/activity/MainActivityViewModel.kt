@@ -1,6 +1,5 @@
-package com.example.sound.Presentation.Activity
+package com.example.sound.Presentation.activity
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sound.Domain.repository.SongRepository
@@ -34,16 +33,11 @@ class MainActivityViewModel @Inject constructor(
             return
         }
         loadSongsJob = viewModelScope.launch {
-            Log.d(TAG, "loadSongs() started")
             _songsUiState.value = SongsUiState.Loading
             try {
                 val loadedSongs = withContext(Dispatchers.IO) {
                     songRepository.getSong()
                 }
-                Log.d(
-                    TAG,
-                    "loadSongs() returned ${loadedSongs.size} songs"
-                )
                 _songsUiState.value = SongsUiState.Success(loadedSongs)
             } catch (exception: CancellationException) {
                 throw exception
@@ -53,5 +47,3 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 }
-
-const val TAG = "MainActivityViewModel"
