@@ -20,7 +20,16 @@ class PlayerQueueRepositoryImpl @Inject constructor(
     private val playerStateDao: PlayerStateDao
 ) : PlayerQueueRepository {
 
-    override suspend fun insertSongById(song: Song, position: Int) {
+
+    override suspend fun clearQueue() {
+        queueDao.clearQueue()
+    }
+
+    override suspend fun insertQueueItem(item: QueueItem) {
+        queueDao.insertQueueItem(item.toEntity())
+    }
+
+    override suspend fun insertSongByIndex(song: Song, position: Int) {
         val queueItemEntity = song.toQueueItem(position)
         val songList = queueDao.getQueue()
             .toMutableList()

@@ -19,7 +19,7 @@ interface QueueDao {
     suspend fun getQueue(): List<QueueItemEntity>
 
     @Insert
-    suspend fun insertQueueItem(item: QueueItemEntity): Long
+    suspend fun insertQueueItem(item: QueueItemEntity)
 
     @Insert
     suspend fun insertQueueItems(items: List<QueueItemEntity>)

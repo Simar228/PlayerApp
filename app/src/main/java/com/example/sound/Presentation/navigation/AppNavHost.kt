@@ -20,7 +20,12 @@ import com.example.sound.Presentation.mainScreen.MainScreen
 import com.example.sound.Presentation.mainScreen.MainViewModel
 import com.example.sound.Presentation.playerUi.PlayerViewModel
 import com.example.sound.Presentation.songPage.SongPage
-import com.example.sound.Presentation.utill.SongMenuBottomSheet
+import com.example.sound.Presentation.songQueue.SongQueueScreen
+import com.example.sound.Presentation.mainScreen.components.SongMenuBottomSheet
+import androidx.compose.runtime.collectAsState
+import com.example.sound.Domain.repository.PlayerQueueRepository
+import com.example.sound.Presentation.songQueue.SongQueueViewModel
+import javax.inject.Inject
 
 @Composable
 fun AppNavHost(
@@ -29,6 +34,8 @@ fun AppNavHost(
     songs: List<Song>,
     modifier: Modifier = Modifier,
 ) {
+    val songQueueViewModel: SongQueueViewModel = viewModel()
+
 
     NavHost(
         navController = navController,
@@ -66,7 +73,7 @@ fun AppNavHost(
                 }
                 MainScreen(
                     mainViewModel = mainViewModel,
-                    modifier = Modifier,
+                    modifier = modifier,
                     playerViewModel = playerViewModel
                 )
             }
@@ -76,7 +83,17 @@ fun AppNavHost(
             }
 
             composable<Routes.QueueRoute> {
-                Log.d("Navigation", "queue is open")
+
+                SongQueueScreen(
+                    currentSong = playerViewModel.currentSong.collectAsState().value,
+                    currentSongQueue = songQueueViewModel.sonqQueue.collectAsState().value,
+                    onBackClick = { navController.popBackStack() },
+                    onClearClick = { songQueueViewModel.clearSongQueue() },
+                    onSongClick = {},
+                    onShuffleClick = {},
+                    onSaveQueueClick = {  },
+                    modifier = modifier
+                )
             }
         }
 
@@ -96,11 +113,11 @@ fun AppNavHost(
                 },
 
                 onPlayNextClick = {
-                    // playerViewModel.playNext(song)
+                    songQueueViewModel.chooseNextSong(song)
                 },
 
                 onAddToQueueClick = {
-                    // playerViewModel.addToQueue(song)
+                    songQueueViewModel.addSongToQueue(song)
                 },
 
                 onFavoriteClick = {
