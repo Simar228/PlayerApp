@@ -1,11 +1,9 @@
 package com.example.sound.Presentation.songQueue
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sound.Data.local.queue.QueueItemEntity
-import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.model.Song
-import com.example.sound.Domain.model.toQueueItem
 import com.example.sound.Domain.model.toSong
 import com.example.sound.Domain.repository.PlayerQueueRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,6 +21,9 @@ class SongQueueViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            _songQueue.value = playerQueueRepository.getQueue()
+                .sortedBy { it.position }
+                .map { it.toSong() }
             playerQueueRepository.observeQueue().collect { queue ->
                 _songQueue.value = queue
                     .sortedBy { it.position }
@@ -31,16 +32,18 @@ class SongQueueViewModel @Inject constructor(
         }
     }
 
-    fun clearSongQueue(){
+    fun clearSongQueue() {
         viewModelScope.launch {
             playerQueueRepository.clearQueue()
         }
     }
-    fun addSongToQueue(song: Song){
+
+    fun addSongToQueue(song: Song) {
         viewModelScope.launch {
             playerQueueRepository.insertSong(song)
         }
     }
+
     fun chooseNextSong(song: Song) {
         viewModelScope.launch {
             playerQueueRepository.insertSongByIndex(

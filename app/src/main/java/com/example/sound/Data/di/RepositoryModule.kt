@@ -1,10 +1,10 @@
 package com.example.sound.Data.di
 
-import androidx.compose.runtime.internal.DecoyImplementation
-import com.example.sound.Data.local.queue.QueueItemEntity
 import com.example.sound.Data.repository.PlayerQueueRepositoryImpl
+import com.example.sound.Data.repository.PlayerStateRepositoryImpl
 import com.example.sound.Data.repository.SongRepositoryImpl
 import com.example.sound.Domain.repository.PlayerQueueRepository
+import com.example.sound.Domain.repository.PlayerStateRepository
 import com.example.sound.Domain.repository.SongRepository
 import dagger.Binds
 import dagger.Module
@@ -17,6 +17,12 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
 
+
+    @Binds
+    @Singleton
+    abstract fun bingPlayerStateRepository(
+        implementation: PlayerStateRepositoryImpl
+    ): PlayerStateRepository
     @Binds
     @Singleton
     abstract fun bindSongRepository(

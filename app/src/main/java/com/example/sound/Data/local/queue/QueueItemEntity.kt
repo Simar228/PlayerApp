@@ -14,7 +14,6 @@ data class QueueItemEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
 
-    @ColumnInfo(defaultValue = "''")
     val songId: String,
     val songUri: String,
     val position: Int,

@@ -19,10 +19,4 @@ interface PlayerQueueRepository {
 
     suspend fun getQueue(): List<QueueItem>
 
-    suspend fun savePlayerState(
-        currentQueueItemId: Long?,
-        positionMs: Long
-    )
-
-    suspend fun getPlayerState(): PlayerState?
 }

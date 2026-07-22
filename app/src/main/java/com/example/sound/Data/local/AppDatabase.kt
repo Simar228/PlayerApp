@@ -13,22 +13,11 @@ import com.example.sound.Data.local.queue.QueueItemEntity
         QueueItemEntity::class,
         PlayerStateEntity::class
     ],
-    version = 2
+    version = 1
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun queueDao(): QueueDao
 
     abstract fun playerStateDao(): PlayerStateDao
-    companion object {
-        val MIGRATION_1_2 = Migration(1, 2) { database ->
-            database.execSQL(
-                "ALTER TABLE queue_items " +
-                        "ADD COLUMN songId TEXT NOT NULL DEFAULT ''"
-            )
-
-            database.execSQL("DELETE FROM queue_items")
-            database.execSQL("DELETE FROM player_state")
-        }
-    }
 }

@@ -44,11 +44,13 @@ class PlayerQueueRepositoryImpl @Inject constructor(
     override suspend fun insertSongByIndex(song: Song, position: Int) {
         val queueItemEntity = song.toQueueItem(position)
         val songList = queueDao.getQueue()
+        val safePosition = position.coerceIn(0,songList.size)
+        val updatedList = songList
             .toMutableList()
             .apply {
-                add(position, queueItemEntity.toEntity())
+                add(safePosition, queueItemEntity.toEntity())
             }
-        val reindexedList = songList.mapIndexed { index, item ->
+        val reindexedList = updatedList.mapIndexed { index, item ->
             item.copy(position = index)
         }
         queueDao.replaceQueue(reindexedList)
@@ -73,24 +75,4 @@ class PlayerQueueRepositoryImpl @Inject constructor(
         queueDao.replaceQueue(entities)
     }
 
-    override suspend fun savePlayerState(
-        currentQueueItemId: Long?,
-        positionMs: Long
-    ) {
-        playerStateDao.savePlayerState(
-            PlayerStateEntity(
-                currentQueueItemId = currentQueueItemId,
-                positionMs = positionMs
-            )
-        )
-    }
-
-    override suspend fun getPlayerState(): PlayerState? {
-        return playerStateDao.getPlayerState()?.let {
-            PlayerState(
-                currentQueueItemId = it.currentQueueItemId,
-                positionMs = it.positionMs
-            )
-        }
-    }
 }

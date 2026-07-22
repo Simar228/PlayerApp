@@ -20,4 +20,5 @@ interface PlayerStateDao {
 
     @Query("DELETE FROM player_state")
     suspend fun clearPlayerState()
+
 }

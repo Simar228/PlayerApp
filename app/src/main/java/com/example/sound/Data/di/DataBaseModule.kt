@@ -26,7 +26,6 @@ object DatabaseModule {
             AppDatabase::class.java,
             "sound_database"
         )
-            .addMigrations(AppDatabase.MIGRATION_1_2)
             .build()
     }
 

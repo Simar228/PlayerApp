@@ -3,6 +3,7 @@ package com.example.sound.Presentation.playerUi
 import android.content.ComponentName
 import android.content.Context
 import android.net.Uri
+import android.os.Bundle
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
@@ -13,8 +14,10 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
+import com.example.sound.Domain.model.PlayerState
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.PlayerQueueRepository
+import com.example.sound.Domain.repository.PlayerStateRepository
 import com.example.sound.service.PlaybackService
 import com.google.common.util.concurrent.ListenableFuture
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,6 +33,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PlayerViewModel internal constructor(
+    private val playerStateRepository: PlayerStateRepository,
     private val playerQueueRepository: PlayerQueueRepository,
     private val controllerFuture: ListenableFuture<MediaController>,
     private val controllerListenerExecutor: Executor
@@ -37,9 +41,11 @@ class PlayerViewModel internal constructor(
 
     @Inject
     constructor(
+        playerStateRepository: PlayerStateRepository,
         playerQueueRepository: PlayerQueueRepository,
         @ApplicationContext context: Context
     ) : this(
+        playerStateRepository = playerStateRepository,
         playerQueueRepository = playerQueueRepository,
         controllerFuture = createControllerFuture(context),
         controllerListenerExecutor = ContextCompat.getMainExecutor(context)
@@ -72,11 +78,13 @@ class PlayerViewModel internal constructor(
             _currentSong.value = mediaItem?.toSong()
             _currentPosition.value = 0L
             updateDuration()
+            savePlayerState()
         }
 
 
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             _isPlaying.value = isPlaying
+            savePlayerState()
         }
 
         override fun onPlaybackStateChanged(playbackState: Int) {
@@ -86,11 +94,22 @@ class PlayerViewModel internal constructor(
             if (playbackState == Player.STATE_ENDED) {
                 _currentPosition.value = _duration.value
             }
-
+            savePlayerState()
         }
     }
 
     init {
+        viewModelScope.launch {
+            val playerState = playerStateRepository.getPlayerState()
+            Log.d(TAG, playerState.toString())
+            playerState?.currentSong?.let {
+                sendSong(
+                    listOf(
+                        playerState.currentSong
+                    ), playerState.currentSong
+                )
+            }
+        }
         Log.d(TAG, "ViewModelStarted")
         controllerFuture.addListener(
             {
@@ -139,6 +158,12 @@ class PlayerViewModel internal constructor(
                         .setTitle(song.title)
                         .setArtist(song.artist)
                         .setArtworkUri(song.art)
+                        .setDurationMs(song.duration)
+                        .setGenre(song.genre)
+                        .setAlbumTitle(song.album)
+                        .setExtras(Bundle().apply {
+                            putBoolean("defautlQueue", false)
+                        })
                         .build()
                 )
                 .build()
@@ -165,6 +190,7 @@ class PlayerViewModel internal constructor(
                     queueSongs = queueSongs,
                     selectedSong = song
                 )
+                Log.d(TAG, pendingPlaybackRequest.toString())
             }
 
             PlayerConnectionState.Ready -> {
@@ -238,6 +264,18 @@ class PlayerViewModel internal constructor(
 
             return MediaController.Builder(context, sessionToken)
                 .buildAsync()
+        }
+    }
+
+    private fun savePlayerState() {
+        viewModelScope.launch {
+            playerStateRepository.setPlayerState(
+                PlayerState(
+                    positionMs = _currentPosition.value,
+                    defaultQueue = false,
+                    currentSong = _currentSong.value
+                )
+            )
         }
     }
 
