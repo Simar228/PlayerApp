@@ -13,9 +13,7 @@ data class PlayerStateEntity(
     @PrimaryKey
     val id: Int = 0,
 
-    val positionMs: Long?,
     val defaultQueue: Boolean,
-
     val currentSongId: String?,
     val currentSongUri: String?,
     val currentSongTitle: String?,
@@ -28,7 +26,6 @@ data class PlayerStateEntity(
 
 fun PlayerState.toEntity(): PlayerStateEntity{
     return PlayerStateEntity(
-        positionMs = positionMs,
         defaultQueue = defaultQueue,
         currentSongId = currentSong?.id,
         currentSongUri = currentSong?.uri.toString(),
@@ -37,20 +34,19 @@ fun PlayerState.toEntity(): PlayerStateEntity{
         currentSongDuration = currentSong?.duration,
         currentSongAlbum = currentSong?.album,
         currentSongGenre = currentSong?.genre,
-        currentSongArtUri = currentSong?.art.toString()
+        currentSongArtUri = currentSong?.art.toString(),
     )
 }
 
 fun PlayerStateEntity.toDomain(): PlayerState{
     return PlayerState(
-        positionMs = positionMs,
         defaultQueue = defaultQueue,
         currentSong = if (currentSongUri == null) null else Song(
-            id = currentSongId ?: "",
+            id = currentSongId ?: "null",
             title = currentSongTitle,
             artist = currentSongArtist,
             duration = currentSongDuration ?: 0,
-            uri = currentSongUri?.toUri() ?: Uri.EMPTY,
+            uri = currentSongUri.toUri(),
             album = currentSongAlbum,
             genre = currentSongGenre,
             art = currentSongArtUri?.toUri()

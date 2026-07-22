@@ -54,6 +54,7 @@ import com.example.sound.Domain.model.toSong
 
 @Composable
 fun SongQueueScreen(
+    currentSong: Song?,
     modifier: Modifier,
     viewModel: SongQueueViewModel,
     onBackClick: () -> Unit = {},
@@ -79,12 +80,13 @@ fun SongQueueScreen(
                 style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.padding(start = 14.dp, top = 6.dp, bottom = 4.dp)
             )
-
-            MusicQueueCard(
-                song = currentSongQueue[0],
-                onClick = {},
-                onMenuClick = {},
-            )
+            currentSong?.let {
+                MusicQueueCard(
+                    song = currentSong,
+                    onClick = {},
+                    onMenuClick = {},
+                )
+            }
 
             HorizontalDivider(
                 modifier = Modifier.padding(horizontal = 14.dp),
@@ -103,7 +105,7 @@ fun SongQueueScreen(
                 contentPadding = PaddingValues(bottom = 8.dp)
             ) {
                 items(
-                    items = currentSongQueue.drop(1),
+                    items = currentSongQueue,
                     key = {"${it.id}:${it.uri}" }
                 ) { song ->
                     MusicQueueCard(

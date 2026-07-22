@@ -1,20 +1,31 @@
 package com.example.sound.Data.local.defualtQueue
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.Query
+import androidx.room.Transaction
+import com.example.sound.Data.local.queue.QueueItemEntity
+import kotlinx.coroutines.flow.Flow
 
-@Entity(tableName = "defaultQueue_items")
-class DefaultQueueDao (
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
 
-    val songId: String,
-    val songUri: String,
-    val position: Int,
-    val title: String?,
-    val artist: String?,
-    val duration: Long,
-    val album: String?,
-    val genre: String?,
-    val artUri: String?
-)
+@Dao
+interface DefaultQueueDao{
+    @Insert
+    suspend fun insertDefaultQueueItems(items: List<DefaultQueueItemEntity>)
+
+    @Query("DELETE FROM defaultQueue_items")
+    suspend fun clearDefaultQueue()
+
+    @Query("SELECT * FROM defaultQueue_items ORDER BY position ASC")
+    fun observeDefaultQueue(): Flow<List<DefaultQueueItemEntity>>
+
+    @Query("SELECT * FROM defaultQueue_items ORDER BY position ASC")
+    suspend fun getDefaultQueue(): List<DefaultQueueItemEntity>
+
+    @Transaction
+    suspend fun replaceDefaultQueue(items: List<DefaultQueueItemEntity>) {
+        clearDefaultQueue()
+        insertDefaultQueueItems(items)
+    }
+}

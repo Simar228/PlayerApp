@@ -14,8 +14,10 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import com.example.sound.Domain.model.PlayerState
+import com.example.sound.Data.local.defualtQueue.toSong
 import com.example.sound.Domain.model.Song
+import com.example.sound.Domain.model.toSong
+import com.example.sound.Domain.repository.DefaultQueueRepository
 import com.example.sound.Domain.repository.PlayerQueueRepository
 import com.example.sound.Domain.repository.PlayerStateRepository
 import com.example.sound.service.PlaybackService
@@ -36,15 +38,18 @@ class PlayerViewModel internal constructor(
     private val playerStateRepository: PlayerStateRepository,
     private val playerQueueRepository: PlayerQueueRepository,
     private val controllerFuture: ListenableFuture<MediaController>,
-    private val controllerListenerExecutor: Executor
+    private val controllerListenerExecutor: Executor,
+    private val defaultQueueRepository: DefaultQueueRepository
 ) : ViewModel() {
 
     @Inject
     constructor(
+        defaultQueueRepository: DefaultQueueRepository,
         playerStateRepository: PlayerStateRepository,
         playerQueueRepository: PlayerQueueRepository,
         @ApplicationContext context: Context
     ) : this(
+        defaultQueueRepository = defaultQueueRepository,
         playerStateRepository = playerStateRepository,
         playerQueueRepository = playerQueueRepository,
         controllerFuture = createControllerFuture(context),
@@ -78,13 +83,11 @@ class PlayerViewModel internal constructor(
             _currentSong.value = mediaItem?.toSong()
             _currentPosition.value = 0L
             updateDuration()
-            savePlayerState()
         }
 
 
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             _isPlaying.value = isPlaying
-            savePlayerState()
         }
 
         override fun onPlaybackStateChanged(playbackState: Int) {
@@ -94,23 +97,12 @@ class PlayerViewModel internal constructor(
             if (playbackState == Player.STATE_ENDED) {
                 _currentPosition.value = _duration.value
             }
-            savePlayerState()
         }
     }
 
     init {
-        viewModelScope.launch {
-            val playerState = playerStateRepository.getPlayerState()
-            Log.d(TAG, playerState.toString())
-            playerState?.currentSong?.let {
-                sendSong(
-                    listOf(
-                        playerState.currentSong
-                    ), playerState.currentSong
-                )
-            }
-        }
         Log.d(TAG, "ViewModelStarted")
+        launchOldSong()
         controllerFuture.addListener(
             {
                 try {
@@ -145,10 +137,10 @@ class PlayerViewModel internal constructor(
     }
 
     private fun playSong(queueSongs: List<Song>, selectedSong: Song) {
-        viewModelScope.launch {
-            playerQueueRepository.setCurrentSong(selectedSong)
-        }
         Log.d(TAG, "Get song: ${selectedSong.title}")
+        viewModelScope.launch {
+            defaultQueueRepository.updateDefaultQueue(queueSongs)
+        }
         val mediaItems = queueSongs.map { song ->
             MediaItem.Builder()
                 .setMediaId(song.id)
@@ -267,17 +259,24 @@ class PlayerViewModel internal constructor(
         }
     }
 
-    private fun savePlayerState() {
+    private fun launchOldSong() {
         viewModelScope.launch {
-            playerStateRepository.setPlayerState(
-                PlayerState(
-                    positionMs = _currentPosition.value,
-                    defaultQueue = false,
-                    currentSong = _currentSong.value
+            val playerState = playerStateRepository.getPlayerState()
+            Log.d(TAG, playerState.toString())
+            playerState?.currentSong?.let {
+                Log.d(TAG, playerState.defaultQueue.toString())
+                val currentSongList = if
+                        (playerState.defaultQueue) defaultQueueRepository.getDefaultQueue().map { it.toSong() }
+                    else
+                        playerQueueRepository.getQueue().map { it.toSong() }
+                Log.d(TAG, "То что нужно мне - ${currentSongList.toString()} состояние ${playerState.defaultQueue}")
+                sendSong(
+                    currentSongList, playerState.currentSong
                 )
-            )
+            }
         }
     }
+
 
 }
 
@@ -286,7 +285,7 @@ private fun MediaItem.toSong(): Song {
         id = mediaId,
         title = mediaMetadata.title?.toString().orEmpty(),
         artist = mediaMetadata.artist?.toString().orEmpty(),
-        duration = 0L,
+        duration = mediaMetadata.durationMs?.toLong() ?: 0,
         uri = localConfiguration?.uri
             ?: Uri.EMPTY,
         album = mediaMetadata.albumTitle?.toString().orEmpty(),

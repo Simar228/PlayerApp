@@ -3,6 +3,7 @@ package com.example.sound.Data.di
 import android.content.Context
 import androidx.room.Room
 import com.example.sound.Data.local.AppDatabase
+import com.example.sound.Data.local.defualtQueue.DefaultQueueDao
 import com.example.sound.Data.local.playerstate.PlayerStateDao
 import com.example.sound.Data.local.queue.QueueDao
 import dagger.Module
@@ -29,6 +30,11 @@ object DatabaseModule {
             .build()
     }
 
+
+    @Provides
+    fun provideDefaultQueueDao(database: AppDatabase): DefaultQueueDao {
+        return database.defaultQueueDao()
+    }
     @Provides
     fun provideQueueDao(database: AppDatabase): QueueDao {
         return database.queueDao()

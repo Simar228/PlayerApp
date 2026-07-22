@@ -1,6 +1,7 @@
 package com.example.sound.service
 import android.net.Uri
 import android.util.Log
+import androidx.lifecycle.viewModelScope
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -9,13 +10,17 @@ import androidx.media3.common.Timeline
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
+import androidx.room.Query
 import com.example.sound.Domain.model.PlayerState
 import com.example.sound.Domain.model.Song
+import com.example.sound.Domain.model.toSong
+import com.example.sound.Domain.repository.PlayerQueueRepository
 import com.example.sound.Domain.repository.PlayerStateRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,10 +29,15 @@ class PlaybackService : MediaSessionService() {
     private lateinit var player: ExoPlayer
 
     @Inject
+    lateinit var playerQueueRepository: PlayerQueueRepository
+    @Inject
     lateinit var playerStateRepository: PlayerStateRepository
     private var mediaSession: MediaSession? = null
 
     private val serviceScope = CoroutineScope(
+        SupervisorJob() + Dispatchers.Main.immediate
+    )
+    private val serviceScopeForQueue = CoroutineScope(
         SupervisorJob() + Dispatchers.Main.immediate
     )
 
@@ -86,9 +96,14 @@ class PlaybackService : MediaSessionService() {
             .apply {
                 repeatMode = Player.REPEAT_MODE_ALL
                 setHandleAudioBecomingNoisy(true)
+                addListener(playerListener)
             }
         mediaSession = MediaSession.Builder(this, player)
             .build()
+        serviceScopeForQueue.launch {
+
+        }
+
     }
 
     override fun onGetSession(
@@ -107,7 +122,6 @@ class PlaybackService : MediaSessionService() {
     }
     private fun savePlayerState() {
         val mediaItem = player.currentMediaItem ?: return
-
         val id = mediaItem.mediaId
         val uri = mediaItem.localConfiguration?.uri
         val metadata = mediaItem.mediaMetadata
@@ -118,12 +132,11 @@ class PlaybackService : MediaSessionService() {
         val genre = metadata.genre
         val album = metadata.albumTitle
 
-        val defaultQueue = metadata.extras
-            ?.getBoolean("defaultQueue", false)
-            ?: false
-        val positionMs = player.currentPosition
-
         serviceScope.launch(Dispatchers.IO) {
+            val queue = playerQueueRepository.observeQueue().first()
+            val defaultQueue = queue.isEmpty()
+
+
             playerStateRepository.setPlayerState(
                 PlayerState(
                     currentSong = Song(
@@ -136,12 +149,9 @@ class PlaybackService : MediaSessionService() {
                         genre = genre.toString(),
                         art = artworkUri
                     ),
-                    positionMs = positionMs,
                     defaultQueue = defaultQueue
                 )
             )
         }
     }
-
-
 }

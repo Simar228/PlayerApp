@@ -1,12 +1,9 @@
 package com.example.sound.Data.repository
 
 import com.example.sound.Data.local.playerstate.PlayerStateDao
-import com.example.sound.Data.local.playerstate.PlayerStateEntity
 import com.example.sound.Data.local.queue.QueueDao
-import com.example.sound.Data.local.queue.QueueItemEntity
 import com.example.sound.Data.local.queue.toDomain
 import com.example.sound.Data.local.queue.toEntity
-import com.example.sound.Domain.model.PlayerState
 import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.model.toQueueItem
@@ -14,7 +11,6 @@ import com.example.sound.Domain.repository.PlayerQueueRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
-import kotlin.math.max
 
 class PlayerQueueRepositoryImpl @Inject constructor(
     private val queueDao: QueueDao,

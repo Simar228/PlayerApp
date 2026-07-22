@@ -23,6 +23,7 @@ import com.example.sound.Presentation.songPage.SongPage
 import com.example.sound.Presentation.songQueue.SongQueueScreen
 import com.example.sound.Presentation.mainScreen.components.SongMenuBottomSheet
 import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.sound.Domain.repository.PlayerQueueRepository
 import com.example.sound.Presentation.songQueue.SongQueueViewModel
 import javax.inject.Inject
@@ -35,7 +36,6 @@ fun AppNavHost(
     modifier: Modifier = Modifier,
 ) {
     val songQueueViewModel: SongQueueViewModel = viewModel()
-
 
     NavHost(
         navController = navController,
@@ -84,6 +84,7 @@ fun AppNavHost(
 
             composable<Routes.QueueRoute> {
                 SongQueueScreen(
+                    currentSong = playerViewModel.currentSong.collectAsStateWithLifecycle().value,
                     viewModel = songQueueViewModel,
                     onBackClick = { navController.popBackStack() },
                     onClearClick = { songQueueViewModel.clearSongQueue() },
