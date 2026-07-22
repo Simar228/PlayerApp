@@ -14,6 +14,7 @@ import com.example.sound.Domain.repository.PlayerQueueRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import kotlin.math.max
 
 class PlayerQueueRepositoryImpl @Inject constructor(
     private val queueDao: QueueDao,
@@ -21,12 +22,23 @@ class PlayerQueueRepositoryImpl @Inject constructor(
 ) : PlayerQueueRepository {
 
 
+    override suspend fun setCurrentSong(song: Song) {
+        val currentQueueList = queueDao.getQueue().mapIndexed { index, item ->
+            if(index == 0) song.toQueueItem(0).toEntity() else item
+        }
+        queueDao.replaceQueue(currentQueueList)
+    }
+
+
     override suspend fun clearQueue() {
         queueDao.clearQueue()
     }
 
-    override suspend fun insertQueueItem(item: QueueItem) {
-        queueDao.insertQueueItem(item.toEntity())
+    override suspend fun insertSong(song: Song) {
+        val queueItems = queueDao.getQueue()
+        val nextPosition: Int = (queueItems.maxOfOrNull { it.position } ?: -1) + 1
+        val currentQueueItem = song.toQueueItem(nextPosition)
+        queueDao.insertQueueItem(currentQueueItem.toEntity())
     }
 
     override suspend fun insertSongByIndex(song: Song, position: Int) {

@@ -8,10 +8,11 @@ import kotlinx.coroutines.flow.Flow
 
 interface PlayerQueueRepository {
 
+    suspend fun setCurrentSong(song: Song)
     suspend fun clearQueue()
-    suspend fun insertQueueItem(item: QueueItem)
+    suspend fun insertSong(song: Song)
 
-    suspend fun insertSongByIndex(song: Song, index: Int)
+    suspend fun insertSongByIndex(song: Song, position: Int)
     fun observeQueue(): Flow<List<QueueItem>>
 
     suspend fun saveQueue(queue: List<QueueItem>)

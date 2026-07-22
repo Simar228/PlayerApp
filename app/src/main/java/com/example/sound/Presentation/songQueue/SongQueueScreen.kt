@@ -33,6 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,23 +43,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.SubcomposeAsyncImage
 import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.model.toQueueItem
+import com.example.sound.Domain.model.toSong
 
 
 @Composable
 fun SongQueueScreen(
     modifier: Modifier,
-    currentSong: Song?,
-    currentSongQueue: List<QueueItem>,
+    viewModel: SongQueueViewModel,
     onBackClick: () -> Unit = {},
     onClearClick: () -> Unit = {},
     onSongClick: (Song) -> Unit = {},
     onShuffleClick: () -> Unit = {},
     onSaveQueueClick: () -> Unit = {}
 ) {
+
+    val currentSongQueue by viewModel.sonqQueue.collectAsStateWithLifecycle()
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -76,7 +81,7 @@ fun SongQueueScreen(
             )
 
             MusicQueueCard(
-                song = currentSong!!,
+                song = currentSongQueue[0],
                 onClick = {},
                 onMenuClick = {},
             )
@@ -98,11 +103,11 @@ fun SongQueueScreen(
                 contentPadding = PaddingValues(bottom = 8.dp)
             ) {
                 items(
-                    items = currentSongQueue,
-                    key = { it -> "${it.song.id}:${it.song.uri}" }
-                ) { queueItem ->
+                    items = currentSongQueue.drop(1),
+                    key = {"${it.id}:${it.uri}" }
+                ) { song ->
                     MusicQueueCard(
-                        song = queueItem.song,
+                        song = song,
                         onClick = {},
                         onMenuClick = {},
                     )
@@ -226,51 +231,4 @@ private fun QueueAction(
     }
 }
 
-@Preview(
-    name = "Очередь песен",
-    showBackground = true,
-    backgroundColor = 0xFF071117,
-    widthDp = 360,
-    heightDp = 760
-)
-@Composable
-private fun SongQueueScreenPreview() {
-    val currentSong = previewSong(
-        id = "current",
-        title = "Numb",
-        artist = "Linkin Park"
-    )
-    val queue = listOf(
-        previewSong("1", "Faint", "Linkin Park"),
-        previewSong("2", "Somewhere I Belong", "Linkin Park"),
-        previewSong("3", "In the End", "Linkin Park"),
-        previewSong("4", "Breaking the Habit", "Linkin Park"),
-        previewSong("5", "New Divide", "Linkin Park"),
-        previewSong("6", "Crawling", "Linkin Park")
-    )
-    val normalList = queue.mapIndexed {index, it->
-        it.toQueueItem(index) }
 
-    MaterialTheme {
-        SongQueueScreen(
-            currentSong = currentSong,
-            currentSongQueue = normalList,
-            modifier = Modifier
-        )
-    }
-}
-
-private fun previewSong(
-    id: String,
-    title: String,
-    artist: String
-) = Song(
-    id = id,
-    title = title,
-    artist = artist,
-    duration = 180_000L,
-    uri = Uri.EMPTY,
-    album = null,
-    genre = null,
-    art = null
-)

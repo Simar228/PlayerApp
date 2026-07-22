@@ -126,6 +126,9 @@ class PlayerViewModel internal constructor(
     }
 
     private fun playSong(queueSongs: List<Song>, selectedSong: Song) {
+        viewModelScope.launch {
+            playerQueueRepository.setCurrentSong(selectedSong)
+        }
         Log.d(TAG, "Get song: ${selectedSong.title}")
         val mediaItems = queueSongs.map { song ->
             MediaItem.Builder()
