@@ -24,18 +24,18 @@ class SongQueueViewModel @Inject constructor(
     val isDefaultQueue = _isDefaultQueue.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            _songQueue.value = playerQueueRepository.getQueue()
-                .sortedBy { it.position }
-                .map { it.toSong() }
-            playerQueueRepository.observeQueue().collect { queue ->
-                _isDefaultQueue.value = queue.isEmpty()
-                Log.d(TAG, _isDefaultQueue.value.toString())
-                _songQueue.value = queue
-                    .sortedBy { it.position }
-                    .map { it.toSong() }
-            }
-        }
+//        viewModelScope.launch {
+//            _songQueue.value = playerQueueRepository.getQueue()
+//                .sortedBy { it.position }
+//                .map { it.toSong() }
+//            playerQueueRepository.observeQueue().collect { queue ->
+//                _isDefaultQueue.value = queue.isEmpty()
+//                Log.d(TAG, _isDefaultQueue.value.toString())
+//                _songQueue.value = queue
+//                    .sortedBy { it.position }
+//                    .map { it.toSong() }
+//            }
+//        }
     }
 
     fun clearSongQueue() {

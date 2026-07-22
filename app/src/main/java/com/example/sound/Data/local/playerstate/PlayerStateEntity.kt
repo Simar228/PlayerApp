@@ -14,11 +14,11 @@ data class PlayerStateEntity(
     val id: Int = 0,
 
     val defaultQueue: Boolean,
-    val currentSongId: String?,
-    val currentSongUri: String?,
-    val currentSongTitle: String?,
+    val currentSongId: String,
+    val currentSongUri: String,
+    val currentSongTitle: String,
     val currentSongArtist: String?,
-    val currentSongDuration: Long?,
+    val currentSongDuration: Long,
     val currentSongAlbum: String?,
     val currentSongGenre: String?,
     val currentSongArtUri: String?
@@ -27,11 +27,11 @@ data class PlayerStateEntity(
 fun PlayerState.toEntity(): PlayerStateEntity{
     return PlayerStateEntity(
         defaultQueue = defaultQueue,
-        currentSongId = currentSong?.id,
+        currentSongId = currentSong?.id ?: "null",
         currentSongUri = currentSong?.uri.toString(),
-        currentSongTitle = currentSong?.title,
+        currentSongTitle = currentSong?.title ?: "null",
         currentSongArtist = currentSong?.artist,
-        currentSongDuration = currentSong?.duration,
+        currentSongDuration = currentSong?.duration ?: 0,
         currentSongAlbum = currentSong?.album,
         currentSongGenre = currentSong?.genre,
         currentSongArtUri = currentSong?.art.toString(),
@@ -41,11 +41,11 @@ fun PlayerState.toEntity(): PlayerStateEntity{
 fun PlayerStateEntity.toDomain(): PlayerState{
     return PlayerState(
         defaultQueue = defaultQueue,
-        currentSong = if (currentSongUri == null) null else Song(
-            id = currentSongId ?: "null",
+        currentSong = if (currentSongId == "null") null else Song(
+            id = currentSongId,
             title = currentSongTitle,
             artist = currentSongArtist,
-            duration = currentSongDuration ?: 0,
+            duration = currentSongDuration,
             uri = currentSongUri.toUri(),
             album = currentSongAlbum,
             genre = currentSongGenre,

@@ -6,7 +6,7 @@ import com.example.sound.Domain.model.Song
 import kotlinx.coroutines.flow.Flow
 
 interface DefaultQueueRepository {
-    suspend fun observeQueue(): Flow<List<DefaultQueueItem>>
-    suspend fun getDefaultQueue(): List<DefaultQueueItem>
+    fun observeQueue(): Flow<List<Song>>
+    suspend fun getDefaultQueue(): List<Song>
     suspend fun updateDefaultQueue(newDefaultQueue: List<Song>)
 }

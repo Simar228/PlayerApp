@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "7933f175448e0cc43224f001ff30b0f0",
+    "identityHash": "593257dc2248ed6a5051b3c55e713e9f",
     "entities": [
       {
         "tableName": "queue_items",
@@ -73,7 +73,7 @@
       },
       {
         "tableName": "player_state",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `defaultQueue` INTEGER NOT NULL, `currentSongId` TEXT, `currentSongUri` TEXT, `currentSongTitle` TEXT, `currentSongArtist` TEXT, `currentSongDuration` INTEGER, `currentSongAlbum` TEXT, `currentSongGenre` TEXT, `currentSongArtUri` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `defaultQueue` INTEGER NOT NULL, `currentSongId` TEXT NOT NULL, `currentSongUri` TEXT NOT NULL, `currentSongTitle` TEXT NOT NULL, `currentSongArtist` TEXT, `currentSongDuration` INTEGER NOT NULL, `currentSongAlbum` TEXT, `currentSongGenre` TEXT, `currentSongArtUri` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -90,17 +90,20 @@
           {
             "fieldPath": "currentSongId",
             "columnName": "currentSongId",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": true
           },
           {
             "fieldPath": "currentSongUri",
             "columnName": "currentSongUri",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": true
           },
           {
             "fieldPath": "currentSongTitle",
             "columnName": "currentSongTitle",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": true
           },
           {
             "fieldPath": "currentSongArtist",
@@ -110,7 +113,8 @@
           {
             "fieldPath": "currentSongDuration",
             "columnName": "currentSongDuration",
-            "affinity": "INTEGER"
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "currentSongAlbum",
@@ -204,7 +208,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7933f175448e0cc43224f001ff30b0f0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '593257dc2248ed6a5051b3c55e713e9f')"
     ]
   }
 }

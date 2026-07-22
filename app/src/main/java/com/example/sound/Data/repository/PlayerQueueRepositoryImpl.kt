@@ -7,6 +7,7 @@ import com.example.sound.Data.local.queue.toEntity
 import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.model.toQueueItem
+import com.example.sound.Domain.model.toSong
 import com.example.sound.Domain.repository.PlayerQueueRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -52,10 +53,10 @@ class PlayerQueueRepositoryImpl @Inject constructor(
         queueDao.replaceQueue(reindexedList)
     }
 
-    override fun observeQueue(): Flow<List<QueueItem>> {
+    override fun observeQueue(): Flow<List<Song>> {
         return queueDao.observeQueue()
             .map { items ->
-                items.map { it.toDomain() }
+                items.map { it.toDomain().toSong() }
             }
     }
 

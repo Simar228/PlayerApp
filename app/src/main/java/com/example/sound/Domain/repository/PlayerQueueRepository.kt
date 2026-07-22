@@ -13,7 +13,7 @@ interface PlayerQueueRepository {
     suspend fun insertSong(song: Song)
 
     suspend fun insertSongByIndex(song: Song, position: Int)
-    fun observeQueue(): Flow<List<QueueItem>>
+    fun observeQueue(): Flow<List<Song>>
 
     suspend fun saveQueue(queue: List<QueueItem>)
 

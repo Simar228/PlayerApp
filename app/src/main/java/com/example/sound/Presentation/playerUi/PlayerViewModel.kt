@@ -15,6 +15,7 @@ import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.example.sound.Data.local.defualtQueue.toSong
+import com.example.sound.Domain.model.PlayerState
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.model.toSong
 import com.example.sound.Domain.repository.DefaultQueueRepository
@@ -28,6 +29,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executor
@@ -102,7 +104,6 @@ class PlayerViewModel internal constructor(
 
     init {
         Log.d(TAG, "ViewModelStarted")
-        launchOldSong()
         controllerFuture.addListener(
             {
                 try {
@@ -136,40 +137,17 @@ class PlayerViewModel internal constructor(
         _duration.value = controller?.duration ?: C.TIME_UNSET
     }
 
+
     private fun playSong(queueSongs: List<Song>, selectedSong: Song) {
         Log.d(TAG, "Get song: ${selectedSong.title}")
         viewModelScope.launch {
             defaultQueueRepository.updateDefaultQueue(queueSongs)
-        }
-        val mediaItems = queueSongs.map { song ->
-            MediaItem.Builder()
-                .setMediaId(song.id)
-                .setUri(song.uri)
-                .setMediaMetadata(
-                    MediaMetadata.Builder()
-                        .setTitle(song.title)
-                        .setArtist(song.artist)
-                        .setArtworkUri(song.art)
-                        .setDurationMs(song.duration)
-                        .setGenre(song.genre)
-                        .setAlbumTitle(song.album)
-                        .setExtras(Bundle().apply {
-                            putBoolean("defautlQueue", false)
-                        })
-                        .build()
+            playerStateRepository.setPlayerState(
+                PlayerState(
+                    defaultQueue = false,
+                    currentSong = selectedSong
                 )
-                .build()
-        }
-        val selectedIndex =
-            queueSongs.indexOfFirst { it.uri == selectedSong.uri }.takeIf { it >= 0 } ?: 0
-        controller?.apply {
-            setMediaItems(
-                mediaItems,
-                selectedIndex,
-                0L
             )
-            prepare()
-            play()
         }
     }
 
@@ -258,26 +236,6 @@ class PlayerViewModel internal constructor(
                 .buildAsync()
         }
     }
-
-    private fun launchOldSong() {
-        viewModelScope.launch {
-            val playerState = playerStateRepository.getPlayerState()
-            Log.d(TAG, playerState.toString())
-            playerState?.currentSong?.let {
-                Log.d(TAG, playerState.defaultQueue.toString())
-                val currentSongList = if
-                        (playerState.defaultQueue) defaultQueueRepository.getDefaultQueue().map { it.toSong() }
-                    else
-                        playerQueueRepository.getQueue().map { it.toSong() }
-                Log.d(TAG, "То что нужно мне - ${currentSongList.toString()} состояние ${playerState.defaultQueue}")
-                sendSong(
-                    currentSongList, playerState.currentSong
-                )
-            }
-        }
-    }
-
-
 }
 
 private fun MediaItem.toSong(): Song {
@@ -299,5 +257,29 @@ private data class PendingPlaybackRequest(
     val queueSongs: List<Song>,
     val selectedSong: Song
 )
+
+
+private const val EXTRA_DEFAULT_QUEUE = "defaultQueue"
+private fun Song.toMediaItem(isDefaultQueue: Boolean): MediaItem {
+    return MediaItem.Builder()
+        .setMediaId(id)
+        .setUri(uri)
+        .setMediaMetadata(
+            MediaMetadata.Builder()
+                .setTitle(title)
+                .setArtist(artist)
+                .setArtworkUri(art)
+                .setDurationMs(duration)
+                .setGenre(genre)
+                .setAlbumTitle(album)
+                .setExtras(
+                    Bundle().apply {
+                        putBoolean(EXTRA_DEFAULT_QUEUE, isDefaultQueue)
+                    }
+                )
+                .build()
+        )
+        .build()
+}
 
 const val TAG = "PlayerViewModel"
