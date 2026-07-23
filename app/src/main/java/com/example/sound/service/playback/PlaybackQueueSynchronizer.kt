@@ -1,0 +1,142 @@
+package com.example.sound.service.playback
+
+import android.util.Log
+import androidx.media3.common.C
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import com.example.sound.Domain.model.Song
+import com.example.sound.service.PlaybackQueueState
+
+
+class PlaybackQueueSynchronizer(
+    private val player: Player
+) {
+    fun synchronizePlayerQueue(state: PlaybackQueueState) {
+        val player = player
+        val currentSong = state.currentSong ?: return
+        val upcomingMediaItems = buildList {
+            // Явная очередь воспроизводится первой.
+            addAll(
+                state.queueSongs
+                    .filterNot { song ->
+                        song.id == currentSong.id
+                    }
+                    .map { song ->
+                        song.toMediaItem()
+                    }
+            )
+
+            // Затем основной повторяемый плейлист.
+            addAll(
+                state.defaultQueueSongs
+                    .filterNot { song ->
+                        song.id == currentSong.id
+                    }
+                    .map { song ->
+                        song.toMediaItem()
+                    }
+            )
+        }
+
+        val playerCurrentSongId = player.currentMediaItem?.mediaId
+
+
+        //запуск первый раз
+        if (
+            player.mediaItemCount == 0 ||
+            playerCurrentSongId == null
+        ) {
+            Log.d(TAG, "Запуск в первый раз")
+            setNewPlayerQueue(
+                currentSong = currentSong,
+                upcomingMediaItems = upcomingMediaItems,
+            )
+            return
+        }
+        if (playerCurrentSongId != currentSong.id) {
+
+            Log.d(
+                TAG, "// currentSong действительно поменялась:\n" +
+                        "            // пользователь выбрал новую песню."
+            )
+            // currentSong действительно поменялась:
+            // пользователь выбрал новую песню.
+            setNewPlayerQueue(
+                currentSong = currentSong,
+                upcomingMediaItems = upcomingMediaItems,
+            )
+            return
+        }
+        if(state.queueSongs.isNotEmpty()) {
+            Log.d(TAG, "// Песня не поменялась — обновляем только элементы вокруг неё.")
+            // Песня не поменялась — обновляем только элементы вокруг неё.
+            replaceUpcomingItems(upcomingMediaItems)
+        }
+    }
+
+    private fun setNewPlayerQueue(
+        currentSong: Song,
+        upcomingMediaItems: List<MediaItem>,
+    ) {
+        val player = player
+
+        val mediaItems = buildList {
+            add(currentSong.toMediaItem())
+            addAll(upcomingMediaItems)
+        }
+        Log.d(TAG, "Очередь ${mediaItems.size}")
+
+        player.apply {
+            repeatMode = Player.REPEAT_MODE_ALL
+            shuffleModeEnabled = false
+            setMediaItems(
+                mediaItems,
+                0,
+                0
+            )
+
+            prepare()
+            play()
+        }
+    }
+
+    private fun replaceUpcomingItems(
+        upcomingMediaItems: List<MediaItem>,
+    ) {
+        val player = player
+
+        val currentIndex = player.currentMediaItemIndex
+
+        if (currentIndex == C.INDEX_UNSET) {
+            return
+        }
+        /*
+         * Удаляем уже проигранные элементы.
+         * Текущий элемент не входит в диапазон.
+         */
+        if (currentIndex > 0) {
+            player.removeMediaItems(
+                0,
+                currentIndex,
+            )
+        }
+
+        /*
+         * После удаления предыдущих элементов текущая песня
+         * находится на индексе 0.
+         */
+        if (player.mediaItemCount > 1) {
+            player.removeMediaItems(
+                1,
+                player.mediaItemCount,
+            )
+        }
+        if (upcomingMediaItems.isNotEmpty()) {
+            player.addMediaItems(
+                1,
+                upcomingMediaItems,
+            )
+        }
+    }
+    private val TAG = "PlaybackQueueSynchronizer"
+}
