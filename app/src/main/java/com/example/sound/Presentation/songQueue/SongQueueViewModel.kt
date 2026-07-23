@@ -1,6 +1,5 @@
 package com.example.sound.Presentation.songQueue
 
-import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,22 +19,17 @@ class SongQueueViewModel @Inject constructor(
     private val _songQueue = MutableStateFlow<List<Song>>(emptyList())
     val sonqQueue = _songQueue.asStateFlow()
 
-    private val _isDefaultQueue = MutableStateFlow<Boolean>(true)
-    val isDefaultQueue = _isDefaultQueue.asStateFlow()
 
     init {
-//        viewModelScope.launch {
-//            _songQueue.value = playerQueueRepository.getQueue()
-//                .sortedBy { it.position }
-//                .map { it.toSong() }
-//            playerQueueRepository.observeQueue().collect { queue ->
-//                _isDefaultQueue.value = queue.isEmpty()
-//                Log.d(TAG, _isDefaultQueue.value.toString())
-//                _songQueue.value = queue
-//                    .sortedBy { it.position }
-//                    .map { it.toSong() }
-//            }
-//        }
+        viewModelScope.launch {
+            _songQueue.value = playerQueueRepository.getQueue()
+                .sortedBy { it.position }
+                .map { it.toSong() }
+            playerQueueRepository.observeQueue().collect { queue ->
+                _songQueue.value = queue
+
+            }
+        }
     }
 
     fun clearSongQueue() {
@@ -60,6 +54,6 @@ class SongQueueViewModel @Inject constructor(
     }
 
 
-
 }
+
 const val TAG = "SongQueueViewModel"

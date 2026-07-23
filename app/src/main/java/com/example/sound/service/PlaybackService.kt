@@ -21,9 +21,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -61,7 +64,7 @@ class PlaybackService : MediaSessionService() {
 
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             // Play или Pause.
-            savePlayerState()
+
         }
 
         override fun onPositionDiscontinuity(
@@ -70,7 +73,7 @@ class PlaybackService : MediaSessionService() {
             reason: Int
         ) {
             // Перемотка или переход на другой элемент.
-            savePlayerState()
+
         }
 
         override fun onPlaybackStateChanged(playbackState: Int) {
@@ -78,7 +81,7 @@ class PlaybackService : MediaSessionService() {
                 playbackState == Player.STATE_ENDED ||
                 playbackState == Player.STATE_IDLE
             ) {
-                savePlayerState()
+
             }
         }
 
@@ -87,7 +90,7 @@ class PlaybackService : MediaSessionService() {
             reason: Int
         ) {
             // Изменилась очередь плеера.
-            savePlayerState()
+
         }
     }
 
@@ -117,7 +120,8 @@ class PlaybackService : MediaSessionService() {
     }
 
     override fun onDestroy() {
-
+        serviceScope.cancel()
+        player.removeListener(playerListener)
         mediaSession?.release()
         mediaSession = null
         player.release()
@@ -126,6 +130,13 @@ class PlaybackService : MediaSessionService() {
     }
 
     private fun buildQueue() {
+        playerStateRepository.observePlayerState()
+            .distinctUntilChangedBy { currentSong ->
+                currentSong.uri
+            }
+            .onEach { currentSong ->
+                playerQueueRepository.deleteFirstSong(currentSong)
+            }.launchIn(serviceScope)
         combine(
             playerStateRepository.observePlayerState(),
             playerQueueRepository.observeQueue(),
@@ -159,10 +170,6 @@ class PlaybackService : MediaSessionService() {
         val album = metadata.albumTitle
 
         serviceScope.launch(Dispatchers.IO) {
-            val queue = playerQueueRepository.observeQueue().first()
-            val defaultQueue = queue.isEmpty()
-
-
             playerStateRepository.setPlayerState(
                 PlayerState(
                     currentSong = Song(
@@ -175,7 +182,6 @@ class PlaybackService : MediaSessionService() {
                         genre = genre.toString(),
                         art = artworkUri
                     ),
-                    defaultQueue = defaultQueue
                 )
             )
         }
@@ -192,7 +198,7 @@ class PlaybackService : MediaSessionService() {
                         song.id == currentSong.id
                     }
                     .map { song ->
-                        song.toMediaItem(isDefaultQueue = false)
+                        song.toMediaItem()
                     }
             )
 
@@ -203,7 +209,7 @@ class PlaybackService : MediaSessionService() {
                         song.id == currentSong.id
                     }
                     .map { song ->
-                        song.toMediaItem(isDefaultQueue = true)
+                        song.toMediaItem()
                     }
             )
         }
@@ -223,8 +229,8 @@ class PlaybackService : MediaSessionService() {
             )
             return
         }
-
         if (playerCurrentSongId != currentSong.id) {
+
             Log.d(
                 TAG, "// currentSong действительно поменялась:\n" +
                         "            // пользователь выбрал новую песню."
@@ -237,9 +243,11 @@ class PlaybackService : MediaSessionService() {
             )
             return
         }
-        Log.d(TAG, "// Песня не поменялась — обновляем только элементы вокруг неё.")
-        // Песня не поменялась — обновляем только элементы вокруг неё.
-        replaceUpcomingItems(upcomingMediaItems)
+        if(state.queueSongs.isNotEmpty()) {
+            Log.d(TAG, "// Песня не поменялась — обновляем только элементы вокруг неё.")
+            // Песня не поменялась — обновляем только элементы вокруг неё.
+            replaceUpcomingItems(upcomingMediaItems)
+        }
     }
 
     private fun setNewPlayerQueue(
@@ -249,12 +257,13 @@ class PlaybackService : MediaSessionService() {
         val player = player
 
         val mediaItems = buildList {
-            add(currentSong.toMediaItem(isDefaultQueue = false))
+            add(currentSong.toMediaItem())
             addAll(upcomingMediaItems)
         }
+        Log.d(TAG, "Очередь ${mediaItems.size}")
 
         player.apply {
-            repeatMode = Player.REPEAT_MODE_OFF
+            repeatMode = Player.REPEAT_MODE_ALL
             shuffleModeEnabled = false
             setMediaItems(
                 mediaItems,
@@ -277,7 +286,6 @@ class PlaybackService : MediaSessionService() {
         if (currentIndex == C.INDEX_UNSET) {
             return
         }
-
         /*
          * Удаляем уже проигранные элементы.
          * Текущий элемент не входит в диапазон.
@@ -299,7 +307,6 @@ class PlaybackService : MediaSessionService() {
                 player.mediaItemCount,
             )
         }
-
         if (upcomingMediaItems.isNotEmpty()) {
             player.addMediaItems(
                 1,
@@ -310,8 +317,7 @@ class PlaybackService : MediaSessionService() {
 
 }
 
-private const val EXTRA_DEFAULT_QUEUE = "defaultQueue"
-private fun Song.toMediaItem(isDefaultQueue: Boolean): MediaItem {
+private fun Song.toMediaItem(): MediaItem {
     return MediaItem.Builder()
         .setMediaId(id)
         .setUri(uri)
@@ -323,11 +329,6 @@ private fun Song.toMediaItem(isDefaultQueue: Boolean): MediaItem {
                 .setDurationMs(duration)
                 .setGenre(genre)
                 .setAlbumTitle(album)
-                .setExtras(
-                    Bundle().apply {
-                        putBoolean(EXTRA_DEFAULT_QUEUE, isDefaultQueue)
-                    }
-                )
                 .build()
         )
         .build()

@@ -1,5 +1,6 @@
 package com.example.sound.Data.repository
 
+import android.util.Log
 import com.example.sound.Data.local.playerstate.PlayerStateDao
 import com.example.sound.Data.local.queue.QueueDao
 import com.example.sound.Data.local.queue.toDomain
@@ -17,6 +18,16 @@ class PlayerQueueRepositoryImpl @Inject constructor(
     private val queueDao: QueueDao,
     private val playerStateDao: PlayerStateDao
 ) : PlayerQueueRepository {
+
+    override suspend fun deleteFirstSong(currentSong: Song) {
+        val songQueue = queueDao.getQueue()
+        val firstSong = songQueue.firstOrNull()?.toDomain()?.toSong()
+        val listWithoutFirstSong = songQueue.toMutableList().drop(1)
+        if (firstSong?.uri == currentSong.uri){
+            queueDao.replaceQueue(listWithoutFirstSong)
+        }
+
+    }
 
 
     override suspend fun setCurrentSong(song: Song) {

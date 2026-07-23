@@ -144,7 +144,6 @@ class PlayerViewModel internal constructor(
             defaultQueueRepository.updateDefaultQueue(queueSongs)
             playerStateRepository.setPlayerState(
                 PlayerState(
-                    defaultQueue = false,
                     currentSong = selectedSong
                 )
             )

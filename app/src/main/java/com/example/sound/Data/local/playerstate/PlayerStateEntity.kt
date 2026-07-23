@@ -13,7 +13,6 @@ data class PlayerStateEntity(
     @PrimaryKey
     val id: Int = 0,
 
-    val defaultQueue: Boolean,
     val currentSongId: String,
     val currentSongUri: String,
     val currentSongTitle: String,
@@ -26,7 +25,6 @@ data class PlayerStateEntity(
 
 fun PlayerState.toEntity(): PlayerStateEntity{
     return PlayerStateEntity(
-        defaultQueue = defaultQueue,
         currentSongId = currentSong?.id ?: "null",
         currentSongUri = currentSong?.uri.toString(),
         currentSongTitle = currentSong?.title ?: "null",
@@ -40,7 +38,6 @@ fun PlayerState.toEntity(): PlayerStateEntity{
 
 fun PlayerStateEntity.toDomain(): PlayerState{
     return PlayerState(
-        defaultQueue = defaultQueue,
         currentSong = if (currentSongId == "null") null else Song(
             id = currentSongId,
             title = currentSongTitle,

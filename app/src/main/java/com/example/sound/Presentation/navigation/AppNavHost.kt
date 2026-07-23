@@ -36,6 +36,7 @@ fun AppNavHost(
     modifier: Modifier = Modifier,
 ) {
     val songQueueViewModel: SongQueueViewModel = viewModel()
+    val mainViewModel: MainViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -58,7 +59,6 @@ fun AppNavHost(
         ) {
 
             composable<Routes.SongsRoute> {
-                val mainViewModel: MainViewModel = viewModel()
                 LaunchedEffect(mainViewModel) {
                     mainViewModel.mainNavigationEvents.collect { events ->
                         when(events){

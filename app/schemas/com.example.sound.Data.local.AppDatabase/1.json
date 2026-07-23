@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "593257dc2248ed6a5051b3c55e713e9f",
+    "identityHash": "bd39e4e58d933f0d3a936d8adac70afb",
     "entities": [
       {
         "tableName": "queue_items",
@@ -73,17 +73,11 @@
       },
       {
         "tableName": "player_state",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `defaultQueue` INTEGER NOT NULL, `currentSongId` TEXT NOT NULL, `currentSongUri` TEXT NOT NULL, `currentSongTitle` TEXT NOT NULL, `currentSongArtist` TEXT, `currentSongDuration` INTEGER NOT NULL, `currentSongAlbum` TEXT, `currentSongGenre` TEXT, `currentSongArtUri` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `currentSongId` TEXT NOT NULL, `currentSongUri` TEXT NOT NULL, `currentSongTitle` TEXT NOT NULL, `currentSongArtist` TEXT, `currentSongDuration` INTEGER NOT NULL, `currentSongAlbum` TEXT, `currentSongGenre` TEXT, `currentSongArtUri` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "defaultQueue",
-            "columnName": "defaultQueue",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -208,7 +202,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '593257dc2248ed6a5051b3c55e713e9f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bd39e4e58d933f0d3a936d8adac70afb')"
     ]
   }
 }

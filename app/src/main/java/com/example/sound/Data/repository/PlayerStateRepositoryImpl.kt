@@ -35,9 +35,7 @@ class PlayerStateRepositoryImpl @Inject constructor(
     }
 
     override suspend fun setPlayerState(playerState: PlayerState) {
-        Log.d("!!!", playerState.toString())
         val playerStateEntity = playerState.toEntity()
-        Log.d("!!!", playerStateEntity.toString())
         playerStateDao.savePlayerState(playerStateEntity)
     }
 
