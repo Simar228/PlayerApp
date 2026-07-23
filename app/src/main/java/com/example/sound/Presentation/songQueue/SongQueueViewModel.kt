@@ -1,6 +1,5 @@
 package com.example.sound.Presentation.songQueue
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sound.Domain.model.Song
@@ -10,13 +9,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 class SongQueueViewModel @Inject constructor(
     private val playerQueueRepository: PlayerQueueRepository
 ) : ViewModel() {
-    private val _songQueue = MutableStateFlow<List<Song>>(emptyList())
+    private val _songQueue = MutableStateFlow<List<QueueItemUi>>(emptyList())
     val sonqQueue = _songQueue.asStateFlow()
 
 
@@ -24,11 +24,27 @@ class SongQueueViewModel @Inject constructor(
         viewModelScope.launch {
             _songQueue.value = playerQueueRepository.getQueue()
                 .sortedBy { it.position }
-                .map { it.toSong() }
+                .map {
+                    QueueItemUi(
+                        song = it.toSong(),
+                        queueItemId = UUID.randomUUID().toString()
+                    )
+                }
             playerQueueRepository.observeQueue().collect { queue ->
-                _songQueue.value = queue
+                _songQueue.value = queue.map { song ->
+                    QueueItemUi(
+                        song = song,
+                        queueItemId = UUID.randomUUID().toString()
+                    )
+                }
 
             }
+        }
+    }
+
+    fun deleteSongByPosition(song: Song, position: Int) {
+        viewModelScope.launch {
+            playerQueueRepository.deleteSongByPosition(song, position)
         }
     }
 
@@ -46,7 +62,7 @@ class SongQueueViewModel @Inject constructor(
 
     fun chooseNextSong(song: Song) {
         viewModelScope.launch {
-            playerQueueRepository.insertSongByIndex(
+            playerQueueRepository.insertSongByPosition(
                 song = song,
                 position = 0
             )
@@ -55,5 +71,10 @@ class SongQueueViewModel @Inject constructor(
 
 
 }
+
+data class QueueItemUi(
+    val queueItemId: String,
+    val song: Song
+)
 
 const val TAG = "SongQueueViewModel"

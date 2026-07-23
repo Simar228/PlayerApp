@@ -1,8 +1,5 @@
 package com.example.sound.Presentation.songQueue
 
-import android.net.Uri
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,19 +15,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
-import androidx.compose.material.icons.filled.Equalizer
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,33 +33,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.SubcomposeAsyncImage
-import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.model.Song
-import com.example.sound.Domain.model.toQueueItem
-import com.example.sound.Domain.model.toSong
+import com.example.sound.Presentation.playerUi.PlayerViewModel
 
 
 @Composable
 fun SongQueueScreen(
     currentSong: Song?,
     modifier: Modifier,
-    viewModel: SongQueueViewModel,
+    songQueueViewModel: SongQueueViewModel,
     onBackClick: () -> Unit = {},
     onClearClick: () -> Unit = {},
-    onSongClick: (Song) -> Unit = {},
+    onSongClick: (Song, Int) -> Unit,
     onShuffleClick: () -> Unit = {},
     onSaveQueueClick: () -> Unit = {}
 ) {
 
-    val currentSongQueue by viewModel.sonqQueue.collectAsStateWithLifecycle()
+    val currentSongQueue by songQueueViewModel.sonqQueue.collectAsStateWithLifecycle()
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -104,13 +92,13 @@ fun SongQueueScreen(
                     .weight(1f),
                 contentPadding = PaddingValues(bottom = 8.dp)
             ) {
-                items(
+                itemsIndexed(
                     items = currentSongQueue,
-                    key = {"${it.id}:${it.uri}" }
-                ) { song ->
+                    key = {_, it -> it.queueItemId }
+                ) { index, queueItem ->
                     MusicQueueCard(
-                        song = song,
-                        onClick = {},
+                        song = queueItem.song,
+                        onClick = { onSongClick(queueItem.song, index) },
                         onMenuClick = {},
                     )
                     HorizontalDivider()
@@ -232,5 +220,7 @@ private fun QueueAction(
         )
     }
 }
+
+
 
 

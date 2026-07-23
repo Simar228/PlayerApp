@@ -19,6 +19,25 @@ class PlayerQueueRepositoryImpl @Inject constructor(
     private val playerStateDao: PlayerStateDao
 ) : PlayerQueueRepository {
 
+
+    override suspend fun deleteSongByPosition(
+        song: Song,
+        position: Int
+    ) {
+        val songList = queueDao.getQueue()
+        val safePosition = position.coerceIn(0,songList.size)
+        if (safePosition != position || songList[position].toDomain().toSong() != song){
+            return
+        }
+        val updatedList = songList.toMutableList()
+        updatedList.removeAt(safePosition)
+
+        val reindexedList = updatedList.mapIndexed { index, item ->
+            item.copy(position = index)
+        }
+        queueDao.replaceQueue(reindexedList)
+    }
+
     override suspend fun deleteFirstSong(currentSong: Song) {
         val songQueue = queueDao.getQueue()
         val firstSong = songQueue.firstOrNull()?.toDomain()?.toSong()
@@ -49,7 +68,7 @@ class PlayerQueueRepositoryImpl @Inject constructor(
         queueDao.insertQueueItem(currentQueueItem.toEntity())
     }
 
-    override suspend fun insertSongByIndex(song: Song, position: Int) {
+    override suspend fun insertSongByPosition(song: Song, position: Int) {
         val queueItemEntity = song.toQueueItem(position)
         val songList = queueDao.getQueue()
         val safePosition = position.coerceIn(0,songList.size)

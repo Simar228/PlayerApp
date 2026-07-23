@@ -141,7 +141,9 @@ class PlayerViewModel internal constructor(
     private fun playSong(queueSongs: List<Song>, selectedSong: Song) {
         Log.d(TAG, "Get song: ${selectedSong.title}")
         viewModelScope.launch {
-            defaultQueueRepository.updateDefaultQueue(queueSongs)
+            if (queueSongs.isNotEmpty()){
+                defaultQueueRepository.updateDefaultQueue(queueSongs)
+            }
             playerStateRepository.setPlayerState(
                 PlayerState(
                     currentSong = selectedSong
@@ -151,7 +153,7 @@ class PlayerViewModel internal constructor(
     }
 
 
-    fun sendSong(queueSongs: List<Song>, song: Song) {
+    fun sendSong(queueSongs: List<Song> = emptyList(), song: Song) {
         when (_connectionState.value) {
             PlayerConnectionState.Connecting -> {
                 _currentSong.value = song
