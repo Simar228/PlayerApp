@@ -49,7 +49,8 @@ fun SongQueueScreen(
     onClearClick: () -> Unit = {},
     onSongClick: (Song, Int) -> Unit,
     onShuffleClick: () -> Unit = {},
-    onSaveQueueClick: () -> Unit = {}
+    onSaveQueueClick: () -> Unit = {},
+    onDeleteSong: (Song, Int) -> Unit,
 ) {
 
     val currentSongQueue by songQueueViewModel.sonqQueue.collectAsStateWithLifecycle()
@@ -70,9 +71,12 @@ fun SongQueueScreen(
             )
             currentSong?.let {
                 MusicQueueCard(
+                    isMain = true,
                     song = currentSong,
                     onClick = {},
                     onMenuClick = {},
+                    onDelete = {},
+                    position = -1
                 )
             }
 
@@ -100,6 +104,9 @@ fun SongQueueScreen(
                         song = queueItem.song,
                         onClick = { onSongClick(queueItem.song, index) },
                         onMenuClick = {},
+                        onDelete = { onDeleteSong(queueItem.song, index) },
+                        isMain = false,
+                        position = index
                     )
                     HorizontalDivider()
                 }

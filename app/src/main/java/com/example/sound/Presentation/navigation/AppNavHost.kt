@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -18,11 +19,10 @@ import com.example.sound.Domain.model.Song
 import com.example.sound.Presentation.mainScreen.MainNavigationEvents
 import com.example.sound.Presentation.mainScreen.MainScreen
 import com.example.sound.Presentation.mainScreen.MainViewModel
+import com.example.sound.Presentation.mainScreen.components.SongMenuBottomSheet
 import com.example.sound.Presentation.playerUi.PlayerViewModel
 import com.example.sound.Presentation.songPage.SongPage
 import com.example.sound.Presentation.songQueue.SongQueueScreen
-import com.example.sound.Presentation.mainScreen.components.SongMenuBottomSheet
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.sound.Presentation.songQueue.SongQueueViewModel
 
 @Composable
@@ -58,7 +58,7 @@ fun AppNavHost(
             composable<Routes.SongsRoute> {
                 LaunchedEffect(mainViewModel) {
                     mainViewModel.mainNavigationEvents.collect { events ->
-                        when(events){
+                        when (events) {
                             is MainNavigationEvents.OpenSongMenuBottomSheet -> {
                                 navController.navigate(Routes.SongBottomSheet(events.songId))
                             }
@@ -85,12 +85,16 @@ fun AppNavHost(
                     songQueueViewModel = songQueueViewModel,
                     onBackClick = { navController.popBackStack() },
                     onClearClick = { songQueueViewModel.clearSongQueue() },
-                    onSongClick = {song, position ->
+                    onSongClick = { song, position ->
                         playerViewModel.sendSong(song = song)
-                        songQueueViewModel.deleteSongByPosition(song, position)},
+                        songQueueViewModel.deleteSongByPosition(song, position)
+                    },
                     onShuffleClick = {},
-                    onSaveQueueClick = {  },
-                    modifier = modifier
+                    onSaveQueueClick = { },
+                    modifier = modifier,
+                    onDeleteSong = { song, position ->
+                        songQueueViewModel.deleteSongByPosition(song, position)
+                    }
                 )
             }
         }
@@ -144,7 +148,7 @@ fun AppNavHost(
                 song = song
             )
         }
-        
+
         composable<Routes.SongPageRoute> {
             SongPage(
                 viewModel = playerViewModel,
