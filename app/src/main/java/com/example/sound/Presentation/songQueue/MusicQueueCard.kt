@@ -66,7 +66,7 @@ fun MusicQueueCard(
 ) {
 
     SwipeRevealDelete(
-        isActive = isMain,
+        isActive = !isMain,
         onDelete = { onDelete() },
         modifier = modifier,
     ) {
@@ -204,7 +204,7 @@ private fun SwipeRevealDelete(
     actionWidth: Dp = 88.dp,
     content: @Composable () -> Unit
 ) {
-    if (!isActive) {
+    if (isActive) {
         val density = LocalDensity.current
         val scope = rememberCoroutineScope()
 
