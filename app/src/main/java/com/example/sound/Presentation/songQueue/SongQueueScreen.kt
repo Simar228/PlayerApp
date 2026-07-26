@@ -41,6 +41,7 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 @Composable
 fun SongQueueScreen(
     currentSong: Song?,
+    isPlaying: Boolean,
     modifier: Modifier,
     songQueueViewModel: SongQueueViewModel,
     onBackClick: () -> Unit = {},
@@ -79,9 +80,8 @@ fun SongQueueScreen(
                     isMain = true,
                     song = currentSong,
                     onClick = {},
-                    onMenuClick = {},
                     onDelete = {},
-                    position = -1
+                    isPlaying = isPlaying
                 )
             }
 
@@ -116,22 +116,18 @@ fun SongQueueScreen(
                                 onClick = {
                                     onSongClick(queueItem.song, index)
                                 },
-                                onMenuClick = {},
                                 onDelete = {
                                     onDeleteSong(queueItem.song, index)
                                 },
                                 isMain = false,
-                                position = index,
                                 dragHandleModifier =
                                     Modifier.draggableHandle(
                                         onDragStopped = {
                                             songQueueViewModel.saveQueueOrder()
                                         }
-                                    )
+                                    ),
                             )
-
                             HorizontalDivider()
-
                         }
                     }
                 }

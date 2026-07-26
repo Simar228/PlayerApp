@@ -81,6 +81,7 @@ fun AppNavHost(
 
             composable<Routes.QueueRoute> {
                 SongQueueScreen(
+                    isPlaying = playerViewModel.isPlaying.collectAsStateWithLifecycle().value,
                     currentSong = playerViewModel.currentSong.collectAsStateWithLifecycle().value,
                     songQueueViewModel = songQueueViewModel,
                     onBackClick = { navController.popBackStack() },

@@ -50,18 +50,18 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import com.example.sound.Domain.model.Song
+import com.example.sound.Presentation.songQueue.utills.AnimatedPlayingBars
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
 fun MusicQueueCard(
-    position: Int,
+    modifier: Modifier = Modifier,
+    isPlaying: Boolean = false,
     isMain: Boolean,
     song: Song,
     onClick: () -> Unit,
-    onMenuClick: () -> Unit,
-    modifier: Modifier = Modifier,
     onDelete: () -> Unit,
     dragHandleModifier: Modifier = Modifier,
 ) {
@@ -141,17 +141,23 @@ fun MusicQueueCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
-
-
             IconButton(
-                onClick = onMenuClick,
+                onClick = {},
                 modifier = dragHandleModifier.size(70.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Menu,
-                    contentDescription = "Меню песни",
-                    tint = MaterialTheme.colorScheme.onBackground
-                )
+                if (isMain) {
+                    AnimatedPlayingBars(
+                        isPlaying = isPlaying,
+                        modifier = Modifier.size(25.dp),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = "Меню песни",
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
             }
         }
     }
@@ -190,10 +196,8 @@ private fun PreviewMusicCard() {
             art = null
         ),
         onClick = { },
-        onMenuClick = { },
         onDelete = {},
         isMain = true,
-        position = 0
     )
 }
 
@@ -228,6 +232,7 @@ private fun SwipeRevealDelete(
         var isDeleting by remember {
             mutableStateOf(false)
         }
+
         fun animateTo(
             targetOffset: Float,
             afterAnimation: (() -> Unit)? = null
