@@ -53,6 +53,7 @@ android {
 }
 
 dependencies {
+    implementation("sh.calvin.reorderable:reorderable:3.1.0")
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.session)
     implementation(libs.androidx.media3.ui)

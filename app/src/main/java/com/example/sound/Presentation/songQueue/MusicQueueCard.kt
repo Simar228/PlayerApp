@@ -62,7 +62,8 @@ fun MusicQueueCard(
     onClick: () -> Unit,
     onMenuClick: () -> Unit,
     modifier: Modifier = Modifier,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    dragHandleModifier: Modifier = Modifier,
 ) {
 
     SwipeRevealDelete(
@@ -144,7 +145,7 @@ fun MusicQueueCard(
 
             IconButton(
                 onClick = onMenuClick,
-                modifier = Modifier.size(70.dp)
+                modifier = dragHandleModifier.size(70.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.Menu,
@@ -227,7 +228,6 @@ private fun SwipeRevealDelete(
         var isDeleting by remember {
             mutableStateOf(false)
         }
-
         fun animateTo(
             targetOffset: Float,
             afterAnimation: (() -> Unit)? = null

@@ -9,19 +9,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,7 +34,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.sound.Domain.model.Song
-import com.example.sound.Presentation.playerUi.PlayerViewModel
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 
 @Composable
@@ -48,12 +46,19 @@ fun SongQueueScreen(
     onBackClick: () -> Unit = {},
     onClearClick: () -> Unit = {},
     onSongClick: (Song, Int) -> Unit,
-    onShuffleClick: () -> Unit = {},
-    onSaveQueueClick: () -> Unit = {},
     onDeleteSong: (Song, Int) -> Unit,
 ) {
 
     val currentSongQueue by songQueueViewModel.sonqQueue.collectAsStateWithLifecycle()
+    val lazyListState = rememberLazyListState()
+    val reorderableState = rememberReorderableLazyListState(
+        lazyListState = lazyListState
+    ) { from, to ->
+        songQueueViewModel.moveQueueItem(
+            fromIndex = from.index,
+            toIndex = to.index
+        )
+    }
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -91,6 +96,7 @@ fun SongQueueScreen(
             )
 
             LazyColumn(
+                state = lazyListState,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
@@ -98,25 +104,38 @@ fun SongQueueScreen(
             ) {
                 itemsIndexed(
                     items = currentSongQueue,
-                    key = {_, it -> it.queueItemId }
+                    key = { _, it -> it.queueItemId }
                 ) { index, queueItem ->
-                    MusicQueueCard(
-                        song = queueItem.song,
-                        onClick = { onSongClick(queueItem.song, index) },
-                        onMenuClick = {},
-                        onDelete = { onDeleteSong(queueItem.song, index) },
-                        isMain = false,
-                        position = index
-                    )
-                    HorizontalDivider()
+                    ReorderableItem(
+                        state = reorderableState,
+                        key = queueItem.queueItemId
+                    ) { _ ->
+                        Column {
+                            MusicQueueCard(
+                                song = queueItem.song,
+                                onClick = {
+                                    onSongClick(queueItem.song, index)
+                                },
+                                onMenuClick = {},
+                                onDelete = {
+                                    onDeleteSong(queueItem.song, index)
+                                },
+                                isMain = false,
+                                position = index,
+                                dragHandleModifier =
+                                    Modifier.draggableHandle(
+                                        onDragStopped = {
+                                            songQueueViewModel.saveQueueOrder()
+                                        }
+                                    )
+                            )
+
+                            HorizontalDivider()
+
+                        }
+                    }
                 }
             }
-
-            HorizontalDivider()
-            QueueBottomActions(
-                onShuffleClick = onShuffleClick,
-                onSaveQueueClick = onSaveQueueClick
-            )
         }
     }
 }
@@ -170,38 +189,6 @@ private fun ArtworkPlaceholder() {
     )
 }
 
-@Composable
-private fun QueueBottomActions(
-    onShuffleClick: () -> Unit,
-    onSaveQueueClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(58.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        QueueAction(
-            text = "Перемешать",
-            icon = { Icon(Icons.Default.Shuffle, null, modifier = Modifier.size(19.dp)) },
-            onClick = onShuffleClick,
-            modifier = Modifier.weight(1f)
-        )
-        QueueAction(
-            text = "Сохранить очередь",
-            icon = {
-                Icon(
-                    Icons.AutoMirrored.Filled.PlaylistAdd,
-                    null,
-                    modifier = Modifier.size(19.dp)
-                )
-            },
-            onClick = onSaveQueueClick,
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
 
 @Composable
 private fun QueueAction(

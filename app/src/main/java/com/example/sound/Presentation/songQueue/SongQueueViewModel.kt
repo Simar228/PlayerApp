@@ -2,6 +2,7 @@ package com.example.sound.Presentation.songQueue
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.model.toSong
 import com.example.sound.Domain.repository.PlayerQueueRepository
@@ -27,18 +28,43 @@ class SongQueueViewModel @Inject constructor(
                 .map {
                     QueueItemUi(
                         song = it.toSong(),
-                        queueItemId = UUID.randomUUID().toString()
+                        queueItemId = it.id
                     )
                 }
             playerQueueRepository.observeQueue().collect { queue ->
-                _songQueue.value = queue.map { song ->
+                _songQueue.value = queue.map { queueItem ->
                     QueueItemUi(
-                        song = song,
-                        queueItemId = UUID.randomUUID().toString()
+                        song = queueItem.song,
+                        queueItemId = queueItem.id
                     )
                 }
 
             }
+        }
+    }
+
+    fun saveQueueOrder() {
+        viewModelScope.launch {
+            playerQueueRepository.saveQueue(
+                _songQueue.value.mapIndexed { index, queueItemUi ->
+                    QueueItem(
+                        id = queueItemUi.queueItemId,
+                        song = queueItemUi.song,
+                        position = index
+                    )
+                }
+            )
+        }
+    }
+
+    fun moveQueueItem(
+        fromIndex: Int,
+        toIndex: Int
+    ) {
+        val targetSong = _songQueue.value[fromIndex]
+        _songQueue.value = _songQueue.value.toMutableList().apply {
+            removeAt(fromIndex)
+            add(toIndex, targetSong)
         }
     }
 
@@ -73,7 +99,7 @@ class SongQueueViewModel @Inject constructor(
 }
 
 data class QueueItemUi(
-    val queueItemId: String,
+    val queueItemId: Long,
     val song: Song
 )
 

@@ -83,10 +83,10 @@ class PlayerQueueRepositoryImpl @Inject constructor(
         queueDao.replaceQueue(reindexedList)
     }
 
-    override fun observeQueue(): Flow<List<Song>> {
+    override fun observeQueue(): Flow<List<QueueItem>> {
         return queueDao.observeQueue()
             .map { items ->
-                items.map { it.toDomain().toSong() }
+                items.map { it.toDomain() }
             }
     }
 

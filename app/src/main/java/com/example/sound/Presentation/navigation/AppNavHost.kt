@@ -89,8 +89,6 @@ fun AppNavHost(
                         playerViewModel.sendSong(song = song)
                         songQueueViewModel.deleteSongByPosition(song, position)
                     },
-                    onShuffleClick = {},
-                    onSaveQueueClick = { },
                     modifier = modifier,
                     onDeleteSong = { song, position ->
                         songQueueViewModel.deleteSongByPosition(song, position)
