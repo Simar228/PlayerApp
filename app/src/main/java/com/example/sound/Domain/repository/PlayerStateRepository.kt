@@ -9,6 +9,6 @@ interface PlayerStateRepository {
     fun observePlayerState(): Flow<Song>
     suspend fun getPlayerState(): PlayerState?
     suspend fun setPlayerState(
-        playerState: PlayerState
+        song: Song
     )
 }

@@ -24,7 +24,6 @@ class DefaultQueueRepositoryImpl @Inject constructor(
                     song = song
                 )
             }
-
         val newEntityList = defaultQueueItemList.mapIndexed { index, item ->
             item.toEntity(index)
         }

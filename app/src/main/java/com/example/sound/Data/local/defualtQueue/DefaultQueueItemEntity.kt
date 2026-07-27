@@ -13,7 +13,7 @@ class DefaultQueueItemEntity (
 
     val songId: String,
     val songUri: String,
-    val position: Int?,
+    val position: Int,
     val title: String?,
     val artist: String?,
     val duration: Long,
@@ -51,16 +51,16 @@ fun DefaultQueueItem.toSong(): Song{
     )
 }
 
-fun DefaultQueueItem.toEntity(position: Int? = null): DefaultQueueItemEntity{
+fun DefaultQueueItem.toEntity(position: Int): DefaultQueueItemEntity{
     return DefaultQueueItemEntity(
         songId = song.id,
         songUri = song.uri.toString(),
-        position = null,
+        position = position,
         title = song.title,
         artist = song.artist,
         duration = song.duration,
         album = song.album,
         genre = song.genre,
-        artUri = song.art.toString()
+        artUri = song.art?.toString()
     )
 }

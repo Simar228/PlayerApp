@@ -14,10 +14,7 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import com.example.sound.Data.local.defualtQueue.toSong
-import com.example.sound.Domain.model.PlayerState
 import com.example.sound.Domain.model.Song
-import com.example.sound.Domain.model.toSong
 import com.example.sound.Domain.repository.DefaultQueueRepository
 import com.example.sound.Domain.repository.PlayerQueueRepository
 import com.example.sound.Domain.repository.PlayerStateRepository
@@ -29,7 +26,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executor
@@ -141,13 +137,11 @@ class PlayerViewModel internal constructor(
     private fun playSong(queueSongs: List<Song>, selectedSong: Song) {
         Log.d(TAG, "Get song: ${selectedSong.title}")
         viewModelScope.launch {
-            if (queueSongs.isNotEmpty()){
+            if (queueSongs.isNotEmpty()) {
                 defaultQueueRepository.updateDefaultQueue(queueSongs)
             }
             playerStateRepository.setPlayerState(
-                PlayerState(
-                    currentSong = selectedSong
-                )
+                selectedSong
             )
         }
     }

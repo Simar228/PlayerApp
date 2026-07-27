@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.core.net.toUri
 import com.example.sound.Data.local.playerstate.PlayerStateDao
 import com.example.sound.Data.local.playerstate.toDomain
-import com.example.sound.Data.local.playerstate.toEntity
+import com.example.sound.Data.local.playerstate.toPlayerStateEntity
 import com.example.sound.Domain.model.PlayerState
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.PlayerStateRepository
@@ -34,8 +34,8 @@ class PlayerStateRepositoryImpl @Inject constructor(
         return playerStateDao.getPlayerState()?.toDomain()
     }
 
-    override suspend fun setPlayerState(playerState: PlayerState) {
-        val playerStateEntity = playerState.toEntity()
+    override suspend fun setPlayerState(song: Song) {
+        val playerStateEntity = song.toPlayerStateEntity()
         playerStateDao.savePlayerState(playerStateEntity)
     }
 

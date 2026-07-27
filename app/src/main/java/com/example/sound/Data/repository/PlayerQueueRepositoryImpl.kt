@@ -1,7 +1,5 @@
 package com.example.sound.Data.repository
 
-import android.util.Log
-import com.example.sound.Data.local.playerstate.PlayerStateDao
 import com.example.sound.Data.local.queue.QueueDao
 import com.example.sound.Data.local.queue.toDomain
 import com.example.sound.Data.local.queue.toEntity
@@ -16,7 +14,6 @@ import javax.inject.Inject
 
 class PlayerQueueRepositoryImpl @Inject constructor(
     private val queueDao: QueueDao,
-    private val playerStateDao: PlayerStateDao
 ) : PlayerQueueRepository {
 
 
@@ -25,12 +22,12 @@ class PlayerQueueRepositoryImpl @Inject constructor(
         position: Int
     ) {
         val songList = queueDao.getQueue()
-        val safePosition = position.coerceIn(0,songList.size)
-        if (safePosition != position || songList[position].toDomain().toSong() != song){
+        val queueItem = songList.getOrNull(position) ?: return
+        if (queueItem.songId != song.id){
             return
         }
         val updatedList = songList.toMutableList()
-        updatedList.removeAt(safePosition)
+        updatedList.removeAt(position)
 
         val reindexedList = updatedList.mapIndexed { index, item ->
             item.copy(position = index)

@@ -69,7 +69,6 @@ class PlaybackQueueSynchronizer(
         }
         if(state.queueSongs.isNotEmpty()) {
             Log.d(TAG, "// Песня не поменялась — обновляем только элементы вокруг неё.")
-            // Песня не поменялась — обновляем только элементы вокруг неё.
             replaceUpcomingItems(upcomingMediaItems)
         }
     }
