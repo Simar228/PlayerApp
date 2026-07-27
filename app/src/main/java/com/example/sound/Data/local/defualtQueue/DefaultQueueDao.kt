@@ -20,9 +20,6 @@ interface DefaultQueueDao{
     @Query("SELECT * FROM defaultQueue_items ORDER BY position ASC")
     fun observeDefaultQueue(): Flow<List<DefaultQueueItemEntity>>
 
-    @Query("SELECT * FROM defaultQueue_items ORDER BY position ASC")
-    suspend fun getDefaultQueue(): List<DefaultQueueItemEntity>
-
     @Transaction
     suspend fun replaceDefaultQueue(items: List<DefaultQueueItemEntity>) {
         clearDefaultQueue()
