@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.model.Song
-import com.example.sound.Domain.model.toSong
 import com.example.sound.Domain.repository.PlayerQueueRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +26,7 @@ class SongQueueViewModel @Inject constructor(
                 .sortedBy { it.position }
                 .map {
                     QueueItemUi(
-                        song = it.toSong(),
+                        song = it.song,
                         queueItemId = it.id
                     )
                 }

@@ -6,7 +6,6 @@ import com.example.sound.Data.local.queue.toEntity
 import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.model.toQueueItem
-import com.example.sound.Domain.model.toSong
 import com.example.sound.Domain.repository.PlayerQueueRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -37,9 +36,9 @@ class PlayerQueueRepositoryImpl @Inject constructor(
 
     override suspend fun deleteFirstSong(currentSong: Song) {
         val songQueue = queueDao.getQueue()
-        val firstSong = songQueue.firstOrNull()?.toDomain()?.toSong()
+        val firstSong = songQueue.firstOrNull()?.songId
         val listWithoutFirstSong = songQueue.toMutableList().drop(1)
-        if (firstSong?.uri == currentSong.uri){
+        if (firstSong == currentSong.id){
             queueDao.replaceQueue(listWithoutFirstSong)
         }
 
