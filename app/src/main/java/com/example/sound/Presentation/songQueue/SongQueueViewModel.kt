@@ -9,7 +9,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -47,10 +46,11 @@ class SongQueueViewModel @Inject constructor(
             playerQueueRepository.saveQueue(
                 _songQueue.value.mapIndexed { index, queueItemUi ->
                     QueueItem(
-                        id = queueItemUi.queueItemId,
+                        id = 0,
                         song = queueItemUi.song,
                         position = index
                     )
+
                 }
             )
         }

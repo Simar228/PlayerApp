@@ -12,11 +12,3 @@ data class Song(
     val genre: String?,
     val art: Uri? = null
 )
-
-fun Song.toQueueItem(position: Int): QueueItem{
-    return QueueItem(
-        id = 0,
-        song = this,
-        position = position
-    )
-}

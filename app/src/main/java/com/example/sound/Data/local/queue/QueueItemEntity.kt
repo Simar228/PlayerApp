@@ -1,8 +1,6 @@
 package com.example.sound.Data.local.queue
 
-import android.net.Uri
 import androidx.core.net.toUri
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.sound.Domain.model.QueueItem
@@ -25,10 +23,24 @@ data class QueueItemEntity(
     val artUri: String?
 )
 
+
+fun QueueItem.toEntity(): QueueItemEntity {
+    return QueueItemEntity(
+        id = this.id,
+        songId = this.song.id,
+        songUri = this.song.uri.toString(),
+        position = position,
+        title = this.song.title,
+        artist = this.song.artist,
+        duration = this.song.duration,
+        album = this.song.album,
+        genre = this.song.genre,
+        artUri = this.song.art?.toString()
+    )
+}
+
 fun QueueItemEntity.toDomain(): QueueItem {
     return QueueItem(
-        id = id,
-        position = position,
         song = Song(
             id = songId,
             title = title,
@@ -37,23 +49,24 @@ fun QueueItemEntity.toDomain(): QueueItem {
             uri = songUri.toUri(),
             album = album,
             genre = genre,
-            art = artUri?.let(Uri::parse)
+            art = artUri?.toUri()
         ),
-
+        id = id,
+        position = position
     )
 }
 
-fun QueueItem.toEntity(): QueueItemEntity {
+fun Song.toQueueItemEntity(position: Int): QueueItemEntity {
     return QueueItemEntity(
-        id = id,
-        songId = song.id,
-        songUri = song.uri.toString(),
+        id = 0,
+        songId = this.id,
+        songUri = this.uri.toString(),
         position = position,
-        title = song.title,
-        artist = song.artist,
-        duration = song.duration,
-        album = song.album,
-        genre = song.genre,
-        artUri = song.art?.toString()
+        title = this.title,
+        artist = this.artist,
+        duration = this.duration,
+        album = this.album,
+        genre = this.genre,
+        artUri = this.art?.toString()
     )
 }
