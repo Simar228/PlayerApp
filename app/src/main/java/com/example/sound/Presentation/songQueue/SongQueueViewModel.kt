@@ -34,30 +34,39 @@ class SongQueueViewModel @Inject constructor(
     }
 
     fun saveQueueOrder() {
-        viewModelScope.launch {
-            playerQueueRepository.saveQueue(
-                _songQueue.value.mapIndexed { index, queueItemUi ->
-                    QueueItem(
-                        id = queueItemUi.queueItemId,
-                        song = queueItemUi.song,
-                        position = index
-                    )
-
-                }
+        val reorderedQueue = _songQueue.value.mapIndexed { index, queueItem ->
+            QueueItem(
+                id = queueItem.queueItemId,
+                song = queueItem.song,
+                position = index
             )
         }
+        viewModelScope.launch {
+            playerQueueRepository.saveQueue(reorderedQueue)
+        }
     }
+
 
     fun moveQueueItem(
         fromIndex: Int,
         toIndex: Int
     ) {
-        val targetSong = _songQueue.value[fromIndex]
-        _songQueue.value = _songQueue.value.toMutableList().apply {
-            removeAt(fromIndex)
-            add(toIndex, targetSong)
+        val currentQueue = _songQueue.value
+
+        if (fromIndex !in currentQueue.indices ||
+            toIndex !in currentQueue.indices
+        ) {
+            return
         }
+
+        val updatedQueue = currentQueue.toMutableList()
+        val movedItem = updatedQueue.removeAt(fromIndex)
+        updatedQueue.add(toIndex, movedItem)
+
+        _songQueue.value = updatedQueue
+
     }
+
 
     fun deleteSongByPosition(song: Song, position: Int) {
         viewModelScope.launch {
