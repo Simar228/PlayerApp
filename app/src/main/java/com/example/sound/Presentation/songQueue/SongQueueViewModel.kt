@@ -16,7 +16,7 @@ class SongQueueViewModel @Inject constructor(
     private val playerQueueRepository: PlayerQueueRepository
 ) : ViewModel() {
     private val _songQueue = MutableStateFlow<List<QueueItemUi>>(emptyList())
-    val sonqQueue = _songQueue.asStateFlow()
+    val songQueue = _songQueue.asStateFlow()
 
 
     init {
@@ -46,7 +46,7 @@ class SongQueueViewModel @Inject constructor(
             playerQueueRepository.saveQueue(
                 _songQueue.value.mapIndexed { index, queueItemUi ->
                     QueueItem(
-                        id = 0,
+                        id = queueItemUi.queueItemId,
                         song = queueItemUi.song,
                         position = index
                     )

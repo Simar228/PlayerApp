@@ -50,7 +50,7 @@ fun SongQueueScreen(
     onDeleteSong: (Song, Int) -> Unit,
 ) {
 
-    val currentSongQueue by songQueueViewModel.sonqQueue.collectAsStateWithLifecycle()
+    val currentSongQueue by songQueueViewModel.songQueue.collectAsStateWithLifecycle()
     val lazyListState = rememberLazyListState()
     val reorderableState = rememberReorderableLazyListState(
         lazyListState = lazyListState
