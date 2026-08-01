@@ -1,7 +1,5 @@
 package com.example.sound.Data.repository
 
-import android.util.Log
-import androidx.core.net.toUri
 import com.example.sound.Data.local.playerstate.PlayerStateDao
 import com.example.sound.Data.local.playerstate.toDomain
 import com.example.sound.Data.local.playerstate.toPlayerStateEntity
@@ -15,18 +13,10 @@ import javax.inject.Inject
 class PlayerStateRepositoryImpl @Inject constructor(
     private val playerStateDao: PlayerStateDao
 ) : PlayerStateRepository {
-    override fun observePlayerState(): Flow<Song> {
+    override fun observePlayerState(): Flow<PlayerState?> {
         return playerStateDao.observePlayerState().map { playerStateEntity ->
-            Song(
-                id = playerStateEntity.currentSongId,
-                title = playerStateEntity.currentSongTitle,
-                artist = playerStateEntity.currentSongArtist,
-                duration = playerStateEntity.currentSongDuration,
-                uri = playerStateEntity.currentSongUri.toUri(),
-                album = playerStateEntity.currentSongAlbum,
-                genre = playerStateEntity.currentSongGenre,
-                art = playerStateEntity.currentSongArtUri?.toUri()
-            )
+            playerStateEntity?.toDomain()
+
         }
     }
 
@@ -34,9 +24,9 @@ class PlayerStateRepositoryImpl @Inject constructor(
         return playerStateDao.getPlayerState()?.toDomain()
     }
 
-    override suspend fun setPlayerState(song: Song) {
-        val playerStateEntity = song.toPlayerStateEntity()
-        playerStateDao.savePlayerState(playerStateEntity)
+    override suspend fun setPlayerState(playerState: PlayerState) {
+        val song = playerState.currentSong ?: return
+        playerStateDao.savePlayerState(song.toPlayerStateEntity())
     }
 
 }

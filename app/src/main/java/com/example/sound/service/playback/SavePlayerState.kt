@@ -2,6 +2,7 @@ package com.example.sound.service.playback
 
 import android.net.Uri
 import androidx.media3.common.Player
+import com.example.sound.Domain.model.PlayerState
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.PlayerQueueRepository
 import com.example.sound.Domain.repository.PlayerStateRepository
@@ -17,7 +18,6 @@ class SavePlayerState @AssistedInject constructor(
     suspend operator fun invoke() {
         val mediaItem = player.currentMediaItem ?: return
         val metadata = mediaItem.mediaMetadata
-        val songIdInPlayerState = playerStateRepository.getPlayerState()?.currentSong?.id
         val newSong = Song(
             id = mediaItem.mediaId,
             title = metadata.title?.toString().orEmpty(),
@@ -29,7 +29,9 @@ class SavePlayerState @AssistedInject constructor(
             art = metadata.artworkUri,
         )
         playerStateRepository.setPlayerState(
-            newSong
+            PlayerState(
+                currentSong = newSong
+            )
         )
         playerQueueRepository.deleteFirstSong(newSong)
     }

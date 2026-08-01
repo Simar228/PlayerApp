@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
 interface PlayerStateDao {
 
     @Query("SELECT * FROM player_state  WHERE id = 0")
-    fun observePlayerState(): Flow<PlayerStateEntity>
+    fun observePlayerState(): Flow<PlayerStateEntity?>
     @Query("SELECT * FROM player_state WHERE id = 0")
     suspend fun getPlayerState(): PlayerStateEntity?
 

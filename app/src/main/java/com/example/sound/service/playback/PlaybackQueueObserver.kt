@@ -22,7 +22,7 @@ class PlaybackQueueObserver @Inject constructor(
             defaultQueueRepository.observeQueue(),
         ) { currentSong, queueItem, defaultQueueSongs ->
             PlaybackQueueState(
-                currentSong = currentSong,
+                currentSong = currentSong?.currentSong,
                 queueSongs = queueItem.map { queueItem ->
                     queueItem.song
                 },

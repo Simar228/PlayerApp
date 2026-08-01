@@ -14,6 +14,7 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
+import com.example.sound.Domain.model.PlayerState
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.DefaultQueueRepository
 import com.example.sound.Domain.repository.PlayerQueueRepository
@@ -141,7 +142,10 @@ class PlayerViewModel internal constructor(
                 defaultQueueRepository.updateDefaultQueue(queueSongs)
             }
             playerStateRepository.setPlayerState(
-                selectedSong
+                PlayerState(
+                    currentSong = selectedSong
+                )
+
             )
         }
     }
