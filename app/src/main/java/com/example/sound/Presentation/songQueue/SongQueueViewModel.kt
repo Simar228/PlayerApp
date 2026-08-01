@@ -24,8 +24,7 @@ class SongQueueViewModel @Inject constructor(
             playerQueueRepository.observeQueue().collect { queue ->
                 _songQueue.value = queue.map { queueItem ->
                     QueueItemUi(
-                        song = queueItem.song,
-                        queueItemId = queueItem.id
+                        song = queueItem.song, queueItemId = queueItem.id
                     )
                 }
 
@@ -36,9 +35,7 @@ class SongQueueViewModel @Inject constructor(
     fun saveQueueOrder() {
         val reorderedQueue = _songQueue.value.mapIndexed { index, queueItem ->
             QueueItem(
-                id = queueItem.queueItemId,
-                song = queueItem.song,
-                position = index
+                id = queueItem.queueItemId, song = queueItem.song, position = index
             )
         }
         viewModelScope.launch {
@@ -48,14 +45,11 @@ class SongQueueViewModel @Inject constructor(
 
 
     fun moveQueueItem(
-        fromIndex: Int,
-        toIndex: Int
+        fromIndex: Int, toIndex: Int
     ) {
         val currentQueue = _songQueue.value
 
-        if (fromIndex !in currentQueue.indices ||
-            toIndex !in currentQueue.indices
-        ) {
+        if (fromIndex !in currentQueue.indices || toIndex !in currentQueue.indices) {
             return
         }
 
@@ -68,9 +62,9 @@ class SongQueueViewModel @Inject constructor(
     }
 
 
-    fun deleteSongByPosition(song: Song, position: Int) {
+    fun deleteQueueItem(queueItemId: Long) {
         viewModelScope.launch {
-            playerQueueRepository.deleteSongByPosition(song, position)
+            playerQueueRepository.deleteQueueItem(queueItemId)
         }
     }
 
@@ -89,8 +83,7 @@ class SongQueueViewModel @Inject constructor(
     fun chooseNextSong(song: Song) {
         viewModelScope.launch {
             playerQueueRepository.insertSongByPosition(
-                song = song,
-                position = 0
+                song = song, position = 0
             )
         }
     }
@@ -99,8 +92,7 @@ class SongQueueViewModel @Inject constructor(
 }
 
 data class QueueItemUi(
-    val queueItemId: Long,
-    val song: Song
+    val queueItemId: Long, val song: Song
 )
 
 const val TAG = "SongQueueViewModel"

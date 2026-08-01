@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -46,8 +46,8 @@ fun SongQueueScreen(
     songQueueViewModel: SongQueueViewModel,
     onBackClick: () -> Unit = {},
     onClearClick: () -> Unit = {},
-    onSongClick: (Song, Int) -> Unit,
-    onDeleteSong: (Song, Int) -> Unit,
+    onSongClick: (Song, Long) -> Unit,
+    onDeleteSong: (Long) -> Unit,
 ) {
 
     val currentSongQueue by songQueueViewModel.songQueue.collectAsStateWithLifecycle()
@@ -102,10 +102,10 @@ fun SongQueueScreen(
                     .weight(1f),
                 contentPadding = PaddingValues(bottom = 8.dp)
             ) {
-                itemsIndexed(
+                items(
                     items = currentSongQueue,
-                    key = { _, it -> it.queueItemId }
-                ) { index, queueItem ->
+                    key = { it.queueItemId }
+                ) { queueItem ->
                     ReorderableItem(
                         state = reorderableState,
                         key = queueItem.queueItemId
@@ -114,10 +114,10 @@ fun SongQueueScreen(
                             MusicQueueCard(
                                 song = queueItem.song,
                                 onClick = {
-                                    onSongClick(queueItem.song, index)
+                                    onSongClick(queueItem.song, queueItem.queueItemId)
                                 },
                                 onDelete = {
-                                    onDeleteSong(queueItem.song, index)
+                                    onDeleteSong(queueItem.queueItemId)
                                 },
                                 isMain = false,
                                 dragHandleModifier =

@@ -16,22 +16,23 @@ class PlayerQueueRepositoryImpl @Inject constructor(
 ) : PlayerQueueRepository {
 
 
-    override suspend fun deleteSongByPosition(
-        song: Song,
-        position: Int
+    override suspend fun deleteQueueItem(
+        queueItemId: Long
     ) {
-        val songList = queueDao.getQueue()
-        val queueItem = songList.getOrNull(position) ?: return
-        if (queueItem.songId != song.id) {
+        val currentQueue = queueDao.getQueue()
+        val updatedQueue = currentQueue.filterNot { item ->
+            item.id == queueItemId
+        }
+
+        if (updatedQueue.size == currentQueue.size) {
             return
         }
-        val updatedList = songList.toMutableList()
-        updatedList.removeAt(position)
 
-        val reindexedList = updatedList.mapIndexed { index, item ->
+        val reindexedQueue = updatedQueue.mapIndexed { index, item ->
             item.copy(position = index)
         }
-        queueDao.replaceQueue(reindexedList)
+
+        queueDao.replaceQueue(reindexedQueue)
     }
 
     override suspend fun deleteFirstSong(currentSong: Song) {
