@@ -19,6 +19,5 @@ interface PlayerQueueRepository {
 
     suspend fun saveQueue(queue: List<QueueItem>)
 
-    suspend fun getQueue(): List<QueueItem>
 
 }

@@ -21,14 +21,6 @@ class SongQueueViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _songQueue.value = playerQueueRepository.getQueue()
-                .sortedBy { it.position }
-                .map {
-                    QueueItemUi(
-                        song = it.song,
-                        queueItemId = it.id
-                    )
-                }
             playerQueueRepository.observeQueue().collect { queue ->
                 _songQueue.value = queue.map { queueItem ->
                     QueueItemUi(

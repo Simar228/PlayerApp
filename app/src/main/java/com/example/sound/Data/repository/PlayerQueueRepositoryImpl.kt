@@ -86,11 +86,6 @@ class PlayerQueueRepositoryImpl @Inject constructor(
             }
     }
 
-    override suspend fun getQueue(): List<QueueItem> {
-        return queueDao.getQueue().map { it.toDomain() }
-    }
-
-
     override suspend fun saveQueue(queue: List<QueueItem>) {
         val entities = queue.mapIndexed { index, item ->
             item.copy(position = index).toEntity()
