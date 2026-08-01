@@ -46,14 +46,6 @@ class PlayerQueueRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun setCurrentSong(song: Song) {
-        val currentQueueList = queueDao.getQueue().mapIndexed { index, item ->
-            if (index == 0) song.toQueueItemEntity(0) else item
-        }
-        queueDao.replaceQueue(currentQueueList)
-    }
-
-
     override suspend fun clearQueue() {
         queueDao.clearQueue()
     }

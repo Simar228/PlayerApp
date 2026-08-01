@@ -10,8 +10,7 @@ interface PlayerQueueRepository {
 
     suspend fun deleteQueueItem(queueItemId: Long)
     suspend fun deleteFirstSong(currentSong: Song)
-
-    suspend fun setCurrentSong(song: Song)
+    
     suspend fun clearQueue()
     suspend fun insertSong(song: Song)
 
