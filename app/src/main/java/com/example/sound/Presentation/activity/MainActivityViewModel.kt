@@ -5,12 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.sound.Domain.repository.SongRepository
 import com.example.sound.Presentation.SongsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -35,9 +33,8 @@ class MainActivityViewModel @Inject constructor(
         loadSongsJob = viewModelScope.launch {
             _songsUiState.value = SongsUiState.Loading
             try {
-                val loadedSongs = withContext(Dispatchers.IO) {
-                    songRepository.getSong()
-                }
+                val loadedSongs = songRepository.getSong()
+
                 _songsUiState.value = SongsUiState.Success(loadedSongs)
             } catch (exception: CancellationException) {
                 throw exception
