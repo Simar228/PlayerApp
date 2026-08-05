@@ -41,7 +41,6 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -59,16 +58,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.common.C
 import coil.compose.SubcomposeAsyncImage
 import com.example.sound.Presentation.playerUi.PlayerUIEvent
 import com.example.sound.Presentation.playerUi.PlayerViewModel
+import com.example.sound.Domain.model.Song
+import com.example.sound.ui.theme.SoundTheme
 
 
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongPage(
     viewModel: PlayerViewModel,
@@ -84,12 +83,53 @@ fun SongPage(
     onEditClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var isSliderTouch by remember { mutableStateOf(false) }
-    var sliderPosition by remember { mutableFloatStateOf(0f) }
     val song by viewModel.currentSong.collectAsStateWithLifecycle()
     val positionMs by viewModel.currentPosition.collectAsStateWithLifecycle()
     val durationMs by viewModel.duration.collectAsStateWithLifecycle()
     val isPlaying by viewModel.isPlaying.collectAsStateWithLifecycle()
+
+    SongPageView(
+        song = song,
+        positionMs = positionMs,
+        durationMs = durationMs,
+        isPlaying = isPlaying,
+        isFavorite = isFavorite,
+        shuffleEnabled = shuffleEnabled,
+        repeatEnabled = repeatEnabled,
+        onCloseClick = onCloseClick,
+        onMenuClick = onMenuClick,
+        onFavoriteClick = onFavoriteClick,
+        onShuffleClick = onShuffleClick,
+        onRepeatClick = onRepeatClick,
+        onQueueClick = onQueueClick,
+        onEditClick = onEditClick,
+        onPlayerEvent = viewModel::sendEvent,
+        modifier = modifier,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SongPageView(
+    song: Song?,
+    positionMs: Long,
+    durationMs: Long,
+    isPlaying: Boolean,
+    isFavorite: Boolean,
+    shuffleEnabled: Boolean,
+    repeatEnabled: Boolean,
+    onCloseClick: () -> Unit,
+    onMenuClick: () -> Unit,
+    onFavoriteClick: () -> Unit,
+    onShuffleClick: () -> Unit,
+    onRepeatClick: () -> Unit,
+    onQueueClick: () -> Unit,
+    onEditClick: () -> Unit,
+    onPlayerEvent: (PlayerUIEvent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var isSliderTouch by remember { mutableStateOf(false) }
+    var sliderPosition by remember { mutableFloatStateOf(0f) }
     val durationIsKnown = durationMs != C.TIME_UNSET && durationMs > 0L
     val safeDuration = if (durationIsKnown) durationMs else 1L
 
@@ -160,7 +200,7 @@ fun SongPage(
                         val targetPosition = sliderPosition
                             .coerceIn(0f, safeDuration.toFloat())
                             .toLong()
-                        viewModel.sendEvent(PlayerUIEvent.SeekTo(targetPosition))
+                        onPlayerEvent(PlayerUIEvent.SeekTo(targetPosition))
                         isSliderTouch = false
                     },
                     thumb = {},
@@ -193,10 +233,14 @@ fun SongPage(
                 Spacer(modifier = Modifier.height(14.dp))
 
                 PlaybackControls(
-                    viewModel = viewModel,
                     isPlaying = isPlaying,
-                    onPreviousClick = { viewModel.sendEvent(PlayerUIEvent.PreviousSong) },
-                    onNextClick = { viewModel.sendEvent(PlayerUIEvent.NextSong) },
+                    onPlayPauseClick = {
+                        onPlayerEvent(
+                            if (isPlaying) PlayerUIEvent.Pause else PlayerUIEvent.Play
+                        )
+                    },
+                    onPreviousClick = { onPlayerEvent(PlayerUIEvent.PreviousSong) },
+                    onNextClick = { onPlayerEvent(PlayerUIEvent.NextSong) },
                     onShuffleClick = onShuffleClick,
                     onRepeatClick = onRepeatClick
                 )
@@ -368,8 +412,8 @@ private fun PlayerTime(
 
 @Composable
 private fun PlaybackControls(
-    viewModel: PlayerViewModel,
     isPlaying: Boolean,
+    onPlayPauseClick: () -> Unit,
     onPreviousClick: () -> Unit,
     onNextClick: () -> Unit,
     onShuffleClick: () -> Unit,
@@ -396,13 +440,7 @@ private fun PlaybackControls(
         }
 
         FilledIconButton(
-            onClick = {
-                if (isPlaying) {
-                    viewModel.sendEvent(PlayerUIEvent.Pause)
-                } else {
-                    viewModel.sendEvent(PlayerUIEvent.Play)
-                }
-            },
+            onClick = onPlayPauseClick,
             modifier = Modifier.size(64.dp),
             colors = IconButtonDefaults.filledIconButtonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
@@ -553,17 +591,31 @@ private fun Long.toPlayerTime(): String {
 @Composable
 @Preview
 fun PreviewSongPage() {
-    SongPage(
-        viewModel = viewModel(),
-        isFavorite = true,
-        shuffleEnabled = true,
-        repeatEnabled = true,
-        onCloseClick = {},
-        onMenuClick = {},
-        onFavoriteClick = {},
-        onShuffleClick = {},
-        onRepeatClick = {},
-        onQueueClick = {},
-        onEditClick = {},
-    )
+    SoundTheme(darkTheme = true) {
+        SongPageView(
+            song = Song(
+                id = "preview-song",
+                title = "Preview Song",
+                artist = "Preview Artist",
+                duration = 215_000L,
+                uri = Uri.EMPTY,
+                album = "Preview Album",
+                genre = "Rock",
+            ),
+            positionMs = 72_000L,
+            durationMs = 215_000L,
+            isPlaying = true,
+            isFavorite = true,
+            shuffleEnabled = true,
+            repeatEnabled = false,
+            onCloseClick = {},
+            onMenuClick = {},
+            onFavoriteClick = {},
+            onShuffleClick = {},
+            onRepeatClick = {},
+            onQueueClick = {},
+            onEditClick = {},
+            onPlayerEvent = {},
+        )
+    }
 }
