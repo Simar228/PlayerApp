@@ -26,7 +26,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.QueueMusic
+import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.SkipNext
@@ -41,6 +41,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -132,6 +133,11 @@ fun SongPageView(
     var sliderPosition by remember { mutableFloatStateOf(0f) }
     val durationIsKnown = durationMs != C.TIME_UNSET && durationMs > 0L
     val safeDuration = if (durationIsKnown) durationMs else 1L
+
+    LaunchedEffect(song?.id) {
+        isSliderTouch = false
+        sliderPosition = 0f
+    }
 
     val safePosition =
         positionMs.coerceIn(
@@ -495,7 +501,7 @@ private fun PlayerBottomActions(
         PlayerAction(
             icon = {
                 Icon(
-                    imageVector = Icons.Default.QueueMusic,
+                    imageVector = Icons.AutoMirrored.Filled.QueueMusic,
                     contentDescription = null
                 )
             },
