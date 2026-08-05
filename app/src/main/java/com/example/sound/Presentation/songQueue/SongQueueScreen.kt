@@ -1,5 +1,6 @@
 package com.example.sound.Presentation.songQueue
 
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,40 +26,64 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.sound.Domain.model.Song
+import com.example.sound.ui.theme.SoundTheme
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
 
 @Composable
 fun SongQueueScreen(
+    songQueueViewModel: SongQueueViewModel,
+    currentSong: Song?,
+    isPlaying: Boolean,
+    onBackClick: () -> Unit,
+    onClearClick: () -> Unit,
+    onSongClick: (Song, Long) -> Unit,
+    modifier: Modifier,
+    onDeleteSong: (Long) -> Unit,
+) {
+    SongQueueView(
+        currentSong = currentSong,
+        isPlaying = isPlaying,
+        modifier = modifier,
+        onBackClick = onBackClick,
+        onClearClick = onClearClick,
+        onSongClick = onSongClick,
+        onDeleteSong = onDeleteSong,
+        saveQueueOrder =  songQueueViewModel::saveQueueOrder,
+        currentSongQueue = songQueueViewModel.songQueue.collectAsStateWithLifecycle().value,
+        moveQueueItem = songQueueViewModel::moveQueueItem
+    )
+}
+
+@Composable
+fun SongQueueView(
     currentSong: Song?,
     isPlaying: Boolean,
     modifier: Modifier,
-    songQueueViewModel: SongQueueViewModel,
+    currentSongQueue: List<QueueItemUi>,
     onBackClick: () -> Unit = {},
     onClearClick: () -> Unit = {},
     onSongClick: (Song, Long) -> Unit,
     onDeleteSong: (Long) -> Unit,
+    moveQueueItem: (Int, Int) -> Unit,
+    saveQueueOrder: () -> Unit,
 ) {
 
-    val currentSongQueue by songQueueViewModel.songQueue.collectAsStateWithLifecycle()
     val lazyListState = rememberLazyListState()
     val reorderableState = rememberReorderableLazyListState(
         lazyListState = lazyListState
     ) { from, to ->
-        songQueueViewModel.moveQueueItem(
-            fromIndex = from.index,
-            toIndex = to.index
-        )
+        moveQueueItem(from.index, to.index)
     }
     Box(
         modifier = modifier
@@ -123,7 +148,7 @@ fun SongQueueScreen(
                                 dragHandleModifier =
                                     Modifier.draggableHandle(
                                         onDragStopped = {
-                                            songQueueViewModel.saveQueueOrder()
+                                            saveQueueOrder()
                                         }
                                     ),
                             )
@@ -176,41 +201,77 @@ private fun QueueHeader(
     }
 }
 
+@Preview(
+    name = "Song queue",
+    showBackground = true,
+    widthDp = 412,
+    heightDp = 892,
+)
 @Composable
-private fun ArtworkPlaceholder() {
-    Icon(
-        imageVector = Icons.Default.MusicNote,
-        contentDescription = null,
-        modifier = Modifier.size(24.dp)
+private fun SongQueueViewPreview() {
+    val currentSong = Song(
+        id = "current-song",
+        title = "Now Playing",
+        artist = "Current Artist",
+        duration = 215_000L,
+        uri = Uri.EMPTY,
+        album = "Current Album",
+        genre = "Rock",
     )
-}
 
+    val queueItems = listOf(
+        QueueItemUi(
+            queueItemId = 1L,
+            song = Song(
+                id = "song-1",
+                title = "First Song",
+                artist = "First Artist",
+                duration = 180_000L,
+                uri = Uri.EMPTY,
+                album = "First Album",
+                genre = "Pop",
+            ),
+        ),
+        QueueItemUi(
+            queueItemId = 2L,
+            song = Song(
+                id = "song-2",
+                title = "Second Song",
+                artist = "Second Artist",
+                duration = 240_000L,
+                uri = Uri.EMPTY,
+                album = "Second Album",
+                genre = "Rock",
+            ),
+        ),
+        QueueItemUi(
+            queueItemId = 3L,
+            song = Song(
+                id = "song-3",
+                title = "Third Song",
+                artist = "Third Artist",
+                duration = 195_000L,
+                uri = Uri.EMPTY,
+                album = "Third Album",
+                genre = "Electronic",
+            ),
+        ),
+    )
 
-@Composable
-private fun QueueAction(
-    text: String,
-    icon: @Composable () -> Unit,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier
-            .fillMaxSize()
-            .clickable(onClick = onClick),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(contentAlignment = Alignment.Center) { icon() }
-        Spacer(modifier = Modifier.width(6.dp))
-        Text(
-            text = text,
-            color = Color.White,
-            style = MaterialTheme.typography.labelMedium,
-            maxLines = 1
+    SoundTheme(darkTheme = true) {
+        SongQueueView(
+            currentSong = currentSong,
+            isPlaying = true,
+            modifier = Modifier.fillMaxSize(),
+            currentSongQueue = queueItems,
+            onBackClick = {},
+            onClearClick = {},
+            onSongClick = { _, _ -> },
+            onDeleteSong = {},
+            moveQueueItem = { _, _ -> },
+            saveQueueOrder = {},
         )
     }
 }
-
-
 
 
