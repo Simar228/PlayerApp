@@ -161,7 +161,11 @@ fun AppNavHost(
                 onFavoriteClick = {},
                 onShuffleClick = {},
                 onRepeatClick = {},
-                onQueueClick = {},
+                onQueueClick = {
+                    navController.navigate(Routes.QueueRoute) {
+                        launchSingleTop = true
+                    }
+                },
                 onEditClick = {},
                 modifier = Modifier
             )
