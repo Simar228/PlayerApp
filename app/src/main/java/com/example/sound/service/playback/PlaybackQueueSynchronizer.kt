@@ -14,27 +14,23 @@ class PlaybackQueueSynchronizer(
     fun synchronizePlayerQueue(state: PlaybackQueueState) {
         val player = player
         val currentSong = state.currentSong ?: return
+        val defaultQueueSongs = defaultQueueAfterCurrentSong(
+            defaultQueue = state.defaultQueueSongs,
+            currentSong = currentSong
+        )
         val upcomingMediaItems = buildList {
             // Явная очередь воспроизводится первой.
             addAll(
-                state.queueSongs
-                    .filterNot { song ->
-                        song.id == currentSong.id
-                    }
-                    .map { song ->
-                        song.toMediaItem()
-                    }
+                state.queueSongs.map { song ->
+                    song.toMediaItem()
+                }
             )
 
             // Затем основной повторяемый плейлист.
             addAll(
-                state.defaultQueueSongs
-                    .filterNot { song ->
-                        song.id == currentSong.id
-                    }
-                    .map { song ->
-                        song.toMediaItem()
-                    }
+                defaultQueueSongs.map { song ->
+                    song.toMediaItem()
+                }
             )
         }
 
@@ -67,10 +63,10 @@ class PlaybackQueueSynchronizer(
             )
             return
         }
-        if(state.queueSongs.isNotEmpty()) {
-            Log.d(TAG, "// Песня не поменялась — обновляем только элементы вокруг неё.")
-            replaceUpcomingItems(upcomingMediaItems)
-        }
+
+        Log.d(TAG, "// Песня не поменялась — обновляем только элементы вокруг неё.")
+        replaceUpcomingItems(upcomingMediaItems)
+
     }
 
     private fun setNewPlayerQueue(
@@ -137,5 +133,22 @@ class PlaybackQueueSynchronizer(
             )
         }
     }
+
     private val TAG = "PlaybackQueueSynchronizer"
+}
+
+private fun defaultQueueAfterCurrentSong(
+    defaultQueue: List<Song>,
+    currentSong: Song,
+): List<Song> {
+    val currentIndex = defaultQueue.indexOfFirst { song ->
+        song.id == currentSong.id
+    }
+
+    if (currentIndex == -1) {
+        return defaultQueue
+    }
+
+    return defaultQueue.drop(currentIndex + 1) +
+            defaultQueue.take(currentIndex)
 }
