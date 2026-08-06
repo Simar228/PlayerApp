@@ -25,8 +25,8 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.PersonOutline
 import androidx.compose.material.icons.outlined.PlayArrow
-import androidx.compose.material.icons.outlined.PlaylistAdd
-import androidx.compose.material.icons.outlined.QueueMusic
+import androidx.compose.material.icons.automirrored.outlined.PlaylistAdd
+import androidx.compose.material.icons.automirrored.outlined.QueueMusic
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -110,7 +110,7 @@ fun SongMenuBottomSheet(
             )
 
             SongMenuItem(
-                icon = Icons.Outlined.QueueMusic,
+                icon = Icons.AutoMirrored.Outlined.QueueMusic,
                 text = "Добавить в очередь",
                 onClick = {
                     executeAction(onAddToQueueClick)
@@ -134,7 +134,7 @@ fun SongMenuBottomSheet(
             )
 
             SongMenuItem(
-                icon = Icons.Outlined.PlaylistAdd,
+                icon = Icons.AutoMirrored.Outlined.PlaylistAdd,
                 text = "Добавить в плейлист",
                 onClick = {
                     executeAction(onAddToPlaylistClick)
