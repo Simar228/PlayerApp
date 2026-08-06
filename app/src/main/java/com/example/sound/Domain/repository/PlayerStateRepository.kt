@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface PlayerStateRepository {
     fun observePlayerState(): Flow<PlayerState?>
-    suspend fun getPlayerState(): PlayerState?
     suspend fun setPlayerState(
         playerState: PlayerState
     )

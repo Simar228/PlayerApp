@@ -20,10 +20,6 @@ class PlayerStateRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getPlayerState(): PlayerState? {
-        return playerStateDao.getPlayerState()?.toDomain()
-    }
-
     override suspend fun setPlayerState(playerState: PlayerState) {
         val song = playerState.currentSong ?: return
         playerStateDao.savePlayerState(song.toPlayerStateEntity())

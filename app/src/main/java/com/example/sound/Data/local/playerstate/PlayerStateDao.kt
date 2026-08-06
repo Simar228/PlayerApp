@@ -15,8 +15,6 @@ interface PlayerStateDao {
 
     @Query("SELECT * FROM player_state  WHERE id = 0")
     fun observePlayerState(): Flow<PlayerStateEntity?>
-    @Query("SELECT * FROM player_state WHERE id = 0")
-    suspend fun getPlayerState(): PlayerStateEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun savePlayerState(state: PlayerStateEntity)
