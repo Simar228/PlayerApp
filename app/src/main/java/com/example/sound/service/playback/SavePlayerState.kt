@@ -1,9 +1,7 @@
 package com.example.sound.service.playback
 
-import android.net.Uri
 import androidx.media3.common.Player
 import com.example.sound.Domain.model.PlayerState
-import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.PlayerQueueRepository
 import com.example.sound.Domain.repository.PlayerStateRepository
 import dagger.assisted.Assisted
@@ -16,18 +14,9 @@ class SavePlayerState @AssistedInject constructor(
     val playerQueueRepository: PlayerQueueRepository
 ) {
     suspend operator fun invoke() {
-        val mediaItem = player.currentMediaItem ?: return
-        val metadata = mediaItem.mediaMetadata
-        val newSong = Song(
-            id = mediaItem.mediaId,
-            title = metadata.title?.toString().orEmpty(),
-            artist = metadata.artist?.toString(),
-            duration = metadata.durationMs ?: 0L,
-            uri = mediaItem.localConfiguration?.uri ?: Uri.EMPTY,
-            album = metadata.albumTitle?.toString(),
-            genre = metadata.genre?.toString(),
-            art = metadata.artworkUri,
-        )
+        val newSong = player.currentMediaItem
+            ?.toSong()
+            ?: return
         playerStateRepository.setPlayerState(
             PlayerState(
                 currentSong = newSong
