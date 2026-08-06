@@ -37,12 +37,14 @@ class PlayerQueueRepositoryImpl @Inject constructor(
 
     override suspend fun deleteFirstSong(currentSong: Song) {
         val songQueue = queueDao.getQueue()
-        val firstSong = songQueue.firstOrNull()?.songId
-        val listWithoutFirstSong = songQueue.toMutableList().drop(1)
-        if (firstSong == currentSong.id) {
-            queueDao.replaceQueue(listWithoutFirstSong)
+        val firstSongId = songQueue.firstOrNull()?.songId ?: return
+        if (firstSongId != currentSong.id) {
+            return
         }
-
+        val listWithoutFirstSong = songQueue.drop(1).mapIndexed { index, entity ->
+            entity.copy(position = index)
+        }
+        queueDao.replaceQueue(listWithoutFirstSong)
     }
 
 
