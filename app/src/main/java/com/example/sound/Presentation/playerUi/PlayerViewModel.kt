@@ -2,24 +2,21 @@ package com.example.sound.Presentation.playerUi
 
 import android.content.ComponentName
 import android.content.Context
-import android.net.Uri
-import android.os.Bundle
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.example.sound.Domain.model.PlayerState
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.DefaultQueueRepository
-import com.example.sound.Domain.repository.PlayerQueueRepository
 import com.example.sound.Domain.repository.PlayerStateRepository
 import com.example.sound.service.PlaybackService
+import com.example.sound.service.playback.toSong
 import com.google.common.util.concurrent.ListenableFuture
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -35,7 +32,6 @@ import javax.inject.Inject
 @HiltViewModel
 class PlayerViewModel internal constructor(
     private val playerStateRepository: PlayerStateRepository,
-    private val playerQueueRepository: PlayerQueueRepository,
     private val controllerFuture: ListenableFuture<MediaController>,
     private val controllerListenerExecutor: Executor,
     private val defaultQueueRepository: DefaultQueueRepository
@@ -45,12 +41,10 @@ class PlayerViewModel internal constructor(
     constructor(
         defaultQueueRepository: DefaultQueueRepository,
         playerStateRepository: PlayerStateRepository,
-        playerQueueRepository: PlayerQueueRepository,
         @ApplicationContext context: Context
     ) : this(
         defaultQueueRepository = defaultQueueRepository,
         playerStateRepository = playerStateRepository,
-        playerQueueRepository = playerQueueRepository,
         controllerFuture = createControllerFuture(context),
         controllerListenerExecutor = ContextCompat.getMainExecutor(context)
     )
@@ -237,48 +231,11 @@ class PlayerViewModel internal constructor(
     }
 }
 
-private fun MediaItem.toSong(): Song {
-    return Song(
-        id = mediaId,
-        title = mediaMetadata.title?.toString().orEmpty(),
-        artist = mediaMetadata.artist?.toString().orEmpty(),
-        duration = mediaMetadata.durationMs?.toLong() ?: 0,
-        uri = localConfiguration?.uri
-            ?: Uri.EMPTY,
-        album = mediaMetadata.albumTitle?.toString().orEmpty(),
-        genre = mediaMetadata.genre?.toString().orEmpty(),
-        art = mediaMetadata.artworkUri
-    )
-
-}
-
 private data class PendingPlaybackRequest(
     val queueSongs: List<Song>,
     val selectedSong: Song
 )
 
 
-private const val EXTRA_DEFAULT_QUEUE = "defaultQueue"
-private fun Song.toMediaItem(isDefaultQueue: Boolean): MediaItem {
-    return MediaItem.Builder()
-        .setMediaId(id)
-        .setUri(uri)
-        .setMediaMetadata(
-            MediaMetadata.Builder()
-                .setTitle(title)
-                .setArtist(artist)
-                .setArtworkUri(art)
-                .setDurationMs(duration)
-                .setGenre(genre)
-                .setAlbumTitle(album)
-                .setExtras(
-                    Bundle().apply {
-                        putBoolean(EXTRA_DEFAULT_QUEUE, isDefaultQueue)
-                    }
-                )
-                .build()
-        )
-        .build()
-}
 
 const val TAG = "PlayerViewModel"
