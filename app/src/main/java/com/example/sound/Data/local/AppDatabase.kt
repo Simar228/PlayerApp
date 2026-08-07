@@ -2,7 +2,6 @@ package com.example.sound.Data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import androidx.room.migration.Migration
 import com.example.sound.Data.local.defualtQueue.DefaultQueueDao
 import com.example.sound.Data.local.defualtQueue.DefaultQueueItemEntity
 import com.example.sound.Data.local.playerstate.PlayerStateDao

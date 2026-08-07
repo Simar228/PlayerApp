@@ -24,7 +24,7 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bingDefaultQueueRepository(
+    abstract fun bindDefaultQueueRepository(
         implementation: DefaultQueueRepositoryImpl
     ): DefaultQueueRepository
 
@@ -36,7 +36,7 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bingPlayerStateRepository(
+    abstract fun bindPlayerStateRepository(
         implementation: PlayerStateRepositoryImpl
     ): PlayerStateRepository
     @Binds
