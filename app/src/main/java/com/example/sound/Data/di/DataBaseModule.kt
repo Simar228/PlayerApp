@@ -30,7 +30,6 @@ object DatabaseModule {
             .build()
     }
 
-
     @Provides
     fun provideDefaultQueueDao(database: AppDatabase): DefaultQueueDao {
         return database.defaultQueueDao()

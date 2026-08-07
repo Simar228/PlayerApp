@@ -35,18 +35,6 @@ class PlayerQueueRepositoryImpl @Inject constructor(
         queueDao.replaceQueue(reindexedQueue)
     }
 
-    override suspend fun deleteFirstSong(currentSong: Song) {
-        val songQueue = queueDao.getQueue()
-        val firstSongId = songQueue.firstOrNull()?.songId ?: return
-        if (firstSongId != currentSong.id) {
-            return
-        }
-        val listWithoutFirstSong = songQueue.drop(1).mapIndexed { index, entity ->
-            entity.copy(position = index)
-        }
-        queueDao.replaceQueue(listWithoutFirstSong)
-    }
-
 
     override suspend fun clearQueue() {
         queueDao.clearQueue()
