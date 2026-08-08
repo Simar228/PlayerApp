@@ -36,8 +36,7 @@ class PlaybackService : MediaSessionService() {
     lateinit var playbackQueueObserver: PlaybackQueueObserver
 
     @Inject
-    lateinit var savePlayerStateFactory: SavePlayerState.Factory
-    private lateinit var savePlayerState: SavePlayerState
+    lateinit var savePlayerState: SavePlayerState
     private var mediaSession: MediaSession? = null
 
     private val serviceScope = CoroutineScope(
@@ -50,10 +49,11 @@ class PlaybackService : MediaSessionService() {
             mediaItem: MediaItem?,
             reason: Int
         ) {
+            val transitionedMediaItem = mediaItem ?: return
             // Пользователь переключил песню, в том числе
             // через системный плеер или Bluetooth.
             serviceScope.launch {
-                savePlayerState()
+                savePlayerState(transitionedMediaItem)
             }
         }
 
@@ -106,7 +106,6 @@ class PlaybackService : MediaSessionService() {
         mediaSession = MediaSession.Builder(this, player)
             .build()
         playbackQueueSynchronizer = PlaybackQueueSynchronizer(player)
-        savePlayerState = savePlayerStateFactory.create(player)
         buildQueue()
     }
 
