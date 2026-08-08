@@ -18,9 +18,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.sound.Presentation.activity.MainActivityViewModel
 import com.example.sound.Presentation.AppUi
 import com.example.sound.Presentation.SongsUiState
+import com.example.sound.Presentation.activity.MainActivityViewModel
 import com.example.sound.Presentation.errorScreen.ErrorScreen
 import com.example.sound.Presentation.loadingScreen.LoadingScreen
 import com.example.sound.Presentation.permissionScreen.PermissionScreen

@@ -5,8 +5,8 @@ import androidx.room.RoomDatabase
 import com.example.sound.Data.local.defualtQueue.DefaultQueueDao
 import com.example.sound.Data.local.defualtQueue.DefaultQueueItemEntity
 import com.example.sound.Data.local.playerstate.PlayerStateDao
-import com.example.sound.Data.local.queue.QueueDao
 import com.example.sound.Data.local.playerstate.PlayerStateEntity
+import com.example.sound.Data.local.queue.QueueDao
 import com.example.sound.Data.local.queue.QueueItemEntity
 
 @Database(
