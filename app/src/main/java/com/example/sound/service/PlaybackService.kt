@@ -10,8 +10,6 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import com.example.sound.Domain.model.Song
-import com.example.sound.Domain.repository.DefaultQueueRepository
-import com.example.sound.Domain.repository.PlayerQueueRepository
 import com.example.sound.service.playback.PlaybackQueueObserver
 import com.example.sound.service.playback.PlaybackQueueSynchronizer
 import com.example.sound.service.playback.SavePlayerState
@@ -35,12 +33,6 @@ class PlaybackService : MediaSessionService() {
 
     @Inject
     lateinit var playbackQueueObserver: PlaybackQueueObserver
-
-    @Inject
-    lateinit var playerQueueRepository: PlayerQueueRepository
-
-    @Inject
-    lateinit var defaultQueueRepository: DefaultQueueRepository
 
     @Inject
     lateinit var savePlayerStateFactory: SavePlayerState.Factory
