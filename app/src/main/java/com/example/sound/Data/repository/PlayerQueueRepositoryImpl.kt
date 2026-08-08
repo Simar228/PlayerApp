@@ -19,20 +19,7 @@ class PlayerQueueRepositoryImpl @Inject constructor(
     override suspend fun deleteQueueItem(
         queueItemId: Long
     ) {
-        val currentQueue = queueDao.getQueue()
-        val updatedQueue = currentQueue.filterNot { item ->
-            item.id == queueItemId
-        }
-
-        if (updatedQueue.size == currentQueue.size) {
-            return
-        }
-
-        val reindexedQueue = updatedQueue.mapIndexed { index, item ->
-            item.copy(position = index)
-        }
-
-        queueDao.replaceQueue(reindexedQueue)
+        queueDao.deleteQueueItemAndReindex(queueItemId)
     }
 
 
@@ -41,25 +28,15 @@ class PlayerQueueRepositoryImpl @Inject constructor(
     }
 
     override suspend fun insertSong(song: Song) {
-        val queueItems = queueDao.getQueue()
-        val nextPosition: Int = (queueItems.maxOfOrNull { it.position } ?: -1) + 1
-        val currentQueueItem = song.toQueueItemEntity(nextPosition)
-        queueDao.insertQueueItem(currentQueueItem)
+        queueDao.appendQueueItem(
+            song.toQueueItemEntity(position = 0)
+        )
     }
 
     override suspend fun insertSongByPosition(song: Song, position: Int) {
-        val queueItemEntity = song.toQueueItemEntity(position)
-        val songList = queueDao.getQueue()
-        val safePosition = position.coerceIn(0, songList.size)
-        val updatedList = songList
-            .toMutableList()
-            .apply {
-                add(safePosition, queueItemEntity)
-            }
-        val reindexedList = updatedList.mapIndexed { index, item ->
-            item.copy(position = index)
-        }
-        queueDao.replaceQueue(reindexedList)
+        queueDao.insertQueueItemAtPosition(
+            item = song.toQueueItemEntity(position)
+        )
     }
 
     override fun observeQueue(): Flow<List<QueueItem>> {
