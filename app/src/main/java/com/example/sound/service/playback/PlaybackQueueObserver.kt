@@ -20,12 +20,10 @@ class PlaybackQueueObserver @Inject constructor(
             playerStateRepository.observePlayerState(),
             playerQueueRepository.observeQueue(),
             defaultQueueRepository.observeQueue(),
-        ) { currentSong, queueItem, defaultQueueSongs ->
+        ) { currentSong, queueItems, defaultQueueSongs ->
             PlaybackQueueState(
                 currentSong = currentSong?.currentSong,
-                queueSongs = queueItem.map { queueItem ->
-                    queueItem.song
-                },
+                queueItems = queueItems,
                 defaultQueueSongs = defaultQueueSongs,
             )
         }.distinctUntilChanged()

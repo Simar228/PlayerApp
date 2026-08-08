@@ -16,23 +16,14 @@ class PlaybackTransitionRepositoryImpl @Inject constructor(
     private val queueDao: QueueDao,
 ) : PlaybackTransitionRepository {
 
-    override suspend fun saveTransition(song: Song) {
+    override suspend fun saveTransition(song: Song, queueItemId: Long?) {
         database.withTransaction {
             playerStateDao.savePlayerState(
                 song.toPlayerStateEntity()
             )
 
-            val currentQueue = queueDao.getQueue()
-            val firstItem = currentQueue.firstOrNull()
-
-            if (firstItem?.songId == song.id) {
-                val reindexedQueue = currentQueue
-                    .drop(1)
-                    .mapIndexed { index, item ->
-                        item.copy(position = index)
-                    }
-
-                queueDao.replaceQueue(reindexedQueue)
+            if (queueItemId != null) {
+                queueDao.deleteQueueItemAndReindex(queueItemId)
             }
         }
     }

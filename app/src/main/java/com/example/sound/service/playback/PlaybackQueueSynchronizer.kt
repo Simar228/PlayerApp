@@ -21,8 +21,8 @@ class PlaybackQueueSynchronizer(
         val upcomingMediaItems = buildList {
             // Явная очередь воспроизводится первой.
             addAll(
-                state.queueSongs.map { song ->
-                    song.toMediaItem()
+                state.queueItems.map { queueItem ->
+                    queueItem.toMediaItem()
                 }
             )
 

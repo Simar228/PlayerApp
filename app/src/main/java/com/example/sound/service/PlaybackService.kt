@@ -9,6 +9,7 @@ import androidx.media3.common.Timeline
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
+import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.model.Song
 import com.example.sound.service.playback.PlaybackQueueObserver
 import com.example.sound.service.playback.PlaybackQueueSynchronizer
@@ -138,7 +139,7 @@ class PlaybackService : MediaSessionService() {
 
 data class PlaybackQueueState(
     val currentSong: Song?,
-    val queueSongs: List<Song>,
+    val queueItems: List<QueueItem>,
     val defaultQueueSongs: List<Song>,
 )
 

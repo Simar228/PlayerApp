@@ -11,10 +11,11 @@ class SavePlayerState @AssistedInject constructor(
     private val playbackTransitionRepository: PlaybackTransitionRepository
 ) {
     suspend operator fun invoke() {
-        val newSong = player.currentMediaItem
-            ?.toSong()
-            ?: return
-        playbackTransitionRepository.saveTransition(newSong)
+        val mediaItem = player.currentMediaItem ?: return
+        playbackTransitionRepository.saveTransition(
+            song = mediaItem.toSong(),
+            queueItemId = mediaItem.queueItemIdOrNull()
+        )
     }
 
     @AssistedFactory
