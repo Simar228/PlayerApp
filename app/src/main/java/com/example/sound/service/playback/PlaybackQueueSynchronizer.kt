@@ -4,8 +4,8 @@ import android.util.Log
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import com.example.sound.Domain.model.PlaybackQueueState
 import com.example.sound.Domain.model.Song
-import com.example.sound.service.PlaybackQueueState
 
 
 class PlaybackQueueSynchronizer(

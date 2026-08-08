@@ -9,9 +9,7 @@ import androidx.media3.common.Timeline
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
-import com.example.sound.Domain.model.QueueItem
-import com.example.sound.Domain.model.Song
-import com.example.sound.service.playback.PlaybackQueueObserver
+import com.example.sound.Domain.repository.PlaybackQueueStateRepository
 import com.example.sound.service.playback.PlaybackQueueSynchronizer
 import com.example.sound.service.playback.SavePlayerState
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,7 +31,7 @@ class PlaybackService : MediaSessionService() {
     private lateinit var playbackQueueSynchronizer: PlaybackQueueSynchronizer
 
     @Inject
-    lateinit var playbackQueueObserver: PlaybackQueueObserver
+    lateinit var playbackQueueStateRepository: PlaybackQueueStateRepository
 
     @Inject
     lateinit var savePlayerState: SavePlayerState
@@ -126,7 +124,7 @@ class PlaybackService : MediaSessionService() {
     }
 
     private fun buildQueue() {
-        playbackQueueObserver.observe().onEach { state ->
+        playbackQueueStateRepository.observePlaybackQueueState().onEach { state ->
             playbackQueueSynchronizer.synchronizePlayerQueue(state)
         }
             .catch { error ->
@@ -135,10 +133,4 @@ class PlaybackService : MediaSessionService() {
     }
     private val TAG = "PlaybackService"
 }
-
-data class PlaybackQueueState(
-    val currentSong: Song?,
-    val queueItems: List<QueueItem>,
-    val defaultQueueSongs: List<Song>,
-)
 

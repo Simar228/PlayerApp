@@ -1,11 +1,13 @@
 package com.example.sound.Data.di
 
 import com.example.sound.Data.repository.DefaultQueueRepositoryImpl
+import com.example.sound.Data.repository.PlaybackQueueStateRepositoryImpl
 import com.example.sound.Data.repository.PlaybackTransitionRepositoryImpl
 import com.example.sound.Data.repository.PlayerQueueRepositoryImpl
 import com.example.sound.Data.repository.PlayerStateRepositoryImpl
 import com.example.sound.Data.repository.SongRepositoryImpl
 import com.example.sound.Domain.repository.DefaultQueueRepository
+import com.example.sound.Domain.repository.PlaybackQueueStateRepository
 import com.example.sound.Domain.repository.PlaybackTransitionRepository
 import com.example.sound.Domain.repository.PlayerQueueRepository
 import com.example.sound.Domain.repository.PlayerStateRepository
@@ -33,6 +35,12 @@ abstract class RepositoryModule {
     abstract fun bindPlaybackTransitionRepository(
         implementation: PlaybackTransitionRepositoryImpl
     ): PlaybackTransitionRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPlaybackQueueStateRepository(
+        implementation: PlaybackQueueStateRepositoryImpl
+    ): PlaybackQueueStateRepository
 
     @Binds
     @Singleton
