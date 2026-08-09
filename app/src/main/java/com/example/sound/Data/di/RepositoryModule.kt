@@ -1,16 +1,12 @@
 package com.example.sound.Data.di
 
-import com.example.sound.Data.repository.DefaultQueueRepositoryImpl
 import com.example.sound.Data.repository.PlaybackQueueStateRepositoryImpl
 import com.example.sound.Data.repository.PlaybackTransitionRepositoryImpl
 import com.example.sound.Data.repository.PlayerQueueRepositoryImpl
-import com.example.sound.Data.repository.PlayerStateRepositoryImpl
 import com.example.sound.Data.repository.SongRepositoryImpl
-import com.example.sound.Domain.repository.DefaultQueueRepository
 import com.example.sound.Domain.repository.PlaybackQueueStateRepository
 import com.example.sound.Domain.repository.PlaybackTransitionRepository
 import com.example.sound.Domain.repository.PlayerQueueRepository
-import com.example.sound.Domain.repository.PlayerStateRepository
 import com.example.sound.Domain.repository.SongRepository
 import dagger.Binds
 import dagger.Module
@@ -22,13 +18,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
-
-
-    @Binds
-    @Singleton
-    abstract fun bindDefaultQueueRepository(
-        implementation: DefaultQueueRepositoryImpl
-    ): DefaultQueueRepository
 
     @Binds
     @Singleton
@@ -42,11 +31,6 @@ abstract class RepositoryModule {
         implementation: PlaybackQueueStateRepositoryImpl
     ): PlaybackQueueStateRepository
 
-    @Binds
-    @Singleton
-    abstract fun bindPlayerStateRepository(
-        implementation: PlayerStateRepositoryImpl
-    ): PlayerStateRepository
     @Binds
     @Singleton
     abstract fun bindSongRepository(
