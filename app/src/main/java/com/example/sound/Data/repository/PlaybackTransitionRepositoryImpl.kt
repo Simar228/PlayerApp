@@ -3,6 +3,8 @@ package com.example.sound.Data.repository
 
 import androidx.room.withTransaction
 import com.example.sound.Data.local.AppDatabase
+import com.example.sound.Data.local.defualtQueue.DefaultQueueDao
+import com.example.sound.Data.local.defualtQueue.toDefaultQueueEntity
 import com.example.sound.Data.local.playerstate.PlayerStateDao
 import com.example.sound.Data.local.playerstate.toPlayerStateEntity
 import com.example.sound.Data.local.queue.QueueDao
@@ -14,7 +16,23 @@ class PlaybackTransitionRepositoryImpl @Inject constructor(
     private val database: AppDatabase,
     private val playerStateDao: PlayerStateDao,
     private val queueDao: QueueDao,
+    private val defaultQueueDao: DefaultQueueDao
 ) : PlaybackTransitionRepository {
+    override suspend fun startPlayback(
+        song: Song,
+        defaultQueueSongs: List<Song>
+    ) {
+        database.withTransaction {
+            val defaultQueueItemEntityList = defaultQueueSongs.mapIndexed { index, song ->
+                song.toDefaultQueueEntity(index)
+            }
+            if (defaultQueueItemEntityList.isNotEmpty()) {
+                defaultQueueDao.replaceDefaultQueue(defaultQueueItemEntityList)
+            }
+            playerStateDao.savePlayerState(song.toPlayerStateEntity())
+
+        }
+    }
 
     override suspend fun saveTransition(song: Song, queueItemId: Long?) {
         database.withTransaction {

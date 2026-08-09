@@ -11,10 +11,8 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import com.example.sound.Domain.model.PlayerState
 import com.example.sound.Domain.model.Song
-import com.example.sound.Domain.repository.DefaultQueueRepository
-import com.example.sound.Domain.repository.PlayerStateRepository
+import com.example.sound.Domain.repository.PlaybackTransitionRepository
 import com.example.sound.service.PlaybackService
 import com.example.sound.service.playback.toSong
 import com.google.common.util.concurrent.ListenableFuture
@@ -31,20 +29,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PlayerViewModel internal constructor(
-    private val playerStateRepository: PlayerStateRepository,
+    private val playbackTransitionRepository: PlaybackTransitionRepository,
     private val controllerFuture: ListenableFuture<MediaController>,
     private val controllerListenerExecutor: Executor,
-    private val defaultQueueRepository: DefaultQueueRepository
 ) : ViewModel() {
 
     @Inject
     constructor(
-        defaultQueueRepository: DefaultQueueRepository,
-        playerStateRepository: PlayerStateRepository,
+        playbackTransitionRepository: PlaybackTransitionRepository,
         @ApplicationContext context: Context
     ) : this(
-        defaultQueueRepository = defaultQueueRepository,
-        playerStateRepository = playerStateRepository,
+        playbackTransitionRepository = playbackTransitionRepository,
         controllerFuture = createControllerFuture(context),
         controllerListenerExecutor = ContextCompat.getMainExecutor(context)
     )
@@ -132,15 +127,7 @@ class PlayerViewModel internal constructor(
     private fun playSong(queueSongs: List<Song>, selectedSong: Song) {
         Log.d(TAG, "Get song: ${selectedSong.title}")
         viewModelScope.launch {
-            if (queueSongs.isNotEmpty()) {
-                defaultQueueRepository.updateDefaultQueue(queueSongs)
-            }
-            playerStateRepository.setPlayerState(
-                PlayerState(
-                    currentSong = selectedSong
-                )
-
-            )
+            playbackTransitionRepository.startPlayback(selectedSong, queueSongs)
         }
     }
 
@@ -235,7 +222,6 @@ private data class PendingPlaybackRequest(
     val queueSongs: List<Song>,
     val selectedSong: Song
 )
-
 
 
 const val TAG = "PlayerViewModel"
