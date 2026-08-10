@@ -3,11 +3,12 @@ package com.example.sound.Data.local.playerstate
 import androidx.core.net.toUri
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.sound.Data.local.DatabaseTableNames
 import com.example.sound.Domain.model.PlayerState
 import com.example.sound.Domain.model.Song
 
 
-@Entity(tableName = "player_state")
+@Entity(tableName = DatabaseTableNames.PLAYER_STATE)
 data class PlayerStateEntity(
     @PrimaryKey
     val id: Int = 0,

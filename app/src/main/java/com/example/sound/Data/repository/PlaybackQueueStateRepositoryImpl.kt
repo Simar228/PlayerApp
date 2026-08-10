@@ -2,6 +2,7 @@ package com.example.sound.Data.repository
 
 import androidx.room.withTransaction
 import com.example.sound.Data.local.AppDatabase
+import com.example.sound.Data.local.DatabaseTableNames
 import com.example.sound.Data.local.defualtQueue.DefaultQueueDao
 import com.example.sound.Data.local.defualtQueue.toSong
 import com.example.sound.Data.local.playerstate.PlayerStateDao
@@ -25,9 +26,9 @@ class PlaybackQueueStateRepositoryImpl @Inject constructor(
     override fun observePlaybackQueueState(): Flow<PlaybackQueueState> {
         return database.invalidationTracker
             .createFlow(
-                "player_state",
-                "queue_items",
-                "defaultQueue_items",
+                DatabaseTableNames.PLAYER_STATE,
+                DatabaseTableNames.QUEUE_ITEMS,
+                DatabaseTableNames.DEFAULT_QUEUE_ITEMS,
             )
             .map {
                 database.withTransaction {

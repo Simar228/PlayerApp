@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import com.example.sound.Data.local.DatabaseTableNames
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -60,10 +61,10 @@ interface QueueDao {
     }
 
 
-    @Query("SELECT * FROM queue_items ORDER BY position ASC")
+    @Query("SELECT * FROM ${DatabaseTableNames.QUEUE_ITEMS} ORDER BY position ASC")
     fun observeQueue(): Flow<List<QueueItemEntity>>
 
-    @Query("SELECT * FROM queue_items ORDER BY position ASC")
+    @Query("SELECT * FROM ${DatabaseTableNames.QUEUE_ITEMS} ORDER BY position ASC")
     suspend fun getQueue(): List<QueueItemEntity>
 
     @Insert
@@ -72,7 +73,7 @@ interface QueueDao {
     @Insert
     suspend fun insertQueueItems(items: List<QueueItemEntity>)
 
-    @Query("DELETE FROM queue_items")
+    @Query("DELETE FROM ${DatabaseTableNames.QUEUE_ITEMS}")
     suspend fun clearQueue()
 
     @Transaction

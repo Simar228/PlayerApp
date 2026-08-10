@@ -4,16 +4,17 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import com.example.sound.Data.local.DatabaseTableNames
 
 
 @Dao
 interface DefaultQueueDao{
-    @Query("SELECT * FROM defaultQueue_items ORDER BY position ASC")
+    @Query("SELECT * FROM ${DatabaseTableNames.DEFAULT_QUEUE_ITEMS} ORDER BY position ASC")
     suspend fun getDefaultQueue(): List<DefaultQueueItemEntity>
     @Insert
     suspend fun insertDefaultQueueItems(items: List<DefaultQueueItemEntity>)
 
-    @Query("DELETE FROM defaultQueue_items")
+    @Query("DELETE FROM ${DatabaseTableNames.DEFAULT_QUEUE_ITEMS}")
     suspend fun clearDefaultQueue()
 
     @Transaction
