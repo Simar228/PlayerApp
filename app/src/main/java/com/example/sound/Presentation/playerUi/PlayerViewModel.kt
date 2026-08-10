@@ -93,12 +93,20 @@ class PlayerViewModel internal constructor(
         controllerFuture.addListener(
             {
                 try {
-                    controller = controllerFuture.get()
-                    controller?.addListener(playerListener)
+                    val mediaController = controllerFuture.get()
+
+                    controller = mediaController
+                    mediaController.addListener(playerListener)
+
+                    synchronizeWithController(mediaController)
+
                     _connectionState.value = PlayerConnectionState.Ready
+
                     val pendingRequest = pendingPlaybackRequest
                     pendingPlaybackRequest = null
                     pendingRequest?.let { request ->
+                        showSelectedSong(request.selectedSong)
+
                         playSong(
                             queueSongs = request.queueSongs,
                             selectedSong = request.selectedSong
@@ -135,7 +143,7 @@ class PlayerViewModel internal constructor(
     fun sendSong(queueSongs: List<Song> = emptyList(), song: Song) {
         when (_connectionState.value) {
             PlayerConnectionState.Connecting -> {
-                _currentSong.value = song
+                showSelectedSong(song)
                 pendingPlaybackRequest = PendingPlaybackRequest(
                     queueSongs = queueSongs,
                     selectedSong = song
@@ -216,7 +224,29 @@ class PlayerViewModel internal constructor(
                 .buildAsync()
         }
     }
+
+    private fun synchronizeWithController(
+        mediaController: MediaController
+    ) {
+        _currentSong.value =
+            mediaController.currentMediaItem?.toSong()
+
+        _isPlaying.value = mediaController.isPlaying
+
+        _currentPosition.value =
+            mediaController.currentPosition.coerceAtLeast(0L)
+
+        _duration.value = mediaController.duration
+    }
+
+    private fun showSelectedSong(song: Song) {
+        _currentSong.value = song
+        _currentPosition.value = 0L
+        _duration.value = song.duration
+    }
 }
+
+
 
 private data class PendingPlaybackRequest(
     val queueSongs: List<Song>,
