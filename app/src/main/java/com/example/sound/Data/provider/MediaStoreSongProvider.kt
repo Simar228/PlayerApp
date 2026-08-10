@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
+import androidx.annotation.RequiresApi
 import com.example.sound.Domain.model.Song
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -282,6 +283,7 @@ class MediaStoreSongProvider @Inject constructor(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun Uri.volumeNameOrDefault(): String {
         return pathSegments.firstOrNull() ?: MediaStore.VOLUME_EXTERNAL
     }
