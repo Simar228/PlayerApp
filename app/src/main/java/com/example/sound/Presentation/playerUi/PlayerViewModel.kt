@@ -46,10 +46,9 @@ class PlayerViewModel internal constructor(
 
 
     private var pendingPlaybackRequest: PendingPlaybackRequest? = null
-    private val _connectionState =
-        MutableStateFlow<PlayerConnectionState>(
-            PlayerConnectionState.Connecting
-        )
+    private val _connectionState = MutableStateFlow<PlayerConnectionState>(
+        PlayerConnectionState.Connecting
+    )
     val connectionState = _connectionState.asStateFlow()
     private var positionUpdatesJob: Job? = null
     private var controller: MediaController? = null
@@ -65,8 +64,7 @@ class PlayerViewModel internal constructor(
 
 
         override fun onMediaItemTransition(
-            mediaItem: MediaItem?,
-            reason: Int
+            mediaItem: MediaItem?, reason: Int
         ) {
             _currentSong.value = mediaItem?.toSong()
             _currentPosition.value = 0L
@@ -109,7 +107,8 @@ class PlayerViewModel internal constructor(
 
                         playSong(
                             queueSongs = request.queueSongs,
-                            selectedSong = request.selectedSong
+                            selectedSong = request.selectedSong,
+                            queueItemId = request.queueItemId
                         )
                     }
                     Log.d(TAG, "MediaController is ready")
@@ -121,8 +120,7 @@ class PlayerViewModel internal constructor(
                     Log.e(TAG, "Error connecting MediaController", error)
                     _connectionState.value = PlayerConnectionState.Error(error)
                 }
-            },
-            controllerListenerExecutor
+            }, controllerListenerExecutor
         )
     }
 
@@ -132,27 +130,44 @@ class PlayerViewModel internal constructor(
     }
 
 
-    private fun playSong(queueSongs: List<Song>, selectedSong: Song) {
+    private fun playSong(
+        queueSongs: List<Song>,
+        selectedSong: Song,
+        queueItemId: Long?
+    ) {
         Log.d(TAG, "Get song: ${selectedSong.title}")
         viewModelScope.launch {
-            playbackTransitionRepository.startPlayback(selectedSong, queueSongs)
+            playbackTransitionRepository.startPlayback(
+                song = selectedSong,
+                defaultQueueSongs = queueSongs,
+                queueItemId = queueItemId
+            )
         }
     }
 
 
-    fun sendSong(queueSongs: List<Song> = emptyList(), song: Song) {
+    fun sendSong(
+        queueSongs: List<Song> = emptyList(),
+        song: Song,
+        queueItemId: Long? = null
+    ) {
         when (_connectionState.value) {
             PlayerConnectionState.Connecting -> {
                 showSelectedSong(song)
                 pendingPlaybackRequest = PendingPlaybackRequest(
                     queueSongs = queueSongs,
-                    selectedSong = song
+                    selectedSong = song,
+                    queueItemId = queueItemId
                 )
                 Log.d(TAG, pendingPlaybackRequest.toString())
             }
 
             PlayerConnectionState.Ready -> {
-                playSong(queueSongs, song)
+                playSong(
+                    queueSongs = queueSongs,
+                    selectedSong = song,
+                    queueItemId = queueItemId
+                )
             }
 
             is PlayerConnectionState.Error -> {
@@ -216,25 +231,21 @@ class PlayerViewModel internal constructor(
     private companion object {
         fun createControllerFuture(context: Context): ListenableFuture<MediaController> {
             val sessionToken = SessionToken(
-                context,
-                ComponentName(context, PlaybackService::class.java)
+                context, ComponentName(context, PlaybackService::class.java)
             )
 
-            return MediaController.Builder(context, sessionToken)
-                .buildAsync()
+            return MediaController.Builder(context, sessionToken).buildAsync()
         }
     }
 
     private fun synchronizeWithController(
         mediaController: MediaController
     ) {
-        _currentSong.value =
-            mediaController.currentMediaItem?.toSong()
+        _currentSong.value = mediaController.currentMediaItem?.toSong()
 
         _isPlaying.value = mediaController.isPlaying
 
-        _currentPosition.value =
-            mediaController.currentPosition.coerceAtLeast(0L)
+        _currentPosition.value = mediaController.currentPosition.coerceAtLeast(0L)
 
         _duration.value = mediaController.duration
     }
@@ -247,10 +258,10 @@ class PlayerViewModel internal constructor(
 }
 
 
-
 private data class PendingPlaybackRequest(
     val queueSongs: List<Song>,
-    val selectedSong: Song
+    val selectedSong: Song,
+    val queueItemId: Long?
 )
 
 
