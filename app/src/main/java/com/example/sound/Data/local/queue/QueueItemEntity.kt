@@ -2,13 +2,22 @@ package com.example.sound.Data.local.queue
 
 import androidx.core.net.toUri
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.example.sound.Data.local.DatabaseTableNames
 import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.model.Song
 
 
-@Entity(tableName = DatabaseTableNames.QUEUE_ITEMS)
+@Entity(
+    tableName = DatabaseTableNames.QUEUE_ITEMS,
+    indices = [
+        Index(
+            value = ["position"],
+            unique = true
+        )
+    ]
+)
 data class QueueItemEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,

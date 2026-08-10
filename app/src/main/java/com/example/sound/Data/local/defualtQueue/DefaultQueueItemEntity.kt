@@ -2,11 +2,20 @@ package com.example.sound.Data.local.defualtQueue
 
 import androidx.core.net.toUri
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.example.sound.Data.local.DatabaseTableNames
 import com.example.sound.Domain.model.Song
 
-@Entity(tableName = DatabaseTableNames.DEFAULT_QUEUE_ITEMS)
+@Entity(
+    tableName = DatabaseTableNames.DEFAULT_QUEUE_ITEMS,
+    indices = [
+        Index(
+            value = ["position"],
+            unique = true
+        )
+    ]
+)
 class DefaultQueueItemEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
