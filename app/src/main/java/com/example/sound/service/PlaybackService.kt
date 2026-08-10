@@ -11,7 +11,7 @@ import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import com.example.sound.Domain.repository.PlaybackQueueStateRepository
 import com.example.sound.service.playback.PlaybackQueueSynchronizer
-import com.example.sound.service.playback.SavePlayerState
+import com.example.sound.service.playback.HandleMediaItemTransition
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,7 +34,7 @@ class PlaybackService : MediaSessionService() {
     lateinit var playbackQueueStateRepository: PlaybackQueueStateRepository
 
     @Inject
-    lateinit var savePlayerState: SavePlayerState
+    lateinit var handleMediaItemTransition: HandleMediaItemTransition
     private var mediaSession: MediaSession? = null
 
     private val serviceScope = CoroutineScope(
@@ -51,7 +51,7 @@ class PlaybackService : MediaSessionService() {
             // Пользователь переключил песню, в том числе
             // через системный плеер или Bluetooth.
             serviceScope.launch {
-                savePlayerState(transitionedMediaItem)
+                handleMediaItemTransition(transitionedMediaItem)
             }
         }
 

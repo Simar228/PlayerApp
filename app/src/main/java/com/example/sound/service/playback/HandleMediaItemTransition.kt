@@ -4,7 +4,7 @@ import androidx.media3.common.MediaItem
 import com.example.sound.Domain.repository.PlaybackTransitionRepository
 import javax.inject.Inject
 
-class SavePlayerState @Inject constructor(
+class HandleMediaItemTransition @Inject constructor(
     private val playbackTransitionRepository: PlaybackTransitionRepository
 ) {
     suspend operator fun invoke(mediaItem: MediaItem) {
