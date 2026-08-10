@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.model.Song
 import com.example.sound.ui.theme.SoundTheme
 import sh.calvin.reorderable.ReorderableItem
@@ -66,7 +67,7 @@ fun SongQueueView(
     currentSong: Song?,
     isPlaying: Boolean,
     modifier: Modifier,
-    currentSongQueue: List<QueueItemUi>,
+    currentSongQueue: List<QueueItem>,
     onBackClick: () -> Unit = {},
     onClearClick: () -> Unit = {},
     onSongClick: (Song, Long) -> Unit,
@@ -125,20 +126,20 @@ fun SongQueueView(
             ) {
                 items(
                     items = currentSongQueue,
-                    key = { it.queueItemId }
+                    key = { it.id }
                 ) { queueItem ->
                     ReorderableItem(
                         state = reorderableState,
-                        key = queueItem.queueItemId
+                        key = queueItem.id
                     ) { _ ->
                         Column {
                             MusicQueueCard(
                                 song = queueItem.song,
                                 onClick = {
-                                    onSongClick(queueItem.song, queueItem.queueItemId)
+                                    onSongClick(queueItem.song, queueItem.id)
                                 },
                                 onDelete = {
-                                    onDeleteSong(queueItem.queueItemId)
+                                    onDeleteSong(queueItem.id)
                                 },
                                 isMain = false,
                                 dragHandleModifier =
@@ -216,8 +217,7 @@ private fun SongQueueViewPreview() {
     )
 
     val queueItems = listOf(
-        QueueItemUi(
-            queueItemId = 1L,
+        QueueItem(
             song = Song(
                 id = "song-1",
                 title = "First Song",
@@ -227,9 +227,12 @@ private fun SongQueueViewPreview() {
                 album = "First Album",
                 genre = "Pop",
             ),
+            id = 1,
+            position = 0,
         ),
-        QueueItemUi(
-            queueItemId = 2L,
+        QueueItem(
+            id = 2,
+            position = 1,
             song = Song(
                 id = "song-2",
                 title = "Second Song",
@@ -240,8 +243,9 @@ private fun SongQueueViewPreview() {
                 genre = "Rock",
             ),
         ),
-        QueueItemUi(
-            queueItemId = 3L,
+        QueueItem(
+            id = 3,
+            position = 2,
             song = Song(
                 id = "song-3",
                 title = "Third Song",

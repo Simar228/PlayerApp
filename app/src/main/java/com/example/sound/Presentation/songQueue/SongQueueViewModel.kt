@@ -15,29 +15,23 @@ import javax.inject.Inject
 class SongQueueViewModel @Inject constructor(
     private val playerQueueRepository: PlayerQueueRepository
 ) : ViewModel() {
-    private val _songQueue = MutableStateFlow<List<QueueItemUi>>(emptyList())
+    private val _songQueue = MutableStateFlow<List<QueueItem>>(emptyList())
     val songQueue = _songQueue.asStateFlow()
 
 
     init {
         viewModelScope.launch {
             playerQueueRepository.observeQueue().collect { queue ->
-                _songQueue.value = queue.map { queueItem ->
-                    QueueItemUi(
-                        song = queueItem.song, queueItemId = queueItem.id
-                    )
-                }
-
+                _songQueue.value = queue
             }
         }
     }
 
     fun saveQueueOrder() {
         val reorderedQueue = _songQueue.value.mapIndexed { index, queueItem ->
-            QueueItem(
-                id = queueItem.queueItemId, song = queueItem.song, position = index
-            )
+            queueItem.copy(position = index)
         }
+
         viewModelScope.launch {
             playerQueueRepository.saveQueue(reorderedQueue)
         }
@@ -90,9 +84,3 @@ class SongQueueViewModel @Inject constructor(
 
 
 }
-
-data class QueueItemUi(
-    val queueItemId: Long, val song: Song
-)
-
-const val TAG = "SongQueueViewModel"
