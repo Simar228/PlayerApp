@@ -28,12 +28,11 @@ class SongQueueViewModel @Inject constructor(
     }
 
     fun saveQueueOrder() {
-        val reorderedQueue = _songQueue.value.mapIndexed { index, queueItem ->
-            queueItem.copy(position = index)
-        }
-
         viewModelScope.launch {
-            playerQueueRepository.saveQueue(reorderedQueue)
+            val queueItemIds = _songQueue.value.map { queueItem ->
+                queueItem.id
+            }
+            playerQueueRepository.saveQueueOrder(queueItemIds)
         }
     }
 

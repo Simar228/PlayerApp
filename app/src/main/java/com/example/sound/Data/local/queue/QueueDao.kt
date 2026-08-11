@@ -76,10 +76,38 @@ interface QueueDao {
     @Query("DELETE FROM ${DatabaseTableNames.QUEUE_ITEMS}")
     suspend fun clearQueue()
 
+
     @Transaction
-    suspend fun replaceQueue(items: List<QueueItemEntity>) {
+    suspend fun reorderQueue(queueItemId: List<Long>) {
+        val currentQueue = getQueue()
+        val itemsById = currentQueue.associateBy { item ->
+            item.id
+        }
+        val reorderedItems = queueItemId
+            .mapNotNull { queueItemId ->
+                itemsById[queueItemId]
+            }
+        val reorderedIds = reorderedItems
+            .distinct()
+            .map { item ->
+                item.id
+            }
+
+        val remainingItems = currentQueue.filterNot { item ->
+            item.id in reorderedIds
+        }
+
+        val finalQueue = (reorderedItems + remainingItems)
+            .mapIndexed { index, item ->
+                item.copy(position = index)
+            }
+
+        replaceQueue(finalQueue)
+    }
+    @Transaction
+    suspend fun replaceQueue(queueItems: List<QueueItemEntity>) {
         clearQueue()
-        insertQueueItems(items)
+        insertQueueItems(queueItems)
     }
 
 }

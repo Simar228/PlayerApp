@@ -2,7 +2,6 @@ package com.example.sound.Data.repository
 
 import com.example.sound.Data.local.queue.QueueDao
 import com.example.sound.Data.local.queue.toDomain
-import com.example.sound.Data.local.queue.toEntity
 import com.example.sound.Data.local.queue.toQueueItemEntity
 import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.model.Song
@@ -46,11 +45,9 @@ class PlayerQueueRepositoryImpl @Inject constructor(
             }
     }
 
-    override suspend fun saveQueue(queue: List<QueueItem>) {
-        val entities = queue.mapIndexed { index, item ->
-            item.copy(position = index).toEntity()
-        }
-        queueDao.replaceQueue(entities)
+    override suspend fun saveQueueOrder(queueItemsIds: List<Long>) {
+
+        queueDao.reorderQueue(queueItemsIds)
     }
 
 }
