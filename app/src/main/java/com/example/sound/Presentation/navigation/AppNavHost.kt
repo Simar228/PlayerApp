@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -80,9 +81,10 @@ fun AppNavHost(
             }
 
             composable<Routes.QueueRoute> {
+                val playerUiState by playerViewModel.uiState.collectAsStateWithLifecycle()
                 SongQueueScreen(
-                    isPlaying = playerViewModel.isPlaying.collectAsStateWithLifecycle().value,
-                    currentSong = playerViewModel.currentSong.collectAsStateWithLifecycle().value,
+                    isPlaying = playerUiState.isPlaying,
+                    currentSong = playerUiState.currentSong,
                     songQueueViewModel = songQueueViewModel,
                     onBackClick = { navController.popBackStack() },
                     onClearClick = { songQueueViewModel.clearSongQueue() },

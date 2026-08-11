@@ -55,10 +55,11 @@ fun PlayerUI(
     viewModel: PlayerViewModel,
     onClick: () -> Unit,
 ) {
-    val duration by viewModel.duration.collectAsStateWithLifecycle()
-    val currentPosition by viewModel.currentPosition.collectAsStateWithLifecycle()
-    val song by viewModel.currentSong.collectAsStateWithLifecycle(initialValue = null)
-    val isPlaying by viewModel.isPlaying.collectAsStateWithLifecycle()
+    val playerUiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val duration = playerUiState.duration
+    val currentPosition = playerUiState.currentPosition
+    val song = playerUiState.currentSong
+    val isPlaying = playerUiState.isPlaying
     PlayerContent(
         song = song,
         duration = duration,

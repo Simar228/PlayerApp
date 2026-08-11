@@ -22,6 +22,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executor
@@ -49,39 +50,50 @@ class PlayerViewModel internal constructor(
     private val _connectionState = MutableStateFlow<PlayerConnectionState>(
         PlayerConnectionState.Connecting
     )
+    private val _uiState = MutableStateFlow(PlayerUiState())
+    val uiState = _uiState.asStateFlow()
     val connectionState = _connectionState.asStateFlow()
     private var positionUpdatesJob: Job? = null
     private var controller: MediaController? = null
-    private val _isPlaying = MutableStateFlow(false)
-    val isPlaying = _isPlaying.asStateFlow()
-    private val _currentSong = MutableStateFlow<Song?>(null)
-    val currentSong = _currentSong.asStateFlow()
-    private val _currentPosition = MutableStateFlow(0L)
-    val currentPosition = _currentPosition.asStateFlow()
-    private val _duration = MutableStateFlow(0L)
-    val duration = _duration.asStateFlow()
     private val playerListener = object : Player.Listener {
 
 
         override fun onMediaItemTransition(
             mediaItem: MediaItem?, reason: Int
         ) {
-            _currentSong.value = mediaItem?.toSong()
-            _currentPosition.value = 0L
-            updateDuration()
+            val transitionedSong = mediaItem?.toSong()
+            _uiState.update { state ->
+                state.copy(
+                    currentSong = transitionedSong,
+                    currentPosition = 0L,
+                    duration = transitionedSong?.duration ?: C.TIME_UNSET,
+                )
+            }
         }
 
 
         override fun onIsPlayingChanged(isPlaying: Boolean) {
-            _isPlaying.value = isPlaying
+            _uiState.update { state ->
+                state.copy(
+                    isPlaying = isPlaying
+                )
+            }
         }
 
         override fun onPlaybackStateChanged(playbackState: Int) {
             if (playbackState == Player.STATE_READY) {
-                updateDuration()
+                _uiState.update { state ->
+                    state.copy(
+                        duration = controller?.duration ?: C.TIME_UNSET,
+                    )
+                }
             }
             if (playbackState == Player.STATE_ENDED) {
-                _currentPosition.value = _duration.value
+                _uiState.update { state ->
+                    state.copy(
+                        currentPosition = state.duration
+                    )
+                }
             }
         }
     }
@@ -115,18 +127,13 @@ class PlayerViewModel internal constructor(
 
 
                 } catch (error: Exception) {
-                    _currentSong.value = null
                     controller = null
                     Log.e(TAG, "Error connecting MediaController", error)
                     _connectionState.value = PlayerConnectionState.Error(error)
+                    _uiState.value = PlayerUiState()
                 }
             }, controllerListenerExecutor
         )
-    }
-
-
-    private fun updateDuration() {
-        _duration.value = controller?.duration ?: C.TIME_UNSET
     }
 
 
@@ -187,7 +194,11 @@ class PlayerViewModel internal constructor(
             }
 
             is PlayerUIEvent.SeekTo -> {
-                _currentPosition.value = event.positionMs
+                _uiState.update { state ->
+                    state.copy(
+                        currentPosition = event.positionMs,
+                    )
+                }
                 controller?.seekTo(event.positionMs)
             }
 
@@ -216,7 +227,11 @@ class PlayerViewModel internal constructor(
             while (isActive) {
                 val mediaController = controller
                 if (mediaController?.isPlaying == true) {
-                    _currentPosition.value = mediaController.currentPosition.coerceAtLeast(0L)
+                    _uiState.update { state ->
+                        state.copy(
+                            currentPosition = mediaController.currentPosition.coerceAtLeast(0L)
+                        )
+                    }
                 }
                 delay(250L)
             }
@@ -241,19 +256,24 @@ class PlayerViewModel internal constructor(
     private fun synchronizeWithController(
         mediaController: MediaController
     ) {
-        _currentSong.value = mediaController.currentMediaItem?.toSong()
-
-        _isPlaying.value = mediaController.isPlaying
-
-        _currentPosition.value = mediaController.currentPosition.coerceAtLeast(0L)
-
-        _duration.value = mediaController.duration
+        _uiState.update { state ->
+            state.copy(
+                currentPosition = mediaController.currentPosition.coerceAtLeast(0L),
+                currentSong = mediaController.currentMediaItem?.toSong(),
+                duration = mediaController.duration,
+                isPlaying = mediaController.isPlaying
+            )
+        }
     }
 
     private fun showSelectedSong(song: Song) {
-        _currentSong.value = song
-        _currentPosition.value = 0L
-        _duration.value = song.duration
+        _uiState.update { state ->
+            state.copy(
+                currentPosition = 0L,
+                currentSong = song,
+                duration = song.duration,
+            )
+        }
     }
 }
 

@@ -83,10 +83,11 @@ fun SongPage(
     onEditClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val song by viewModel.currentSong.collectAsStateWithLifecycle()
-    val positionMs by viewModel.currentPosition.collectAsStateWithLifecycle()
-    val durationMs by viewModel.duration.collectAsStateWithLifecycle()
-    val isPlaying by viewModel.isPlaying.collectAsStateWithLifecycle()
+    val playerUiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val durationMs = playerUiState.duration
+    val positionMs = playerUiState.currentPosition
+    val song = playerUiState.currentSong
+    val isPlaying = playerUiState.isPlaying
 
     SongPageView(
         song = song,
