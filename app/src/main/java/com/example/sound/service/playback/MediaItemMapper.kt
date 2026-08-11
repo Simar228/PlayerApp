@@ -2,6 +2,7 @@ package com.example.sound.service.playback
 
 import android.net.Uri
 import android.os.Bundle
+import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import com.example.sound.Domain.model.QueueItem
@@ -22,7 +23,7 @@ private fun Song.buildMediaItem(
     val metadata = MediaMetadata.Builder()
         .setTitle(title)
         .setArtist(artist)
-        .setArtworkUri(art)
+        .setArtworkUri(art?.toUri())
         .setDurationMs(duration)
         .setGenre(genre)
         .setAlbumTitle(album)
@@ -49,13 +50,13 @@ fun MediaItem.toSong(): Song {
 
     return Song(
         id = mediaId,
-        uri = localConfiguration?.uri ?: Uri.EMPTY,
+        uri = localConfiguration?.uri?.toString().orEmpty(),
         title = metadata.title?.toString().orEmpty(),
         artist = metadata.artist?.toString(),
         duration = metadata.durationMs ?: 0L,
         album = metadata.albumTitle?.toString(),
         genre = metadata.genre?.toString(),
-        art = metadata.artworkUri,
+        art = metadata.artworkUri?.toString(),
     )
 }
 

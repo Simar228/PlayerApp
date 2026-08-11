@@ -58,6 +58,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.C
 import coil.compose.SubcomposeAsyncImage
@@ -176,7 +177,7 @@ fun SongPageView(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Artwork(
-                    artwork = song.art,
+                    artwork = song.art?.toUri(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(1f)
@@ -602,7 +603,7 @@ fun PreviewSongPage() {
                 title = "Preview Song",
                 artist = "Preview Artist",
                 duration = 215_000L,
-                uri = Uri.EMPTY,
+                uri = "EMPTY",
                 album = "Preview Album",
                 genre = "Rock",
             ),

@@ -190,14 +190,14 @@ class MediaStoreSongProvider @Inject constructor(
                         artist = cursor.stringOrNull(MediaStore.Audio.Media.ARTIST)
                             ?: "Неизвестный исполнитель",
                         duration = cursor.longOrNull(MediaStore.Audio.Media.DURATION) ?: 0L,
-                        uri = contentUri,
+                        uri = contentUri.toString(),
                         album = cursor.stringOrNull(MediaStore.Audio.Media.ALBUM),
                         // Жанр пока не загружается ради совместимости основной projection.
                         // При необходимости его лучше получать отдельным optional-запросом.
                         genre = genre,
                         art = cursor
                             .longOrNull(MediaStore.Audio.Media.ALBUM_ID)
-                            ?.let(::albumArtUri)
+                            ?.let(::albumArtUri)?.toString()
                     )
                 }
             } ?: Log.w(TAG, "MediaStore returned a null cursor for URI=$collection")

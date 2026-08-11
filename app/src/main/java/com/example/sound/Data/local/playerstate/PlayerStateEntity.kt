@@ -43,10 +43,10 @@ fun PlayerStateEntity.toDomain(): PlayerState {
             title = currentSongTitle,
             artist = currentSongArtist,
             duration = currentSongDuration,
-            uri = currentSongUri.toUri(),
+            uri = currentSongUri,
             album = currentSongAlbum,
             genre = currentSongGenre,
-            art = currentSongArtUri?.toUri()
+            art = currentSongArtUri
         )
     )
 }

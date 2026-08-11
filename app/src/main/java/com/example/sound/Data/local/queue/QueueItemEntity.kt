@@ -56,10 +56,10 @@ fun QueueItemEntity.toDomain(): QueueItem {
             title = title,
             artist = artist,
             duration = duration,
-            uri = songUri.toUri(),
+            uri = songUri,
             album = album,
             genre = genre,
-            art = artUri?.toUri()
+            art = artUri
         ),
         id = id,
         position = position

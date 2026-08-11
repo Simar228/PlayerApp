@@ -276,7 +276,7 @@ fun PreviewPlayerUI() {
             title = "Пока-Пока",
             artist = "CUPSIZE",
             duration = 90000,
-            uri = Uri.EMPTY,
+            uri = "EMPTY",
             album = "кажется, в аду прикольно, но меня выгнали б утром",
             genre = "Инди-Рок",
             art = null

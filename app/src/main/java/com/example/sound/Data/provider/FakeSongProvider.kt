@@ -21,17 +21,17 @@ class FakeSongProvider @Inject constructor(
             title = "Пока-Пока",
             artist = "CUPSIZE",
             duration = 90000,
-            uri = Uri.EMPTY,
+            uri = "EMPTY",
             album = "кажется, в аду прикольно, но меня выгнали б утром",
             genre = "Инди-Рок",
-            art = Uri.parse("android.resource://${context.packageName}/${R.drawable.art_zmp}")
+            art = "android.resource://${context.packageName}/${R.drawable.art_zmp}"
         ),
         Song(
             id = "2",
             title = "Я ПЫЛЬ",
             artist = "MORGENSHTERN",
             duration = 120000,
-            uri = Uri.EMPTY,
+            uri = "EMPTY",
             album = "Легендарная пыль",
             genre = "Треп",
             art = null
@@ -41,7 +41,7 @@ class FakeSongProvider @Inject constructor(
             title = "Это было в России",
             artist = "Монеточка",
             duration = 240000,
-            uri = Uri.EMPTY,
+            uri = "EMPTY",
             album = null,
             genre = null,
             art = null

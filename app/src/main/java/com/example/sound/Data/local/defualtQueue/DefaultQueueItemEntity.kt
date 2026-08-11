@@ -37,10 +37,10 @@ fun DefaultQueueItemEntity.toSong(): Song {
         title = title,
         artist = artist,
         duration = duration,
-        uri = songUri.toUri(),
+        uri = songUri,
         album = album,
         genre = genre,
-        art = artUri?.toUri()
+        art = artUri
     )
 }
 
