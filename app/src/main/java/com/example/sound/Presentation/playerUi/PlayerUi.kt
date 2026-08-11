@@ -1,6 +1,5 @@
 package com.example.sound.Presentation.playerUi
 
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -48,6 +47,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.C
 import coil.compose.SubcomposeAsyncImage
 import com.example.sound.Domain.model.Song
+import com.example.sound.Presentation.playerUi.viewModel.PlayerViewModel
 
 
 @Composable

@@ -21,7 +21,7 @@ import com.example.sound.Presentation.mainScreen.MainNavigationEvents
 import com.example.sound.Presentation.mainScreen.MainScreen
 import com.example.sound.Presentation.mainScreen.MainViewModel
 import com.example.sound.Presentation.mainScreen.components.SongMenuBottomSheet
-import com.example.sound.Presentation.playerUi.PlayerViewModel
+import com.example.sound.Presentation.playerUi.viewModel.PlayerViewModel
 import com.example.sound.Presentation.songPage.SongPage
 import com.example.sound.Presentation.songQueue.SongQueueScreen
 import com.example.sound.Presentation.songQueue.SongQueueViewModel

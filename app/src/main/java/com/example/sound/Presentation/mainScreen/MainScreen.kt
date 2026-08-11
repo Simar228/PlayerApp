@@ -33,7 +33,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sound.Presentation.mainScreen.components.MusicCard
 import com.example.sound.Presentation.mainScreen.components.SortButton
-import com.example.sound.Presentation.playerUi.PlayerViewModel
+import com.example.sound.Presentation.playerUi.viewModel.PlayerViewModel
 import com.example.sound.R
 
 

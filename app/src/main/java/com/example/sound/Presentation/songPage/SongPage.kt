@@ -64,7 +64,7 @@ import androidx.media3.common.C
 import coil.compose.SubcomposeAsyncImage
 import com.example.sound.Domain.model.Song
 import com.example.sound.Presentation.playerUi.PlayerUIEvent
-import com.example.sound.Presentation.playerUi.PlayerViewModel
+import com.example.sound.Presentation.playerUi.viewModel.PlayerViewModel
 import com.example.sound.ui.theme.SoundTheme
 
 

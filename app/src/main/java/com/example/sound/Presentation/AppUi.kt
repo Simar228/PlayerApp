@@ -22,7 +22,7 @@ import com.example.sound.Presentation.navigation.AppNavHost
 import com.example.sound.Presentation.navigation.Routes
 import com.example.sound.Presentation.navigation.bottom.BottomNavigation
 import com.example.sound.Presentation.playerUi.PlayerUI
-import com.example.sound.Presentation.playerUi.PlayerViewModel
+import com.example.sound.Presentation.playerUi.viewModel.PlayerViewModel
 
 @Composable
 fun AppUi(

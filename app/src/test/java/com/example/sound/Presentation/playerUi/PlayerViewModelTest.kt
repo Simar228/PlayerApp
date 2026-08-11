@@ -5,6 +5,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaController
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.PlayerQueueRepository
+import com.example.sound.Presentation.playerUi.viewModel.PlayerViewModel
 import com.google.common.util.concurrent.ListenableFuture
 import org.junit.Assert.assertEquals
 import org.junit.Test
