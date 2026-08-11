@@ -57,6 +57,17 @@ class PlayerViewModel internal constructor(
     private var controller: MediaController? = null
     private val playerListener = object : Player.Listener {
 
+        override fun onPositionDiscontinuity(
+            oldPosition: Player.PositionInfo,
+            newPosition: Player.PositionInfo,
+            reason: Int
+        ) {
+            _uiState.update { state ->
+                state.copy(
+                    currentPosition = newPosition.positionMs.coerceAtLeast(0L)
+                )
+            }
+        }
 
         override fun onMediaItemTransition(
             mediaItem: MediaItem?, reason: Int
@@ -136,6 +147,41 @@ class PlayerViewModel internal constructor(
         )
     }
 
+    fun sendSong(
+        queueSongs: List<Song> = emptyList(),
+        song: Song,
+        queueItemId: Long? = null
+    ) {
+        when (_connectionState.value) {
+            PlayerConnectionState.Connecting -> {
+                showSelectedSong(song)
+                pendingPlaybackRequest = PendingPlaybackRequest(
+                    queueSongs = queueSongs,
+                    selectedSong = song,
+                    queueItemId = queueItemId
+                )
+                Log.d(
+                    TAG,
+                    pendingPlaybackRequest.toString()
+                )
+            }
+
+            PlayerConnectionState.Ready -> {
+                playSong(
+                    queueSongs = queueSongs,
+                    selectedSong = song,
+                    queueItemId = queueItemId
+                )
+            }
+
+            is PlayerConnectionState.Error -> {
+                Log.w(
+                    TAG,
+                    "Cannot play song: controller connection failed"
+                )
+            }
+        }
+    }
 
     private fun playSong(
         queueSongs: List<Song>,
@@ -152,36 +198,6 @@ class PlayerViewModel internal constructor(
         }
     }
 
-
-    fun sendSong(
-        queueSongs: List<Song> = emptyList(),
-        song: Song,
-        queueItemId: Long? = null
-    ) {
-        when (_connectionState.value) {
-            PlayerConnectionState.Connecting -> {
-                showSelectedSong(song)
-                pendingPlaybackRequest = PendingPlaybackRequest(
-                    queueSongs = queueSongs,
-                    selectedSong = song,
-                    queueItemId = queueItemId
-                )
-                Log.d(TAG, pendingPlaybackRequest.toString())
-            }
-
-            PlayerConnectionState.Ready -> {
-                playSong(
-                    queueSongs = queueSongs,
-                    selectedSong = song,
-                    queueItemId = queueItemId
-                )
-            }
-
-            is PlayerConnectionState.Error -> {
-                Log.w(TAG, "Cannot play song: controller connection failed")
-            }
-        }
-    }
 
     fun sendEvent(event: PlayerUIEvent) {
         when (event) {
