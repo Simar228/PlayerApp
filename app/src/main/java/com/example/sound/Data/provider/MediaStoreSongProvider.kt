@@ -3,13 +3,23 @@ package com.example.sound.Data.provider
 import android.content.ContentUris
 import android.content.Context
 import android.database.Cursor
+import android.database.ContentObserver
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.sound.Domain.model.Song
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -25,10 +35,38 @@ class MediaStoreSongProvider @Inject constructor(
     @param:ApplicationContext
     private val context: Context
 ) {
-    /**
-     * Загружает пользовательское аудио из всех доступных внешних коллекций.
-     * Это единственный публичный метод; остальные функции ниже обслуживают его работу.
-     */
+    fun observeSongs(): Flow<List<Song>> {
+        return callbackFlow {
+            val observer = object : ContentObserver(
+                Handler(Looper.getMainLooper())
+            ) {
+                override fun onChange(selfChange: Boolean) {
+                    trySend(Unit)
+                }
+            }
+
+            externalAudioCollections().forEach { collection ->
+                context.contentResolver.registerContentObserver(
+                    collection,
+                    true,
+                    observer
+                )
+            }
+
+            trySend(Unit)
+
+            awaitClose {
+                context.contentResolver.unregisterContentObserver(observer)
+            }
+        }
+            .conflate()
+            .map {
+                loadSongs()
+            }
+            .flowOn(Dispatchers.IO)
+    }
+
+    /** Загружает актуальный снимок пользовательского аудио из внешних коллекций. */
     fun loadSongs(): List<Song> {
         // LinkedHashMap удаляет дубликаты, сохраняя порядок добавления.
         // Одна песня может одновременно прийти из merged URI и URI конкретного volume.

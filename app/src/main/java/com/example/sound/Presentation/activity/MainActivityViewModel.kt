@@ -23,19 +23,21 @@ class MainActivityViewModel @Inject constructor(
 
 
     fun permissionDenied() {
+        loadSongsJob?.cancel()
+        loadSongsJob = null
         _songsUiState.value = SongsUiState.PermissionDenied
     }
 
     fun loadSongs() {
-        if (loadSongsJob?.isActive == true || _songsUiState.value is SongsUiState.Success) {
+        if (loadSongsJob?.isActive == true) {
             return
         }
         loadSongsJob = viewModelScope.launch {
             _songsUiState.value = SongsUiState.Loading
             try {
-                val loadedSongs = songRepository.getSong()
-
-                _songsUiState.value = SongsUiState.Success(loadedSongs)
+                songRepository.observeSongs().collect { loadedSongs ->
+                    _songsUiState.value = SongsUiState.Success(loadedSongs)
+                }
             } catch (exception: CancellationException) {
                 throw exception
             } catch (exception: Exception) {

@@ -1,7 +1,8 @@
 package com.example.sound.Domain.repository
 
 import com.example.sound.Domain.model.Song
+import kotlinx.coroutines.flow.Flow
 
 interface SongRepository {
-    suspend fun getSong(): List<Song>
+    fun observeSongs(): Flow<List<Song>>
 }
