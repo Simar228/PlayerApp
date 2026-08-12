@@ -15,6 +15,7 @@ import com.example.sound.service.playback.PlaybackQueueSynchronizer
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.catch
@@ -40,6 +41,7 @@ class PlaybackService : MediaSessionService() {
     private val serviceScope = CoroutineScope(
         SupervisorJob() + Dispatchers.Main.immediate
     )
+    private var mediaTransitionJob: Job? = null
 
     private val playerListener = object : Player.Listener {
 
@@ -50,7 +52,8 @@ class PlaybackService : MediaSessionService() {
             val transitionedMediaItem = mediaItem ?: return
             // Пользователь переключил песню, в том числе
             // через системный плеер или Bluetooth.
-            serviceScope.launch {
+            mediaTransitionJob?.cancel()
+            mediaTransitionJob = serviceScope.launch {
                 handleMediaItemTransition(transitionedMediaItem)
             }
         }
@@ -131,6 +134,7 @@ class PlaybackService : MediaSessionService() {
                 Log.e(TAG, "Queue observation error", error)
             }.launchIn(serviceScope)
     }
+
     private val TAG = "PlaybackService"
 }
 
