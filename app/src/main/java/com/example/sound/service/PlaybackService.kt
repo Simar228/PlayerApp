@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 @AndroidEntryPoint
 class PlaybackService : MediaSessionService() {
@@ -99,11 +100,8 @@ class PlaybackService : MediaSessionService() {
             .build()
         playbackQueueSynchronizer = PlaybackQueueSynchronizer(player)
         buildQueue()
-
         serviceScope.launch {
-            for (mediaItem in mediaTransitionEvents) {
-                handleMediaItemTransition(mediaItem)
-            }
+            processMediaTransitionEvents()
         }
     }
 
@@ -125,7 +123,21 @@ class PlaybackService : MediaSessionService() {
     }
 
 
-
+    private suspend fun processMediaTransitionEvents() {
+        for (mediaItem in mediaTransitionEvents) {
+            try {
+                handleMediaItemTransition(mediaItem)
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                Log.e(
+                    TAG,
+                    "Failed to handle media item transition",
+                    error
+                )
+            }
+        }
+    }
     private fun buildQueue() {
         playbackQueueStateRepository.observePlaybackQueueState().onEach { state ->
             playbackQueueSynchronizer.synchronizePlayerQueue(state)
