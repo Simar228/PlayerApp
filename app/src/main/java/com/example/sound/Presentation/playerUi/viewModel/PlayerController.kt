@@ -20,8 +20,9 @@ class PlayerController(
     private val onControllerReady: () -> Unit,
     private val controllerFuture: ListenableFuture<MediaController>
 
-    ) {
+) {
     private var isConnectionStarted = false
+    private var isReleased = false
     private val _mediaControllerState = MutableStateFlow(PlayerUiState())
     val mediaControllerState = _mediaControllerState.asStateFlow()
     private var controller: MediaController? = null
@@ -80,11 +81,14 @@ class PlayerController(
     }
 
     fun connect() {
-        if (isConnectionStarted) return
+        if (isConnectionStarted || isReleased) return
         isConnectionStarted = true
         Log.d(TAG, "Connecting MediaController")
         controllerFuture.addListener(
             {
+                if (isReleased) {
+                    return@addListener
+                }
                 try {
                     val mediaController = controllerFuture.get()
                     controller = mediaController
@@ -115,6 +119,8 @@ class PlayerController(
     }
 
     fun release() {
+        if (isReleased) return
+        isReleased = true
         controller?.removeListener(playerListener)
         MediaController.releaseFuture(controllerFuture)
         controller = null
@@ -155,32 +161,50 @@ class PlayerController(
     }
 
     fun play() {
-        controller?.play()
+        withController {
+            play()
+        }
     }
 
     fun pause() {
-        controller?.pause()
+        withController {
+            pause()
+        }
     }
 
     fun seekTo(positionMs: Long) {
+        if (isReleased) return
         _mediaControllerState.update { state ->
             state.copy(
                 currentPosition = positionMs,
             )
         }
-        controller?.seekTo(positionMs)
+        withController {
+            seekTo(positionMs)
+        }
     }
 
     fun next() {
-        controller?.seekToNextMediaItem()
+        withController {
+            seekToNextMediaItem()
+        }
     }
 
     fun previous() {
-        controller?.seekToPreviousMediaItem()
+        withController {
+            seekToPreviousMediaItem()
+        }
     }
 
     private companion object {
         const val TAG = "PlayerController"
+    }
+
+    private inline fun withController(
+        action: MediaController.() -> Unit
+    ) {
+        if (isReleased) return
+        controller?.action()
     }
 
 }
