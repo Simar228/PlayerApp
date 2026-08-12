@@ -24,6 +24,7 @@ class PlayerViewModel @Inject constructor(
     private val playerController: PlayerController = playerControllerFactory.create(
         onControllerReady = ::handleControllerReady
     )
+    private var playbackRequestJob: Job? = null
     val uiState = playerController.mediaControllerState
 
     init {
@@ -36,7 +37,8 @@ class PlayerViewModel @Inject constructor(
         queueItemId: Long?
     ) {
         Log.d(TAG, "Get song: ${selectedSong.title}")
-        viewModelScope.launch {
+        playbackRequestJob?.cancel()
+        playbackRequestJob = viewModelScope.launch {
             playbackTransitionRepository.startPlayback(
                 song = selectedSong,
                 defaultQueueSongs = queueSongs,
@@ -44,6 +46,7 @@ class PlayerViewModel @Inject constructor(
             )
         }
     }
+
     fun sendSong(
         queueSongs: List<Song> = emptyList(),
         song: Song,
@@ -79,6 +82,7 @@ class PlayerViewModel @Inject constructor(
             }
         }
     }
+
     fun sendEvent(event: PlayerUIEvent) {
         when (event) {
             is PlayerUIEvent.Play -> {
@@ -137,6 +141,7 @@ class PlayerViewModel @Inject constructor(
 
 
 }
+
 private data class PendingPlaybackRequest(
     val queueSongs: List<Song>,
     val selectedSong: Song,
