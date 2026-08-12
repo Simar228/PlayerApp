@@ -1,51 +1,27 @@
 package com.example.sound.Presentation.playerUi.viewModel
 
-import android.content.ComponentName
-import android.content.Context
 import android.util.Log
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.media3.session.MediaController
-import androidx.media3.session.SessionToken
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.PlaybackTransitionRepository
 import com.example.sound.Presentation.playerUi.PlayerConnectionState
 import com.example.sound.Presentation.playerUi.PlayerUIEvent
-import com.example.sound.service.PlaybackService
-import com.google.common.util.concurrent.ListenableFuture
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import java.util.concurrent.Executor
 import javax.inject.Inject
 
 @HiltViewModel
-class PlayerViewModel internal constructor(
+class PlayerViewModel @Inject constructor(
     private val playbackTransitionRepository: PlaybackTransitionRepository,
-    private val controllerFuture: ListenableFuture<MediaController>,
-    private val controllerListenerExecutor: Executor,
+    playerControllerFactory: PlayerControllerFactory
 ) : ViewModel() {
-
-    @Inject
-    constructor(
-        playbackTransitionRepository: PlaybackTransitionRepository,
-        @ApplicationContext context: Context
-    ) : this(
-        playbackTransitionRepository = playbackTransitionRepository,
-        controllerFuture = createControllerFuture(context),
-        controllerListenerExecutor = ContextCompat.getMainExecutor(context)
-    )
-
-
     private var pendingPlaybackRequest: PendingPlaybackRequest? = null
     private var positionUpdatesJob: Job? = null
-    private val playerController: PlayerController = PlayerController(
-        controllerFuture = controllerFuture,
-        controllerListenerExecutor = controllerListenerExecutor,
+    private val playerController: PlayerController = playerControllerFactory.create(
         onControllerReady = ::handleControllerReady
     )
     val uiState = playerController.mediaControllerState
@@ -149,16 +125,6 @@ class PlayerViewModel internal constructor(
     fun stopPositionUpdates() {
         positionUpdatesJob?.cancel()
         positionUpdatesJob = null
-    }
-
-    private companion object {
-        fun createControllerFuture(context: Context): ListenableFuture<MediaController> {
-            val sessionToken = SessionToken(
-                context, ComponentName(context, PlaybackService::class.java)
-            )
-
-            return MediaController.Builder(context, sessionToken).buildAsync()
-        }
     }
 
     private fun handleControllerReady() {
