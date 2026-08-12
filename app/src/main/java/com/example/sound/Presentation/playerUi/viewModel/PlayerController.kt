@@ -21,6 +21,7 @@ class PlayerController(
     private val controllerFuture: ListenableFuture<MediaController>
 
     ) {
+    private var isConnectionStarted = false
     private val _mediaControllerState = MutableStateFlow(PlayerUiState())
     val mediaControllerState = _mediaControllerState.asStateFlow()
     private var controller: MediaController? = null
@@ -79,6 +80,8 @@ class PlayerController(
     }
 
     fun connect() {
+        if (isConnectionStarted) return
+        isConnectionStarted = true
         Log.d(TAG, "Connecting MediaController")
         controllerFuture.addListener(
             {

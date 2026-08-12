@@ -30,6 +30,20 @@ class PlayerViewModel @Inject constructor(
         playerController.connect()
     }
 
+    private fun playSong(
+        queueSongs: List<Song>,
+        selectedSong: Song,
+        queueItemId: Long?
+    ) {
+        Log.d(TAG, "Get song: ${selectedSong.title}")
+        viewModelScope.launch {
+            playbackTransitionRepository.startPlayback(
+                song = selectedSong,
+                defaultQueueSongs = queueSongs,
+                queueItemId = queueItemId
+            )
+        }
+    }
     fun sendSong(
         queueSongs: List<Song> = emptyList(),
         song: Song,
@@ -65,23 +79,6 @@ class PlayerViewModel @Inject constructor(
             }
         }
     }
-
-    private fun playSong(
-        queueSongs: List<Song>,
-        selectedSong: Song,
-        queueItemId: Long?
-    ) {
-        Log.d(TAG, "Get song: ${selectedSong.title}")
-        viewModelScope.launch {
-            playbackTransitionRepository.startPlayback(
-                song = selectedSong,
-                defaultQueueSongs = queueSongs,
-                queueItemId = queueItemId
-            )
-        }
-    }
-
-
     fun sendEvent(event: PlayerUIEvent) {
         when (event) {
             is PlayerUIEvent.Play -> {
@@ -140,8 +137,6 @@ class PlayerViewModel @Inject constructor(
 
 
 }
-
-
 private data class PendingPlaybackRequest(
     val queueSongs: List<Song>,
     val selectedSong: Song,
