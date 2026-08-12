@@ -32,7 +32,7 @@ class PlayerViewModel @Inject constructor(
     }
 
     private fun playSong(
-        queueSongs: List<Song>,
+        queueSongs: List<Song>?,
         selectedSong: Song,
         queueItemId: Long?
     ) {
@@ -48,7 +48,7 @@ class PlayerViewModel @Inject constructor(
     }
 
     fun sendSong(
-        queueSongs: List<Song> = emptyList(),
+        queueSongs: List<Song>? = null,
         song: Song,
         queueItemId: Long? = null
     ) {
@@ -143,7 +143,7 @@ class PlayerViewModel @Inject constructor(
 }
 
 private data class PendingPlaybackRequest(
-    val queueSongs: List<Song>,
+    val queueSongs: List<Song>?,
     val selectedSong: Song,
     val queueItemId: Long?
 )

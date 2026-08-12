@@ -21,18 +21,19 @@ class PlaybackTransitionRepositoryImpl @Inject constructor(
 
     override suspend fun startPlayback(
         song: Song,
-        defaultQueueSongs: List<Song>,
+        defaultQueueSongs: List<Song>?,
         queueItemId: Long?
     ) {
         database.withTransaction {
-            if (defaultQueueSongs.isNotEmpty()) {
+            defaultQueueSongs?.let { songs ->
                 val defaultQueueEntities =
-                    defaultQueueSongs.mapIndexed { index, queueSong ->
+                    songs.mapIndexed { index, queueSong ->
                         queueSong.toDefaultQueueEntity(index)
                     }
 
                 defaultQueueDao.replaceDefaultQueue(defaultQueueEntities)
             }
+
 
             playerStateDao.savePlayerState(
                 song.toPlayerStateEntity()

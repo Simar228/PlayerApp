@@ -5,7 +5,7 @@ import com.example.sound.Domain.model.Song
 interface PlaybackTransitionRepository {
     suspend fun startPlayback(
         song: Song,
-        defaultQueueSongs: List<Song>,
+        defaultQueueSongs: List<Song>?,
         queueItemId: Long?
     )
 
