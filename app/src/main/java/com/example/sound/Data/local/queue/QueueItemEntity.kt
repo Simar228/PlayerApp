@@ -1,6 +1,5 @@
 package com.example.sound.Data.local.queue
 
-import androidx.core.net.toUri
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey

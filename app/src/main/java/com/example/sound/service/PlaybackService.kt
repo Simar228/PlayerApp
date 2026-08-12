@@ -15,9 +15,9 @@ import com.example.sound.service.playback.PlaybackQueueSynchronizer
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -28,7 +28,8 @@ import javax.inject.Inject
 class PlaybackService : MediaSessionService() {
     private lateinit var player: ExoPlayer
 
-
+    private val mediaTransitionEvents =
+        Channel<MediaItem>(capacity = Channel.UNLIMITED)
     private lateinit var playbackQueueSynchronizer: PlaybackQueueSynchronizer
 
     @Inject
@@ -41,7 +42,6 @@ class PlaybackService : MediaSessionService() {
     private val serviceScope = CoroutineScope(
         SupervisorJob() + Dispatchers.Main.immediate
     )
-    private var mediaTransitionJob: Job? = null
 
     private val playerListener = object : Player.Listener {
 
@@ -52,10 +52,7 @@ class PlaybackService : MediaSessionService() {
             val transitionedMediaItem = mediaItem ?: return
             // Пользователь переключил песню, в том числе
             // через системный плеер или Bluetooth.
-            mediaTransitionJob?.cancel()
-            mediaTransitionJob = serviceScope.launch {
-                handleMediaItemTransition(transitionedMediaItem)
-            }
+            mediaTransitionEvents.trySend(transitionedMediaItem)
         }
 
         override fun onIsPlayingChanged(isPlaying: Boolean) {
@@ -73,12 +70,6 @@ class PlaybackService : MediaSessionService() {
         }
 
         override fun onPlaybackStateChanged(playbackState: Int) {
-            if (
-                playbackState == Player.STATE_ENDED ||
-                playbackState == Player.STATE_IDLE
-            ) {
-
-            }
         }
 
         override fun onTimelineChanged(
@@ -108,15 +99,16 @@ class PlaybackService : MediaSessionService() {
             .build()
         playbackQueueSynchronizer = PlaybackQueueSynchronizer(player)
         buildQueue()
-    }
 
-    override fun onGetSession(
-        controllerInfo: MediaSession.ControllerInfo
-    ): MediaSession? {
-        return mediaSession
+        serviceScope.launch {
+            for (mediaItem in mediaTransitionEvents) {
+                handleMediaItemTransition(mediaItem)
+            }
+        }
     }
 
     override fun onDestroy() {
+        mediaTransitionEvents.close()
         serviceScope.cancel()
         player.removeListener(playerListener)
         mediaSession?.release()
@@ -125,6 +117,14 @@ class PlaybackService : MediaSessionService() {
 
         super.onDestroy()
     }
+
+    override fun onGetSession(
+        controllerInfo: MediaSession.ControllerInfo
+    ): MediaSession? {
+        return mediaSession
+    }
+
+
 
     private fun buildQueue() {
         playbackQueueStateRepository.observePlaybackQueueState().onEach { state ->

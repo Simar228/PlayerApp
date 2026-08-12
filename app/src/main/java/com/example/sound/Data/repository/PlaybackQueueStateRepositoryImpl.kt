@@ -9,13 +9,9 @@ import com.example.sound.Data.local.playerstate.PlayerStateDao
 import com.example.sound.Data.local.queue.QueueDao
 import com.example.sound.Domain.model.PlaybackQueueState
 import com.example.sound.Domain.repository.PlaybackQueueStateRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.conflate
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import com.example.sound.Data.local.playerstate.toDomain as toPlayerState
@@ -28,7 +24,6 @@ class PlaybackQueueStateRepositoryImpl @Inject constructor(
     private val defaultQueueDao: DefaultQueueDao,
 ) : PlaybackQueueStateRepository {
 
-    @OptIn(FlowPreview::class)
     override fun observePlaybackQueueState(): Flow<PlaybackQueueState> {
         return database.invalidationTracker
             .createFlow(
@@ -37,7 +32,6 @@ class PlaybackQueueStateRepositoryImpl @Inject constructor(
                 DatabaseTableNames.DEFAULT_QUEUE_ITEMS,
             )
             .conflate()
-            .debounce(MEDIA_STORE_CHANGES_DEBOUNCE_MS)
             .map {
                 database.withTransaction {
                     PlaybackQueueState(
@@ -60,8 +54,6 @@ class PlaybackQueueStateRepositoryImpl @Inject constructor(
                     )
                 }
             }
-            .flowOn(Dispatchers.IO)
             .distinctUntilChanged()
     }
 }
-private const val MEDIA_STORE_CHANGES_DEBOUNCE_MS = 200L

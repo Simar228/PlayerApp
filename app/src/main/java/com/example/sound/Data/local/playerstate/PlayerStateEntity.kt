@@ -1,6 +1,5 @@
 package com.example.sound.Data.local.playerstate
 
-import androidx.core.net.toUri
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.sound.Data.local.DatabaseTableNames

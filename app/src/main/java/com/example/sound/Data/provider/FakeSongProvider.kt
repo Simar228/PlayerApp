@@ -1,7 +1,6 @@
 package com.example.sound.Data.provider
 
 import android.content.Context
-import android.net.Uri
 import com.example.sound.Domain.model.Song
 import com.example.sound.R
 import dagger.hilt.android.qualifiers.ApplicationContext

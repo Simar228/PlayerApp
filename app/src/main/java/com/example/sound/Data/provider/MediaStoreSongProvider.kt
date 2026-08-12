@@ -2,8 +2,8 @@ package com.example.sound.Data.provider
 
 import android.content.ContentUris
 import android.content.Context
-import android.database.Cursor
 import android.database.ContentObserver
+import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -14,10 +14,12 @@ import androidx.annotation.RequiresApi
 import com.example.sound.Domain.model.Song
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -35,6 +37,7 @@ class MediaStoreSongProvider @Inject constructor(
     @param:ApplicationContext
     private val context: Context
 ) {
+    @OptIn(FlowPreview::class)
     fun observeSongs(): Flow<List<Song>> {
         return callbackFlow {
             val observer = object : ContentObserver(
@@ -59,10 +62,12 @@ class MediaStoreSongProvider @Inject constructor(
                 context.contentResolver.unregisterContentObserver(observer)
             }
         }
+            .debounce(MEDIA_STORE_CHANGES_DEBOUNCE_MS)
             .conflate()
             .map {
                 loadSongs()
             }
+
             .flowOn(Dispatchers.IO)
     }
 
@@ -358,5 +363,6 @@ class MediaStoreSongProvider @Inject constructor(
         const val TAG = "SongsDebug"
         const val LEGACY_EXTERNAL_VOLUME_NAME = "external"
         val ALBUM_ART_BASE_URI: Uri = Uri.parse("content://media/external/audio/albumart")
+        private const val MEDIA_STORE_CHANGES_DEBOUNCE_MS = 200L
     }
 }
