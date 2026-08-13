@@ -3,13 +3,8 @@ package com.example.sound.Presentation.mainScreen
 import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,8 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sound.Presentation.mainScreen.components.MainSortBar
+import com.example.sound.Presentation.mainScreen.components.MainSongList
 import com.example.sound.Presentation.mainScreen.components.MainTopBar
-import com.example.sound.Presentation.mainScreen.components.MusicCard
 import com.example.sound.Presentation.playerUi.viewModel.PlayerViewModel
 import com.example.sound.R
 
@@ -62,32 +57,18 @@ fun MainScreen(
                 modifier = Modifier
                     .weight(0.7f)
             )
-            LazyColumn(
-                state = lazyColumnState,
+            MainSongList(
+                songs = songs,
+                listState = lazyColumnState,
+                onSongClick = { song ->
+                    playerViewModel.sendSong(songs, song)
+                },
+                onSongMenuClick = { song ->
+                    mainViewModel.openSongMenuBottomSheet(song.id)
+                },
                 modifier = Modifier
-                    .fillMaxWidth()
                     .weight(7f)
-            ) {
-                items(
-                    items = songs,
-                    key = { song -> song.id }
-                ) { song ->
-                    MusicCard(
-                        song = song,
-                        onClick = {
-                            playerViewModel.sendSong(songs, song)
-                        },
-                        onMenuClick = {
-                            mainViewModel.openSongMenuBottomSheet(song.id)
-                        },
-                    )
-                }
-                item {
-                    Spacer(
-                        Modifier.size(250.dp)
-                    )
-                }
-            }
+            )
         }
     }
 }
