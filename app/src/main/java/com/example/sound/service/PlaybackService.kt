@@ -5,7 +5,6 @@ import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
-import androidx.media3.common.Timeline
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
@@ -55,31 +54,6 @@ class PlaybackService : MediaSessionService() {
             // Пользователь переключил песню, в том числе
             // через системный плеер или Bluetooth.
             mediaTransitionEvents.trySend(transitionedMediaItem)
-        }
-
-        override fun onIsPlayingChanged(isPlaying: Boolean) {
-            // Play или Pause.
-
-        }
-
-        override fun onPositionDiscontinuity(
-            oldPosition: Player.PositionInfo,
-            newPosition: Player.PositionInfo,
-            reason: Int
-        ) {
-            // Перемотка или переход на другой элемент.
-
-        }
-
-        override fun onPlaybackStateChanged(playbackState: Int) {
-        }
-
-        override fun onTimelineChanged(
-            timeline: Timeline,
-            reason: Int
-        ) {
-            // Изменилась очередь плеера.
-
         }
     }
 
