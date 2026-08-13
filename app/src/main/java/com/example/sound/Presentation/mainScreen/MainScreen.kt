@@ -11,16 +11,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sound.Presentation.mainScreen.components.MainSortBar
 import com.example.sound.Presentation.mainScreen.components.MainSongList
 import com.example.sound.Presentation.mainScreen.components.MainTopBar
 import com.example.sound.Presentation.playerUi.viewModel.PlayerViewModel
-import com.example.sound.R
 
 
 @Composable
@@ -71,16 +67,4 @@ fun MainScreen(
             )
         }
     }
-}
-
-
-@Composable
-@Preview
-private fun PreviewMainScreen() {
-    val context = LocalContext.current
-    MainScreen(
-        playerViewModel = viewModel(),
-        modifier = Modifier,
-        mainViewModel = viewModel()
-    )
 }
