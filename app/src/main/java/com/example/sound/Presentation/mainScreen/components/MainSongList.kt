@@ -18,7 +18,7 @@ fun MainSongList(
     songs: List<Song>,
     listState: LazyListState,
     onSongClick: (Song) -> Unit,
-    onSongMenuClick: (Song) -> Unit,
+    onSongMenuClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -32,7 +32,7 @@ fun MainSongList(
             MusicCard(
                 song = song,
                 onClick = { onSongClick(song) },
-                onMenuClick = { onSongMenuClick(song) },
+                onMenuClick = { onSongMenuClick(song.id) },
             )
         }
 

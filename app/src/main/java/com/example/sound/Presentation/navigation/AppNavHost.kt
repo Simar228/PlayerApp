@@ -17,7 +17,6 @@ import androidx.navigation.compose.dialog
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.example.sound.Domain.model.Song
-import com.example.sound.Presentation.mainScreen.MainNavigationEvents
 import com.example.sound.Presentation.mainScreen.MainScreen
 import com.example.sound.Presentation.mainScreen.MainViewModel
 import com.example.sound.Presentation.mainScreen.components.SongMenuBottomSheet
@@ -57,22 +56,18 @@ fun AppNavHost(
         ) {
 
             composable<Routes.SongsRoute> {
-                LaunchedEffect(mainViewModel) {
-                    mainViewModel.mainNavigationEvents.collect { events ->
-                        when (events) {
-                            is MainNavigationEvents.OpenSongMenuBottomSheet -> {
-                                navController.navigate(Routes.SongBottomSheet(events.songId))
-                            }
-                        }
-                    }
-                }
                 LaunchedEffect(songs) {
                     mainViewModel.setQueueSong(songs)
                 }
                 MainScreen(
                     mainViewModel = mainViewModel,
                     modifier = modifier,
-                    playerViewModel = playerViewModel
+                    playerViewModel = playerViewModel,
+                    onSongMenuClick = { songId ->
+                        navController.navigate(
+                            Routes.SongBottomSheet(songId)
+                        )
+                    }
                 )
             }
 

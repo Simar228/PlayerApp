@@ -13,8 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.sound.Presentation.mainScreen.components.MainSortBar
 import com.example.sound.Presentation.mainScreen.components.MainSongList
+import com.example.sound.Presentation.mainScreen.components.MainSortBar
 import com.example.sound.Presentation.mainScreen.components.MainTopBar
 import com.example.sound.Presentation.playerUi.viewModel.PlayerViewModel
 
@@ -24,6 +24,7 @@ fun MainScreen(
     mainViewModel: MainViewModel,
     playerViewModel: PlayerViewModel,
     modifier: Modifier,
+    onSongMenuClick: (String) -> Unit,
 ) {
 
     val lazyColumnState = rememberLazyListState()
@@ -59,9 +60,7 @@ fun MainScreen(
                 onSongClick = { song ->
                     playerViewModel.sendSong(songs, song)
                 },
-                onSongMenuClick = { song ->
-                    mainViewModel.openSongMenuBottomSheet(song.id)
-                },
+                onSongMenuClick = onSongMenuClick,
                 modifier = Modifier
                     .weight(7f)
             )
