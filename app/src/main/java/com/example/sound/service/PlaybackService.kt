@@ -18,9 +18,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
@@ -142,8 +143,15 @@ class PlaybackService : MediaSessionService() {
         playbackQueueStateRepository.observePlaybackQueueState().onEach { state ->
             playbackQueueSynchronizer.synchronizePlayerQueue(state)
         }
-            .catch { error ->
-                Log.e(TAG, "Queue observation error", error)
+            .retryWhen { error, attempt ->
+                Log.e(
+                    TAG,
+                    "Queue observation failed, retry attempt ${attempt + 1}",
+                    error
+                )
+
+                delay(1_000L)
+                true
             }.launchIn(serviceScope)
     }
 
