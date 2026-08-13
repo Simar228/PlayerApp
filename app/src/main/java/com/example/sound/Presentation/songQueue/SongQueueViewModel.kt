@@ -28,10 +28,10 @@ class SongQueueViewModel @Inject constructor(
     }
 
     fun saveQueueOrder() {
+        val queueItemIds = _songQueue.value.map { queueItem ->
+            queueItem.id
+        }
         viewModelScope.launch {
-            val queueItemIds = _songQueue.value.map { queueItem ->
-                queueItem.id
-            }
             playerQueueRepository.saveQueueOrder(queueItemIds)
         }
     }
