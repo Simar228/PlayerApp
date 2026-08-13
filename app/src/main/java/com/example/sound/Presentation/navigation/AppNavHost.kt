@@ -33,7 +33,6 @@ fun AppNavHost(
     modifier: Modifier = Modifier,
 ) {
     val songQueueViewModel: SongQueueViewModel = viewModel()
-    val mainViewModel: MainViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -56,6 +55,7 @@ fun AppNavHost(
         ) {
 
             composable<Routes.SongsRoute> {
+                val mainViewModel: MainViewModel = viewModel()
                 LaunchedEffect(songs) {
                     mainViewModel.setQueueSong(songs)
                 }
@@ -121,7 +121,7 @@ fun AppNavHost(
                 },
 
                 onFavoriteClick = {
-                    // mainViewModel.toggleFavorite(song.id)
+                    // TODO: добавить обработку избранного
                 },
 
                 onAddToPlaylistClick = {
@@ -171,6 +171,3 @@ fun AppNavHost(
         }
     }
 }
-
-
-const val TAG = "AppNavHost"
