@@ -14,15 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.SkipNext
-import androidx.compose.material.icons.filled.SkipPrevious
-import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -38,15 +30,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.C
-import coil.compose.SubcomposeAsyncImage
 import com.example.sound.Domain.model.Song
+import com.example.sound.Presentation.playerUi.components.CompactPlayerArtwork
+import com.example.sound.Presentation.playerUi.components.CompactPlayerControls
 import com.example.sound.Presentation.playerUi.viewModel.PlayerViewModel
 
 
@@ -155,32 +147,12 @@ private fun PlayerContent(
                     .padding(horizontal = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
+                CompactPlayerArtwork(
+                    artwork = song.art,
                     modifier = Modifier
                         .padding(start = 10.dp)
                         .size(70.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (song.art != null) {
-                        SubcomposeAsyncImage(
-                            model = song.art,
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop,
-                            loading = { PlayerArtworkPlaceholder() },
-                            error = { PlayerArtworkPlaceholder() }
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Rounded.MusicNote,
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize(),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
+                )
                 Spacer(modifier = Modifier.width(12.dp))
 
 
@@ -209,63 +181,14 @@ private fun PlayerContent(
                 Box(
                     contentAlignment = Alignment.CenterEnd
                 ) {
-                    Row() {
-                        IconButton(
-                            onClick = {
-                                onEvent(PlayerUIEvent.PreviousSong)
-                            }
-                        ) {
-                            Icon(
-                                modifier = Modifier.size(50.dp),
-                                tint = MaterialTheme.colorScheme.onSecondary,
-                                imageVector = Icons.Filled.SkipPrevious,
-                                contentDescription = null
-                            )
-                        }
-                        IconButton(
-                            onClick = {
-                                if (isPlaying){
-                                    onEvent(PlayerUIEvent.Pause)
-                                }
-                                else {
-                                    onEvent(PlayerUIEvent.Play)
-                                }
-                            }
-                        ) {
-                            Icon(
-                                modifier = Modifier.size(50.dp),
-                                tint = MaterialTheme.colorScheme.onSecondary,
-                                imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                                contentDescription = null,
-                            )
-                        }
-                        IconButton(
-                            onClick = {
-                                onEvent(PlayerUIEvent.NextSong)
-                            }
-                        ) {
-                            Icon(
-                                modifier = Modifier.size(50.dp),
-                                tint = MaterialTheme.colorScheme.onSecondary,
-                                imageVector = Icons.Filled.SkipNext,
-                                contentDescription = null
-                            )
-                        }
-                    }
+                    CompactPlayerControls(
+                        isPlaying = isPlaying,
+                        onEvent = onEvent
+                    )
                 }
             }
         }
     }
-}
-
-@Composable
-private fun PlayerArtworkPlaceholder() {
-    Icon(
-        imageVector = Icons.Rounded.MusicNote,
-        contentDescription = null,
-        modifier = Modifier.fillMaxSize(),
-        tint = MaterialTheme.colorScheme.onSurfaceVariant
-    )
 }
 
 @Composable
