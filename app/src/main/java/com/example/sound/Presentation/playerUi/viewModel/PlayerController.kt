@@ -174,14 +174,15 @@ class PlayerController(
 
     fun seekTo(positionMs: Long) {
         if (isReleased) return
+        val mediaController = controller ?: return
         _mediaControllerState.update { state ->
             state.copy(
                 currentPosition = positionMs,
             )
         }
-        withController {
-            seekTo(positionMs)
-        }
+
+        mediaController.seekTo(positionMs)
+
     }
 
     fun next() {
