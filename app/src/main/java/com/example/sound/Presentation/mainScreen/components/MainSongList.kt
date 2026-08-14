@@ -35,10 +35,6 @@ fun MainSongList(
                 onMenuClick = { onSongMenuClick(song.id) },
             )
         }
-
-        item {
-            Spacer(Modifier.size(250.dp))
-        }
     }
 }
 

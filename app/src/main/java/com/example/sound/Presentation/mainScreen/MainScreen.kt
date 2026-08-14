@@ -8,16 +8,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.sound.Domain.model.Song
 import com.example.sound.Presentation.mainScreen.components.MainSongList
 import com.example.sound.Presentation.mainScreen.components.MainSortBar
 import com.example.sound.Presentation.mainScreen.components.MainTopBar
+import com.example.sound.Presentation.mainScreen.components.SortButtonValue
 import com.example.sound.Presentation.playerUi.viewModel.PlayerViewModel
-
 
 @Composable
 fun MainScreen(
@@ -26,17 +27,33 @@ fun MainScreen(
     modifier: Modifier,
     onSongMenuClick: (String) -> Unit,
 ) {
+    MainScreenRoute(
+        songs = mainViewModel.songsQueue.collectAsStateWithLifecycle().value,
+        currentButtons = mainViewModel.currentDirectionOfSort.collectAsStateWithLifecycle().value,
+        modifier = modifier,
+        onSongMenuClick = onSongMenuClick,
+        sendSong = playerViewModel::sendSong,
+        sortQueueSong = mainViewModel::sortQueueSong,
+    )
+}
+
+@Composable
+private fun MainScreenRoute(
+    songs: List<Song>,
+    currentButtons: List<SortButtonValue>,
+    modifier: Modifier,
+    onSongMenuClick: (String) -> Unit,
+    sortQueueSong: (MainSortScreenEvents) -> Unit,
+    sendSong: (List<Song>, Song) -> Unit
+) {
 
     val lazyColumnState = rememberLazyListState()
-    val songs by mainViewModel.songsQueue.collectAsStateWithLifecycle()
     LaunchedEffect(songs.size) {
         Log.d("SongsDebug", "MainScreen received ${songs.size} songs")
     }
     LaunchedEffect(songs) {
         lazyColumnState.scrollToItem(0)
     }
-
-    val currentButton by mainViewModel.currentDirectionOfSort.collectAsStateWithLifecycle()
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -49,8 +66,8 @@ fun MainScreen(
                     .weight(0.7f)
             )
             MainSortBar(
-                buttons = currentButton,
-                onSort = mainViewModel::sortQueueSong,
+                buttons = currentButtons,
+                onSort = sortQueueSong,
                 modifier = Modifier
                     .weight(0.7f)
             )
@@ -58,7 +75,7 @@ fun MainScreen(
                 songs = songs,
                 listState = lazyColumnState,
                 onSongClick = { song ->
-                    playerViewModel.sendSong(songs, song)
+                    sendSong(songs, song)
                 },
                 onSongMenuClick = onSongMenuClick,
                 modifier = Modifier
@@ -66,4 +83,70 @@ fun MainScreen(
             )
         }
     }
+}
+
+@Preview
+@Composable
+private fun PreviewMainScreen() {
+    val songs = listOf(
+        Song(
+            id = "song-1",
+            title = "First Song",
+            artist = "First Artist",
+            duration = 180_000L,
+            uri = "EMPTY",
+            album = "First Album",
+            genre = "Pop",
+        ),
+        Song(
+            id = "song-2",
+            title = "Second Song",
+            artist = "Second Artist",
+            duration = 240_000L,
+            uri = "EMPTY",
+            album = "Second Album",
+            genre = "Rock",
+        ),
+        Song(
+            id = "song-3",
+            title = "Third Song",
+            artist = "Third Artist",
+            duration = 195_000L,
+            uri = "EMPTY",
+            album = "Third Album",
+            genre = "Electronic",
+
+            )
+    )
+    MainScreenRoute(
+        songs = songs,
+        currentButtons = mutableListOf(
+            SortButtonValue(
+                0,
+                true,
+                true,
+            ),
+            SortButtonValue(
+                1,
+                true,
+                false
+            ),
+            SortButtonValue(
+                2,
+                true,
+                false,
+            ),
+            SortButtonValue(
+                3,
+                true,
+                false
+            ),
+        ),
+        modifier = Modifier,
+        onSongMenuClick = {},
+        sortQueueSong = {},
+        sendSong = { song, songs ->
+
+        }
+    )
 }
