@@ -41,10 +41,7 @@ class PlayerStateDaoTest {
     @Test
     fun savePlayerState_returnsSavedState() = runBlocking {
         // Given
-        val expectedState = PlayerStateEntity(
-            currentQueueItemId = 42L,
-            positionMs = 15_000L
-        )
+        val expectedState = createPlayerState(songId = "42")
 
         // When
         playerStateDao.savePlayerState(expectedState)
@@ -58,15 +55,8 @@ class PlayerStateDaoTest {
     @Test
     fun savePlayerState_replacesPreviousState() = runBlocking {
         // Given
-        val firstState = PlayerStateEntity(
-            currentQueueItemId = 10L,
-            positionMs = 5_000L
-        )
-
-        val secondState = PlayerStateEntity(
-            currentQueueItemId = 20L,
-            positionMs = 25_000L
-        )
+        val firstState = createPlayerState(songId = "first")
+        val secondState = createPlayerState(songId = "second")
 
         // When
         playerStateDao.savePlayerState(firstState)
@@ -81,10 +71,7 @@ class PlayerStateDaoTest {
     @Test
     fun clearPlayerState_removesSavedState() = runBlocking {
         // Given
-        val savedState = PlayerStateEntity(
-            currentQueueItemId = 42L,
-            positionMs = 15_000L
-        )
+        val savedState = createPlayerState(songId = "42")
 
         playerStateDao.savePlayerState(savedState)
 
@@ -96,4 +83,15 @@ class PlayerStateDaoTest {
         // Then
         assertNull(actualState)
     }
+
+    private fun createPlayerState(songId: String) = PlayerStateEntity(
+        currentSongId = songId,
+        currentSongUri = "content://song/$songId",
+        currentSongTitle = "Song $songId",
+        currentSongArtist = "Artist",
+        currentSongDuration = 1_000L,
+        currentSongAlbum = null,
+        currentSongGenre = null,
+        currentSongArtUri = null,
+    )
 }
