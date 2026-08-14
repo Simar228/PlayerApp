@@ -21,7 +21,9 @@ class MainActivityViewModel @Inject constructor(
     private val _songsUiState = MutableStateFlow<SongsUiState>(SongsUiState.Loading)
     val songsUiState = _songsUiState.asStateFlow()
 
-
+    fun setSongUiState(){
+        _songsUiState.value = SongsUiState.Loading
+    }
     fun permissionDenied() {
         loadSongsJob?.cancel()
         loadSongsJob = null
@@ -29,7 +31,7 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun loadSongs() {
-        if (loadSongsJob?.isActive == true) {
+        if (loadSongsJob?.isActive == true || _songsUiState.value is SongsUiState.PermissionDenied) {
             return
         }
         loadSongsJob = viewModelScope.launch {

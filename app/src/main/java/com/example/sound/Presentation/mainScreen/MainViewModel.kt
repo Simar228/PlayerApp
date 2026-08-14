@@ -116,4 +116,3 @@ class MainViewModel() : ViewModel() {
     }
 }
 
-const val TAG = "MainViewModel"

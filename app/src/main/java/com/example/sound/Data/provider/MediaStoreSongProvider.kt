@@ -11,6 +11,7 @@ import android.os.Looper
 import android.provider.MediaStore
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.core.net.toUri
 import com.example.sound.Domain.model.Song
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -362,7 +363,7 @@ class MediaStoreSongProvider @Inject constructor(
         // По одному tag легко отфильтровать весь путь загрузки в Logcat.
         const val TAG = "SongsDebug"
         const val LEGACY_EXTERNAL_VOLUME_NAME = "external"
-        val ALBUM_ART_BASE_URI: Uri = Uri.parse("content://media/external/audio/albumart")
+        val ALBUM_ART_BASE_URI: Uri = "content://media/external/audio/albumart".toUri()
         private const val MEDIA_STORE_CHANGES_DEBOUNCE_MS = 200L
     }
 }

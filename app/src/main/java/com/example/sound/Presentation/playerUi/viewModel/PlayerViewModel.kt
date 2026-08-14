@@ -132,6 +132,8 @@ class PlayerViewModel @Inject constructor(
         val request = pendingPlaybackRequest ?: return
         pendingPlaybackRequest = null
         playerController.showSelectedSong(request.selectedSong)
+
+
         playSong(
             queueSongs = request.queueSongs,
             selectedSong = request.selectedSong,

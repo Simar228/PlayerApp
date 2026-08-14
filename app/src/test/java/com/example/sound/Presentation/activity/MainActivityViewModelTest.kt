@@ -1,18 +1,20 @@
 package com.example.sound.Presentation.activity
 
-import android.net.Uri
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.SongRepository
 import com.example.sound.Presentation.SongsUiState
-import kotlinx.coroutines.flow.first
+import com.example.sound.testing.createTestSong
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 class MainActivityViewModelTest {
 
@@ -20,138 +22,89 @@ class MainActivityViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     @Test
-    fun `loadSongs retries after error`() = runTest {
-        //Given
+    fun successfulLoadingUpdatesStateWithSongs() = runTest {
+        val expectedSongs = listOf(
+            createTestSong(id = "1", title = "Alpha"),
+            createTestSong(id = "2", title = "Beta"),
+        )
+        val repository = mock<SongRepository>()
+        whenever(repository.observeSongs()).thenReturn(flowOf(expectedSongs))
+        val viewModel = MainActivityViewModel(repository)
+
+        viewModel.loadSongs()
+
+        assertEquals(SongsUiState.Success(expectedSongs), viewModel.songsUiState.value)
+        verify(repository, times(1)).observeSongs()
+    }
+
+    @Test
+    fun loadSongsAfterPermissionDenialDoesNotObserveRepository() = runTest {
+        val repository = mock<SongRepository>()
+        val viewModel = MainActivityViewModel(repository)
+
+        viewModel.permissionDenied()
+        viewModel.loadSongs()
+
+        assertEquals(SongsUiState.PermissionDenied, viewModel.songsUiState.value)
+        verify(repository, never()).observeSongs()
+    }
+
+    @Test
+    fun setSongUiStateResetsStateToLoading() {
+        val repository = mock<SongRepository>()
+        val viewModel = MainActivityViewModel(repository)
+
+        assertEquals(SongsUiState.Loading, viewModel.songsUiState.value)
+        viewModel.permissionDenied()
+        viewModel.setSongUiState()
+
+        assertEquals(SongsUiState.Loading, viewModel.songsUiState.value)
+    }
+
+    @Test
+    fun loadSongsRetriesSuccessfullyAfterRepositoryFailure() = runTest {
         val exception = RuntimeException("Test loading error")
         val expectedSongs = listOf(
-            createSong("1", "Teddy")
+            createTestSong(id = "1"),
+            createTestSong(id = "2"),
         )
-        val repository = mock(SongRepository::class.java)
-        `when`(repository.getSong())
-            .thenThrow(exception)
-            .thenReturn(expectedSongs)
-
+        val repository = mock<SongRepository>()
+        whenever(repository.observeSongs())
+            .thenReturn(flow<List<Song>> { throw exception })
+            .thenReturn(flowOf(expectedSongs))
         val viewModel = MainActivityViewModel(repository)
 
-        //When
         viewModel.loadSongs()
-        viewModel.songsUiState.first { state ->
-            state is SongsUiState.Error
-        }
+        assertEquals(SongsUiState.Error(exception.toString()), viewModel.songsUiState.value)
+
         viewModel.loadSongs()
-        val actualSuccessState = viewModel.songsUiState.first { state ->
-            state is SongsUiState.Success
-        }
-        val expectedState = SongsUiState.Success(expectedSongs)
-
-        //Then
-        assertEquals(expectedState, actualSuccessState)
-        verify(repository, times(2)).getSong()
-    }
-
-
-    @Test
-    fun `loadSongs does not reload after success`() = runTest {
-        //Given
-        val expectedSongs = listOf(
-            createSong("1", "Teddy")
-        )
-        val repository = mock(SongRepository::class.java)
-        `when`(repository.getSong())
-            .thenReturn(expectedSongs)
-        val viewModel = MainActivityViewModel(repository)
-
-
-        //When
-        viewModel.loadSongs()
-        viewModel.songsUiState.first { state ->
-            state is SongsUiState.Success
-        }
-        viewModel.loadSongs()
-
-        //Then
-        verify(repository, times(1)).getSong()
+        assertEquals(SongsUiState.Success(expectedSongs), viewModel.songsUiState.value)
+        verify(repository, times(2)).observeSongs()
     }
 
     @Test
-    fun `permission denial updates state`() {
-        // Given
-        val repository = mock(SongRepository::class.java)
+    fun repositoryFailureUpdatesStateWithError() = runTest {
+        val exception = RuntimeException("Test loading error")
+        val repository = mock<SongRepository>()
+        whenever(repository.observeSongs())
+            .thenReturn(
+            flow<List<Song>> { throw exception }
+        )
         val viewModel = MainActivityViewModel(repository)
 
-        // When
+        viewModel.loadSongs()
+
+        assertEquals(SongsUiState.Error(exception.toString()), viewModel.songsUiState.value)
+        verify(repository, ).observeSongs()
+    }
+
+    @Test
+    fun permissionDenialUpdatesState() {
+        val repository = mock<SongRepository>()
+        val viewModel = MainActivityViewModel(repository)
+
         viewModel.permissionDenied()
 
-        // Then
-        val actualState = viewModel.songsUiState.value
-        val expectedState = SongsUiState.PermissionDenied
-
-        assertEquals(expectedState, actualState)
+        assertEquals(SongsUiState.PermissionDenied, viewModel.songsUiState.value)
     }
-
-    @Test
-    fun `repository failure updates state with error`() = runTest {
-        //Given
-        val exception = RuntimeException("Test loading error")
-        val repository = mock(SongRepository::class.java)
-        `when`(repository.getSong())
-            .thenThrow(exception)
-        val viewModel = MainActivityViewModel(repository)
-
-        //When
-        viewModel.loadSongs()
-
-        //Then
-        val actualState = viewModel.songsUiState.first { state ->
-            state is SongsUiState.Error
-        }
-
-        val expectedException = SongsUiState.Error(exception.toString())
-
-        assertEquals(expectedException, actualState)
-    }
-
-    @Test
-    fun `successful loading updates state with songs`() = runTest {
-        // Given
-        val expectedSongs = listOf(
-            createSong(id = "1", title = "Alpha")
-        )
-
-        val repository = mock(SongRepository::class.java)
-
-        `when`(repository.getSong())
-            .thenReturn(expectedSongs)
-
-        val viewModel = MainActivityViewModel(repository)
-
-        // When
-        viewModel.loadSongs()
-
-        // Then
-        val actualState = viewModel.songsUiState.first { state ->
-            state is SongsUiState.Success
-        }
-
-        val expectedState = SongsUiState.Success(expectedSongs)
-
-        assertEquals(expectedState, actualState)
-    }
-
-    private fun createSong(
-        id: String,
-        title: String
-    ): Song {
-        return Song(
-            id = id,
-            title = title,
-            artist = null,
-            duration = 0L,
-            uri = mock(Uri::class.java),
-            album = null,
-            genre = null,
-            art = null
-        )
-    }
-
 }

@@ -1,10 +1,9 @@
 package com.example.sound.Presentation.mainScreen
 
-import android.net.Uri
+
 import com.example.sound.Domain.model.Song
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import org.mockito.Mockito.mock
 
 class MainViewModelTest {
 
@@ -62,7 +61,7 @@ class MainViewModelTest {
             title = title,
             artist = null,
             duration = 0L,
-            uri = mock(Uri::class.java),
+            uri = "content://song/$id",
             album = null,
             genre = null,
             art = null

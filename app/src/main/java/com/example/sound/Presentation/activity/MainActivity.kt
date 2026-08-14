@@ -75,6 +75,7 @@ class MainActivity() : ComponentActivity() {
                             ) == PackageManager.PERMISSION_GRANTED
 
                         if (permissionGranted) {
+                            viewModel.setSongUiState()
                             viewModel.loadSongs()
                         } else {
                             viewModel.permissionDenied()
@@ -116,7 +117,6 @@ class MainActivity() : ComponentActivity() {
                                     Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                                     "package:${context.packageName}".toUri()
                                 )
-
                                 appSettingsLauncher.launch(intent)
                             }
                         )
