@@ -18,6 +18,7 @@ import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.example.sound.Domain.model.Song
 import com.example.sound.Presentation.editSongInformation.EditSongScreen
+import com.example.sound.Presentation.editSongInformation.viewModel.EditSongViewModel
 import com.example.sound.Presentation.mainScreen.MainScreen
 import com.example.sound.Presentation.mainScreen.MainViewModel
 import com.example.sound.Presentation.mainScreen.components.SongMenuBottomSheet
@@ -101,13 +102,17 @@ fun AppNavHost(
         composable<Routes.SongEditRoute> { backStackEntry ->
             val route = backStackEntry.toRoute<Routes.SongBottomSheet>()
             val song = songs.firstOrNull { it.id == route.songId }
-            if (song != null){
+            if (song != null) {
+                val viewModel: EditSongViewModel = viewModel() {
+                    EditSongViewModel(song)
+                }
                 EditSongScreen(
                     song = song,
                     onBackClick = {
                         navController.popBackStack()
                     },
-                    onSaveClick = {}
+                    onSaveClick = {},
+                    editSongViewModel = viewModel
                 )
             }
         }

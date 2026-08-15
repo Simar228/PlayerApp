@@ -17,33 +17,52 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.sound.Domain.model.Song
 import com.example.sound.Presentation.editSongInformation.components.CustomDropdownField
 import com.example.sound.Presentation.editSongInformation.components.CustomInputField
 import com.example.sound.Presentation.editSongInformation.components.SongIconForEditSong
 import com.example.sound.Presentation.editSongInformation.components.TopAppBarForEditSong
+import com.example.sound.Presentation.editSongInformation.viewModel.EditSongEvent
+import com.example.sound.Presentation.editSongInformation.viewModel.EditSongViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun EditSongScreen(
     song: Song,
     onBackClick: () -> Unit,
     onSaveClick: () -> Unit,
+    editSongViewModel: EditSongViewModel
+){
+    EditSongPreview(
+        onEvent = editSongViewModel::sendEvent,
+        onBackClick = onBackClick,
+        onSaveClick = onSaveClick,
+        title = editSongViewModel.title.collectAsStateWithLifecycle().value,
+        artist = editSongViewModel.artist.collectAsStateWithLifecycle().value,
+        album = editSongViewModel.album.collectAsStateWithLifecycle().value,
+        genre = editSongViewModel.genre.collectAsStateWithLifecycle().value,
+        art = song.art
+    )
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EditSongPreview(
+    onEvent: (EditSongEvent) -> Unit,
+    onBackClick: () -> Unit,
+    onSaveClick: () -> Unit,
+    title: String,
+    artist: String,
+    album: String,
+    genre: String,
+    art: String?
 ) {
-    var title by remember { mutableStateOf(song.title.orEmpty()) }
-    var artist by remember { mutableStateOf(song.artist.orEmpty()) }
-    var album by remember { mutableStateOf(song.album.orEmpty()) }
-    var genre by remember { mutableStateOf(song.genre.orEmpty()) }
 
     Scaffold(
         topBar = {
@@ -61,22 +80,22 @@ fun EditSongScreen(
             verticalArrangement = Arrangement.Top
         ) {
             SongIconForEditSong(
-                icon = song.art,
+                icon = art,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {}
             // 1. Все ваши верхние элементы формы (идут строго друг за другом)
             CustomInputField(
                 label = "Название",
                 value = title,
-                onValueChange = { title = it })
+                onValueChange = { onEvent(EditSongEvent.EditSongTitle(it)) })
             CustomInputField(
                 label = "Артист",
                 value = artist,
-                onValueChange = { artist = it })
+                onValueChange = { onEvent(EditSongEvent.EditSongArtist(it)) })
             CustomInputField(
                 label = "Альбом",
                 value = album,
-                onValueChange = { album = it })
+                onValueChange = { onEvent(EditSongEvent.EditSongAlbum(it)) })
             CustomDropdownField(label = "Жанр", value = genre, onClick = { /* ... */ })
 
             Spacer(modifier = Modifier.weight(1f))
@@ -105,16 +124,23 @@ fun EditSongScreen(
 )
 @Composable
 private fun EditSongScreenPreview() {
-    EditSongScreen(
-        song = Song(
-            id = "song-1",
-            title = "First Song",
-            artist = "First Artist",
-            duration = 180_000L,
-            uri = "EMPTY",
-            album = "First Album",
-            genre = "Pop",
-        ),
-        onBackClick = {}
-    ) {}
+    val song = Song(
+        id = "song-1",
+        title = "First Song",
+        artist = "First Artist",
+        duration = 180_000L,
+        uri = "EMPTY",
+        album = "First Album",
+        genre = "Pop",
+    )
+    EditSongPreview(
+        onBackClick = {},
+        onSaveClick = {},
+        title = song.title.orEmpty(),
+        artist = song.artist.orEmpty(),
+        album = song.album.orEmpty(),
+        art = song.art,
+        genre = song.genre.orEmpty(),
+        onEvent = {}
+    )
 }
