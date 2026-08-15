@@ -1,4 +1,4 @@
-package com.example.sound.Data.local.playerstate
+package com.example.sound.Data.local.playerState
 
 import android.content.Context
 import androidx.room.Room

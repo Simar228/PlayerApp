@@ -6,11 +6,10 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.sound.Data.local.AppDatabase
 import com.example.sound.Data.local.defualtQueue.toDefaultQueueEntity
-import com.example.sound.Data.local.playerstate.toPlayerStateEntity
+import com.example.sound.Data.local.playerState.toPlayerStateEntity
 import com.example.sound.Data.local.queue.QueueItemEntity
 import com.example.sound.Domain.model.PlaybackQueueState
 import com.example.sound.Domain.model.QueueItem
-import com.example.sound.Domain.model.Song
 import com.example.sound.testing.createTestSong
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.produceIn

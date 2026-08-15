@@ -5,8 +5,8 @@ import androidx.room.withTransaction
 import com.example.sound.Data.local.AppDatabase
 import com.example.sound.Data.local.defualtQueue.DefaultQueueDao
 import com.example.sound.Data.local.defualtQueue.toDefaultQueueEntity
-import com.example.sound.Data.local.playerstate.PlayerStateDao
-import com.example.sound.Data.local.playerstate.toPlayerStateEntity
+import com.example.sound.Data.local.playerState.PlayerStateDao
+import com.example.sound.Data.local.playerState.toPlayerStateEntity
 import com.example.sound.Data.local.queue.QueueDao
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.PlaybackTransitionRepository

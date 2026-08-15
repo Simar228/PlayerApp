@@ -1,4 +1,4 @@
-package com.example.sound.Data.local.playerstate
+package com.example.sound.Data.local.playerState
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -25,13 +25,13 @@ data class PlayerStateEntity(
 fun Song.toPlayerStateEntity(): PlayerStateEntity {
     return PlayerStateEntity(
         currentSongId = this.id,
-        currentSongUri = this.uri.toString(),
+        currentSongUri = this.uri,
         currentSongTitle = this.title,
         currentSongArtist = this.artist,
         currentSongDuration = this.duration,
         currentSongAlbum = this.album,
         currentSongGenre = this.genre,
-        currentSongArtUri = this.art?.toString(),
+        currentSongArtUri = this.art,
     )
 }
 

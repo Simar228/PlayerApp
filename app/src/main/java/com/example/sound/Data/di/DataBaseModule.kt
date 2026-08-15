@@ -3,8 +3,9 @@ package com.example.sound.Data.di
 import android.content.Context
 import androidx.room.Room
 import com.example.sound.Data.local.AppDatabase
+import com.example.sound.Data.local.Genre.GenreDao
 import com.example.sound.Data.local.defualtQueue.DefaultQueueDao
-import com.example.sound.Data.local.playerstate.PlayerStateDao
+import com.example.sound.Data.local.playerState.PlayerStateDao
 import com.example.sound.Data.local.queue.QueueDao
 import dagger.Module
 import dagger.Provides
@@ -30,6 +31,10 @@ object DatabaseModule {
             .build()
     }
 
+    @Provides
+    fun provideGenreDao(database: AppDatabase): GenreDao {
+        return database.genreDao()
+    }
     @Provides
     fun provideDefaultQueueDao(database: AppDatabase): DefaultQueueDao {
         return database.defaultQueueDao()

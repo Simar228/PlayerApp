@@ -12,7 +12,7 @@ import com.example.sound.Domain.model.Song
         Index(
             value = ["position"],
             unique = true
-        )
+        ),
     ]
 )
 class DefaultQueueItemEntity(
