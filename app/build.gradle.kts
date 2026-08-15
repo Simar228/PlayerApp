@@ -86,9 +86,11 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.3.0")
     androidTestImplementation(libs.androidx.room.testing)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
 }
 
 room {

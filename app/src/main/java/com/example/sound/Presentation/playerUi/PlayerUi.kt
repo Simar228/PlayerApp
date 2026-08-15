@@ -91,6 +91,7 @@ private fun PlayerContent(
             Row(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f))
                     .height(80.dp)
                     .clip(RoundedCornerShape(40.dp))
                     .padding(horizontal = 12.dp),

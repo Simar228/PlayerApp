@@ -28,7 +28,8 @@ fun BottomNavigation(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination
     NavigationBar(
-        modifier = Modifier.wrapContentSize()
+        modifier = Modifier.wrapContentSize(),
+        containerColor = MaterialTheme.colorScheme.background
     ) {
         BottomScreen.items.forEach { screen ->
 
