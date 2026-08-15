@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.androidx.media3.ui)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.material3)
     ksp(libs.androidx.room.compiler)
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
     implementation("androidx.navigation:navigation-runtime:2.9.8")

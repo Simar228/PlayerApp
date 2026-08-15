@@ -15,6 +15,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,7 +33,6 @@ fun CustomInputField(
     label: String,
     value: String,
     onValueChange: (String) -> Unit,
-    keyboardType: KeyboardType = KeyboardType.Text
 ) {
     Column(modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp, start = 12.dp, end = 12.dp)) {
         Text(
@@ -43,11 +44,10 @@ fun CustomInputField(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(54.dp)
-                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(14.dp))
-                .padding(horizontal = 16.dp),
+                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(14.dp)),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            BasicTextField(
+            OutlinedTextField(
                 value = value,
                 onValueChange = onValueChange,
                 textStyle = TextStyle(
@@ -55,8 +55,15 @@ fun CustomInputField(
                     fontSize = 16.sp
                 ),
                 modifier = Modifier.weight(1f),
-                keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    errorContainerColor = MaterialTheme.colorScheme.error,
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                )
             )
             if (value.isNotEmpty()) {
                 Icon(

@@ -25,8 +25,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.sound.Domain.model.Song
-import com.example.sound.Presentation.editSongInformation.components.CustomDropdownField
 import com.example.sound.Presentation.editSongInformation.components.CustomInputField
+import com.example.sound.Presentation.editSongInformation.components.EditableGenreDropdown
 import com.example.sound.Presentation.editSongInformation.components.SongIconForEditSong
 import com.example.sound.Presentation.editSongInformation.components.TopAppBarForEditSong
 import com.example.sound.Presentation.editSongInformation.viewModel.EditSongEvent
@@ -39,7 +39,7 @@ fun EditSongScreen(
     onBackClick: () -> Unit,
     onSaveClick: () -> Unit,
     editSongViewModel: EditSongViewModel
-){
+) {
     EditSongPreview(
         onEvent = editSongViewModel::sendEvent,
         onBackClick = onBackClick,
@@ -51,6 +51,7 @@ fun EditSongScreen(
         art = song.art
     )
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EditSongPreview(
@@ -96,7 +97,20 @@ private fun EditSongPreview(
                 label = "Альбом",
                 value = album,
                 onValueChange = { onEvent(EditSongEvent.EditSongAlbum(it)) })
-            CustomDropdownField(label = "Жанр", value = genre, onClick = { /* ... */ })
+            EditableGenreDropdown(
+                label = "Жанр",
+                currentValue = genre,
+                suggestions = listOf(
+                    "Рок",
+                    "Поп",
+                    "Джаз",
+                    "Хип-хоп",
+                    "Классика",
+                    "Электроника",
+                    "Метал"
+                ),
+                onValueChange = { onEvent(EditSongEvent.EditSongGenre(it)) },
+            )
 
             Spacer(modifier = Modifier.weight(1f))
 

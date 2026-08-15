@@ -1,7 +1,9 @@
 package com.example.sound.Presentation.editSongInformation.viewModel
 
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.example.sound.Domain.model.Genre
 import com.example.sound.Domain.model.Song
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -10,6 +12,8 @@ import kotlinx.coroutines.flow.asStateFlow
 class EditSongViewModel(song: Song)
     : ViewModel() {
 
+    private val _genreList = MutableStateFlow<List<Genre>>(emptyList())
+    val genreList = _genreList.asStateFlow()
     private val _title = MutableStateFlow(song.title.orEmpty())
     val title: StateFlow<String> = _title.asStateFlow()
 
@@ -20,15 +24,16 @@ class EditSongViewModel(song: Song)
     val album: StateFlow<String> = _album.asStateFlow()
 
     private val _genre = MutableStateFlow(song.genre.orEmpty())
-    val genre: StateFlow<String> = _genre.asStateFlow()
+    val genre = _genre.asStateFlow()
 
 
     fun sendEvent(event: EditSongEvent) {
+        Log.d("!!!", event.toString())
         when (event) {
             is EditSongEvent.EditSongTitle -> _title.value = event.newTitle
             is EditSongEvent.EditSongArtist -> _artist.value = event.newArtist
             is EditSongEvent.EditSongAlbum -> _album.value = event.newAlbum
-//            is EditSongEvent.EditSongGenre -> _genre.value = event.newGenre
+            is EditSongEvent.EditSongGenre -> _genre.value = event.newGenre
         }
     }
 
