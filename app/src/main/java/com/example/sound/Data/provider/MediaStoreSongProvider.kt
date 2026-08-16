@@ -40,6 +40,7 @@ class MediaStoreSongProvider @Inject constructor(
 ) {
     @OptIn(FlowPreview::class)
     fun observeSongs(): Flow<List<Song>> {
+        Log.d("SRI", "INIT PROVIDER")
         return callbackFlow {
             val observer = object : ContentObserver(
                 Handler(Looper.getMainLooper())
@@ -360,7 +361,6 @@ class MediaStoreSongProvider @Inject constructor(
     }
 
     private companion object {
-        // По одному tag легко отфильтровать весь путь загрузки в Logcat.
         const val TAG = "SongsDebug"
         const val LEGACY_EXTERNAL_VOLUME_NAME = "external"
         val ALBUM_ART_BASE_URI: Uri = "content://media/external/audio/albumart".toUri()
