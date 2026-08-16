@@ -111,11 +111,9 @@ fun AppNavHost(
                     }
                 )
                 EditSongScreen(
-                    song = song,
-                    onBackClick = {
+                    popBackStack = {
                         navController.popBackStack()
                     },
-                    onSaveClick = {},
                     editSongViewModel = viewModel
                 )
             }

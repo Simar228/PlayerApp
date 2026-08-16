@@ -1,6 +1,9 @@
 package com.example.sound.Presentation.editSongInformation
 
 import android.content.res.Configuration
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,25 +36,25 @@ import com.example.sound.Presentation.editSongInformation.components.SongIconFor
 import com.example.sound.Presentation.editSongInformation.components.TopAppBarForEditSong
 import com.example.sound.Presentation.editSongInformation.viewModel.EditSongEvent
 import com.example.sound.Presentation.editSongInformation.viewModel.EditSongViewModel
+import kotlinx.coroutines.launch
 
 
 @Composable
 fun EditSongScreen(
-    song: Song,
-    onBackClick: () -> Unit,
-    onSaveClick: () -> Unit,
+    popBackStack: () -> Unit,
     editSongViewModel: EditSongViewModel
 ) {
     EditSongPreview(
         onEvent = editSongViewModel::sendEvent,
-        onBackClick = onBackClick,
-        onSaveClick = onSaveClick,
+        onBackClick = popBackStack,
+        onSaveClick = editSongViewModel::saveSong,
+        setArt = editSongViewModel::setArt,
         title = editSongViewModel.title.collectAsStateWithLifecycle().value,
         artist = editSongViewModel.artist.collectAsStateWithLifecycle().value,
         album = editSongViewModel.album.collectAsStateWithLifecycle().value,
         genre = editSongViewModel.genre.collectAsStateWithLifecycle().value,
-        art = song.art,
-        genres = editSongViewModel.genreList.collectAsStateWithLifecycle().value
+        art = editSongViewModel.art.collectAsStateWithLifecycle().value,
+        genres = editSongViewModel.genreList.collectAsStateWithLifecycle().value,
     )
 }
 
@@ -60,17 +64,26 @@ private fun EditSongPreview(
     onEvent: (EditSongEvent) -> Unit,
     onBackClick: () -> Unit,
     onSaveClick: () -> Unit,
+    setArt: (String) -> Unit,
     title: String,
     artist: String,
     album: String,
     genres: List<Genre>,
     genre: String,
-    art: String?
-) {
+    art: String?,
+
+    ) {
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            setArt(uri.toString())
+        }
+    }
     val genresList = genres.map { genre ->
         genre.name
     }
-
+    val scope = rememberCoroutineScope()
     Scaffold(
         topBar = {
             TopAppBarForEditSong(
@@ -88,8 +101,15 @@ private fun EditSongPreview(
         ) {
             SongIconForEditSong(
                 icon = art,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            ) {}
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                onChangeClick = {
+                    imagePicker.launch(
+                        PickVisualMediaRequest(
+                            ActivityResultContracts.PickVisualMedia.ImageOnly
+                        )
+                    )
+                }
+            )
             // 1. Все ваши верхние элементы формы (идут строго друг за другом)
             CustomInputField(
                 label = "Название",
@@ -112,9 +132,14 @@ private fun EditSongPreview(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // 3. Кнопка "Сохранить"
+
             Button(
-                onClick = { onSaveClick() },
+                onClick = {
+                    scope.launch {
+                        onSaveClick()
+                        onBackClick()
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
@@ -122,7 +147,6 @@ private fun EditSongPreview(
                         horizontal = 12.dp
                     )
                     .height(54.dp),
-                // Небольшой отступ сверху, когда кнопка прижата к полям
                 shape = RoundedCornerShape(14.dp)
             ) {
                 Text("Сохранить", color = Color.White, fontWeight = FontWeight.Bold)
@@ -154,6 +178,7 @@ private fun EditSongScreenPreview() {
         art = song.art,
         genre = song.genre.orEmpty(),
         onEvent = {},
-        genres = listOf()
+        genres = listOf(),
+        setArt = {}
     )
 }

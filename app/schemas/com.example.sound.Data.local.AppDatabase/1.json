@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "44d9f582bfbef0b06335849f643bd131",
+    "identityHash": "7af83a6f4bf9399933029a27a2a96f70",
     "entities": [
       {
         "tableName": "queue_items",
@@ -263,7 +263,7 @@
         ]
       },
       {
-        "tableName": "edit_song",
+        "tableName": "editSong_items",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `editSongId` TEXT NOT NULL, `editSongTitle` TEXT, `editSongArtist` TEXT, `editSongDuration` INTEGER NOT NULL, `editSongUri` TEXT NOT NULL, `editSongAlbum` TEXT, `editSongGenre` TEXT, `editSongImageId` TEXT)",
         "fields": [
           {
@@ -321,7 +321,18 @@
           "columnNames": [
             "id"
           ]
-        }
+        },
+        "indices": [
+          {
+            "name": "index_editSong_items_editSongId",
+            "unique": true,
+            "columnNames": [
+              "editSongId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_editSong_items_editSongId` ON `${TABLE_NAME}` (`editSongId`)"
+          }
+        ]
       },
       {
         "tableName": "image_storage",
@@ -350,7 +361,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '44d9f582bfbef0b06335849f643bd131')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7af83a6f4bf9399933029a27a2a96f70')"
     ]
   }
 }
