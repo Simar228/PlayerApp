@@ -2,6 +2,7 @@ package com.example.sound.Data.local.storage
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.core.net.toUri
 import com.example.sound.Data.local.imageStorage.ImageStorageDao
 import com.example.sound.Data.local.imageStorage.ImageStorageItemEntity
@@ -25,22 +26,30 @@ class ImageStorage @Inject constructor(
             mkdirs()
         }
         val imageId = hashImage(uri)
-        val file = File(directory, imageId)
-        context.contentResolver.openInputStream(uri).use { input ->
-            requireNotNull(input)
-            file.outputStream().use { output ->
-                input.copyTo(output)
-            }
-        }
-        val fileUri = file.toUri().toString()
-        imageStorageDao.addNewImage(
-            ImageStorageItemEntity(
-                id = imageId,
-                path = fileUri
-            )
-        )
+        val currentImageIds = imageStorageDao.getImageIds(imageId)
 
-        return fileUri
+        if (currentImageIds != null) {
+            Log.d("ImageStorage", "Вернул уже существующий путь")
+            return currentImageIds.path
+        } else {
+            val file = File(directory, imageId)
+            context.contentResolver.openInputStream(uri).use { input ->
+                requireNotNull(input)
+                file.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+
+            val fileUri = file.toUri().toString()
+            imageStorageDao.addNewImage(
+                ImageStorageItemEntity(
+                    id = imageId,
+                    path = fileUri
+                )
+            )
+            Log.d("ImageStorage", "Создал новый путь")
+            return fileUri
+        }
     }
 
 
