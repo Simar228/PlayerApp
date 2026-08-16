@@ -1,16 +1,25 @@
 package com.example.sound.Presentation.editSongInformation.viewModel
 
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.sound.Domain.model.Genre
 import com.example.sound.Domain.model.Song
+import com.example.sound.Domain.repository.GenreRepository
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-class EditSongViewModel(song: Song)
-    : ViewModel() {
+@HiltViewModel(assistedFactory = EditSongViewModel.Factory::class)
+class EditSongViewModel @AssistedInject constructor(
+    @Assisted song: Song,
+    private val genreRepository: GenreRepository,
+) : ViewModel() {
 
     private val _genreList = MutableStateFlow<List<Genre>>(emptyList())
     val genreList = _genreList.asStateFlow()
@@ -26,15 +35,24 @@ class EditSongViewModel(song: Song)
     private val _genre = MutableStateFlow(song.genre.orEmpty())
     val genre = _genre.asStateFlow()
 
+    init {
+        viewModelScope.launch {
+            _genreList.value = genreRepository.getGenres()
+        }
+    }
 
     fun sendEvent(event: EditSongEvent) {
-        Log.d("!!!", event.toString())
         when (event) {
             is EditSongEvent.EditSongTitle -> _title.value = event.newTitle
             is EditSongEvent.EditSongArtist -> _artist.value = event.newArtist
             is EditSongEvent.EditSongAlbum -> _album.value = event.newAlbum
             is EditSongEvent.EditSongGenre -> _genre.value = event.newGenre
         }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(userId: Song): EditSongViewModel
     }
 
 }

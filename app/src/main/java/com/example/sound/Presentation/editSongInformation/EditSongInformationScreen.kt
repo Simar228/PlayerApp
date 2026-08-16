@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.sound.Domain.model.Genre
 import com.example.sound.Domain.model.Song
 import com.example.sound.Presentation.editSongInformation.components.CustomInputField
 import com.example.sound.Presentation.editSongInformation.components.EditableGenreDropdown
@@ -48,7 +49,8 @@ fun EditSongScreen(
         artist = editSongViewModel.artist.collectAsStateWithLifecycle().value,
         album = editSongViewModel.album.collectAsStateWithLifecycle().value,
         genre = editSongViewModel.genre.collectAsStateWithLifecycle().value,
-        art = song.art
+        art = song.art,
+        genres = editSongViewModel.genreList.collectAsStateWithLifecycle().value
     )
 }
 
@@ -61,9 +63,13 @@ private fun EditSongPreview(
     title: String,
     artist: String,
     album: String,
+    genres: List<Genre>,
     genre: String,
     art: String?
 ) {
+    val genresList = genres.map { genre ->
+        genre.name
+    }
 
     Scaffold(
         topBar = {
@@ -100,15 +106,7 @@ private fun EditSongPreview(
             EditableGenreDropdown(
                 label = "Жанр",
                 currentValue = genre,
-                suggestions = listOf(
-                    "Рок",
-                    "Поп",
-                    "Джаз",
-                    "Хип-хоп",
-                    "Классика",
-                    "Электроника",
-                    "Метал"
-                ),
+                suggestions = genresList,
                 onValueChange = { onEvent(EditSongEvent.EditSongGenre(it)) },
             )
 
@@ -155,6 +153,7 @@ private fun EditSongScreenPreview() {
         album = song.album.orEmpty(),
         art = song.art,
         genre = song.genre.orEmpty(),
-        onEvent = {}
+        onEvent = {},
+        genres = listOf()
     )
 }

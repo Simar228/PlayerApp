@@ -70,6 +70,7 @@ fun CustomInputField(
                     Icons.Default.Clear,
                     contentDescription = "Очистить",
                     modifier = Modifier
+                        .padding(15.dp)
                         .size(18.dp)
                         .clickable { onValueChange("") }
                 )

@@ -19,7 +19,16 @@ import com.example.sound.Domain.model.Genre
 data class GenreEntity(
 
     @PrimaryKey(autoGenerate = true)
-    val id: Long = 1,
+    val id: Long = 0,
 
     val name: String,
+    val isSystem: Boolean,
 )
+
+fun Genre.toEntity(): GenreEntity {
+    return GenreEntity(
+        id = id,
+        name = name,
+        isSystem = false,
+    )
+}

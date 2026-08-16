@@ -1,5 +1,6 @@
 package com.example.sound.Presentation.navigation
 
+
 import android.util.Log
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -8,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -103,9 +105,11 @@ fun AppNavHost(
             val route = backStackEntry.toRoute<Routes.SongBottomSheet>()
             val song = songs.firstOrNull { it.id == route.songId }
             if (song != null) {
-                val viewModel: EditSongViewModel = viewModel() {
-                    EditSongViewModel(song)
-                }
+                val viewModel: EditSongViewModel = hiltViewModel(
+                    creationCallback = { factory: EditSongViewModel.Factory ->
+                        factory.create(song)
+                    }
+                )
                 EditSongScreen(
                     song = song,
                     onBackClick = {

@@ -1,6 +1,7 @@
 package com.example.sound.Data.repository
 
 import com.example.sound.Data.local.Genre.GenreDao
+import com.example.sound.Data.local.Genre.toEntity
 import com.example.sound.Domain.model.Genre
 import com.example.sound.Domain.repository.GenreRepository
 import javax.inject.Inject
@@ -21,7 +22,8 @@ class GenreRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addGenre(genre: Genre) {
-        TODO("Not yet implemented")
+        val genreEntity = genre.toEntity()
+        genreDao.insertGenre(genreEntity)
     }
 
     override suspend fun deleteGenre(id: Long) {

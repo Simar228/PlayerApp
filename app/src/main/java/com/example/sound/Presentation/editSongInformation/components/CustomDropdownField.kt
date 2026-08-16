@@ -45,6 +45,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.sound.Domain.model.Genre
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -166,6 +167,7 @@ fun EditableGenreDropdown(
                     if (expanded) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
                     contentDescription = "Очистить",
                     modifier = Modifier
+                        .padding(15.dp)
                         .size(18.dp)
                         .clickable { expanded = !expanded }
                 )
