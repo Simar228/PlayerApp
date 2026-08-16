@@ -61,7 +61,7 @@ class MainActivity() : ComponentActivity() {
                                     "checkSelfPermission=$checkResult"
                         )
                         if (granted) {
-                            viewModel.loadSongs()
+                            viewModel.loadSongs()//:TODO
                         } else {
                             viewModel.permissionDenied()
                         }
@@ -81,7 +81,7 @@ class MainActivity() : ComponentActivity() {
 
                         if (permissionGranted) {
                             viewModel.setSongUiState()
-                            viewModel.loadSongs()
+                            viewModel.loadSongs()//:TODO
                         } else {
                             viewModel.permissionDenied()
                         }
@@ -105,7 +105,7 @@ class MainActivity() : ComponentActivity() {
                     )
 
                     if (permissionGranted) {
-                        viewModel.loadSongs()
+                        viewModel.loadSongs() //:TODO
                     } else {
                         audioPermissionLauncher.launch(permission)
                     }
@@ -137,7 +137,7 @@ class MainActivity() : ComponentActivity() {
                     is SongsUiState.Error -> {
                         ErrorScreen(
                             onRetry = {
-                                viewModel.loadSongs()
+                                viewModel.loadSongs() //:TODO
                             }
                         )
                     }

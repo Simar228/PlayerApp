@@ -9,7 +9,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
@@ -41,10 +40,12 @@ class MainActivityViewModel @Inject constructor(
         loadSongsJob = viewModelScope.launch {
             _songsUiState.value = SongsUiState.Loading
             try {
-                _songs = songRepository.songs.first { songs ->
-                    songs.isNotEmpty()
+                songRepository.songs.collect { songs ->
+                    if (songs.isNotEmpty()) {
+                        _songsUiState.value = SongsUiState.Success(songs)
+                    }
                 }
-                _songsUiState.value = SongsUiState.Success(_songs)
+
             } catch (exception: CancellationException) {
                 throw exception
             } catch (exception: Exception) {
