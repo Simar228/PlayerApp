@@ -25,9 +25,4 @@ class GenreRepositoryImpl @Inject constructor(
         val genreEntity = genre.toEntity()
         genreDao.insertGenre(genreEntity)
     }
-
-    override suspend fun deleteGenre(id: Long) {
-        TODO("Not yet implemented")
-    }
-
 }

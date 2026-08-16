@@ -7,6 +7,8 @@ import com.example.sound.Data.local.AppDatabase
 import com.example.sound.Data.local.Genre.GenreDao
 import com.example.sound.Data.local.Genre.GenreEntity
 import com.example.sound.Data.local.defualtQueue.DefaultQueueDao
+import com.example.sound.Data.local.editSong.EditSongDao
+import com.example.sound.Data.local.imageStorage.ImageStorageDao
 import com.example.sound.Data.local.playerState.PlayerStateDao
 import com.example.sound.Data.local.queue.QueueDao
 import dagger.Module
@@ -59,6 +61,15 @@ object DatabaseModule {
             )
             Log.d("DB", result.toString())
         }
+    }
+
+    @Provides
+    fun provideEditSongDao(database: AppDatabase): EditSongDao{
+        return database.editSongDao()
+    }
+    @Provides
+    fun provideImageStorageDao(database: AppDatabase): ImageStorageDao{
+        return database.imageStorageDao()
     }
     @Provides
     fun provideGenreDao(database: AppDatabase): GenreDao {

@@ -6,6 +6,10 @@ import com.example.sound.Data.local.Genre.GenreDao
 import com.example.sound.Data.local.Genre.GenreEntity
 import com.example.sound.Data.local.defualtQueue.DefaultQueueDao
 import com.example.sound.Data.local.defualtQueue.DefaultQueueItemEntity
+import com.example.sound.Data.local.editSong.EditSongDao
+import com.example.sound.Data.local.editSong.EditSongItemEntity
+import com.example.sound.Data.local.imageStorage.ImageStorageDao
+import com.example.sound.Data.local.imageStorage.ImageStorageItemEntity
 import com.example.sound.Data.local.playerState.PlayerStateDao
 import com.example.sound.Data.local.playerState.PlayerStateEntity
 import com.example.sound.Data.local.queue.QueueDao
@@ -16,11 +20,15 @@ import com.example.sound.Data.local.queue.QueueItemEntity
         QueueItemEntity::class,
         PlayerStateEntity::class,
         DefaultQueueItemEntity::class,
-        GenreEntity::class
+        GenreEntity::class,
+        EditSongItemEntity::class,
+        ImageStorageItemEntity::class,
     ],
     version = 1
 )
 abstract class AppDatabase : RoomDatabase() {
+    abstract fun imageStorageDao(): ImageStorageDao
+    abstract fun editSongDao(): EditSongDao
 
     abstract fun genreDao(): GenreDao
 

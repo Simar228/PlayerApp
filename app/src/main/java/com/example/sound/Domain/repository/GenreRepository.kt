@@ -8,5 +8,4 @@ interface GenreRepository {
 
     suspend fun addGenre(genre: Genre)
 
-    suspend fun deleteGenre(id: Long)
 }

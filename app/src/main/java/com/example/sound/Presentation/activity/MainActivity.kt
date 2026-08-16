@@ -45,6 +45,8 @@ class MainActivity() : ComponentActivity() {
                     } else {
                         Manifest.permission.READ_EXTERNAL_STORAGE
                     }
+
+                //Запрос разрешения на доступ к песням (переменная)
                 val audioPermissionLauncher =
                     rememberLauncherForActivityResult(
                         contract = ActivityResultContracts.RequestPermission()
@@ -64,6 +66,9 @@ class MainActivity() : ComponentActivity() {
                             viewModel.permissionDenied()
                         }
                     }
+
+
+                //Переход в настройки дабы включить разрешения(переменная)
                 val appSettingsLauncher =
                     rememberLauncherForActivityResult(
                         contract = ActivityResultContracts.StartActivityForResult()
@@ -82,6 +87,7 @@ class MainActivity() : ComponentActivity() {
                         }
                     }
 
+                //Запуск запроса разрешения к песням
                 LaunchedEffect(Unit) {
                     val checkResult = ContextCompat.checkSelfPermission(
                         context,
@@ -105,6 +111,8 @@ class MainActivity() : ComponentActivity() {
                     }
                 }
 
+
+                //Обработка songsUiState
                 when (val state = songsUiState) {
                     SongsUiState.Loading -> {
                         LoadingScreen()
