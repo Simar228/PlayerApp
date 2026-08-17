@@ -55,7 +55,7 @@ fun SongPage(
     onShuffleClick: () -> Unit,
     onRepeatClick: () -> Unit,
     onQueueClick: () -> Unit,
-    onEditClick: () -> Unit,
+    onEditClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val playerUiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -100,7 +100,7 @@ fun SongPageView(
     onShuffleClick: () -> Unit,
     onRepeatClick: () -> Unit,
     onQueueClick: () -> Unit,
-    onEditClick: () -> Unit,
+    onEditClick: (String) -> Unit,
     onPlayerEvent: (PlayerUIEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -234,7 +234,7 @@ fun SongPageView(
                     onQueueClick = onQueueClick,
                     onRepeatClick = onRepeatClick,
                     onShuffleClick = onShuffleClick,
-                    onEditClick = onEditClick
+                    onEditClick = { onEditClick(song.id) }
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))

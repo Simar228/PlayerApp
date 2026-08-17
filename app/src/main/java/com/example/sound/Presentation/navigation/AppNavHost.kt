@@ -185,7 +185,9 @@ fun AppNavHost(
                         launchSingleTop = true
                     }
                 },
-                onEditClick = {},
+                onEditClick = { songId ->
+                    navController.navigate(Routes.SongEditRoute(songId))
+                },
                 modifier = Modifier
             )
         }
