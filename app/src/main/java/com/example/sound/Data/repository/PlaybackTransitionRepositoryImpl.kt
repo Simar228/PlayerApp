@@ -3,8 +3,12 @@ package com.example.sound.Data.repository
 
 import androidx.room.withTransaction
 import com.example.sound.Data.local.AppDatabase
+import com.example.sound.Data.local.Genre.GenreDao
+import com.example.sound.Data.local.Genre.GenreEntity
 import com.example.sound.Data.local.defualtQueue.DefaultQueueDao
 import com.example.sound.Data.local.defualtQueue.toDefaultQueueEntity
+import com.example.sound.Data.local.editSong.EditSongDao
+import com.example.sound.Data.local.editSong.toEditSongItemEntity
 import com.example.sound.Data.local.playerState.PlayerStateDao
 import com.example.sound.Data.local.playerState.toPlayerStateEntity
 import com.example.sound.Data.local.queue.QueueDao
@@ -16,8 +20,25 @@ class PlaybackTransitionRepositoryImpl @Inject constructor(
     private val database: AppDatabase,
     private val playerStateDao: PlayerStateDao,
     private val queueDao: QueueDao,
-    private val defaultQueueDao: DefaultQueueDao
+    private val defaultQueueDao: DefaultQueueDao,
+    private val editSongDao: EditSongDao,
+    private val genreDao: GenreDao,
 ) : PlaybackTransitionRepository {
+    override suspend fun saveInformationEditSong(
+        genre: String,
+        song: Song
+    ) {
+        val correctGenre = genre
+            .trim()
+            .replace(Regex("\\s+"), " ")
+            .replaceFirstChar { it.uppercase() }
+        database.withTransaction {
+            val editSongEntity = song.copy(genre = correctGenre).toEditSongItemEntity()
+            editSongDao.addEditSong(editSongEntity)
+            genreDao.insertGenre(GenreEntity(name = correctGenre))
+        }
+    }
+
 
     override suspend fun startPlayback(
         song: Song,

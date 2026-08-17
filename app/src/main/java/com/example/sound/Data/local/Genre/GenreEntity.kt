@@ -22,7 +22,7 @@ data class GenreEntity(
     val id: Long = 0,
 
     val name: String,
-    val isSystem: Boolean,
+    val isSystem: Boolean = false,
 )
 
 fun Genre.toEntity(): GenreEntity {

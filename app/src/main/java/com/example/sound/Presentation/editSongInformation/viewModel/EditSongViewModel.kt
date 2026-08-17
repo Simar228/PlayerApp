@@ -1,7 +1,6 @@
 package com.example.sound.Presentation.editSongInformation.viewModel
 
 
-import androidx.collection.floatSetOf
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +9,7 @@ import com.example.sound.Domain.model.Genre
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.EditSongRepository
 import com.example.sound.Domain.repository.GenreRepository
+import com.example.sound.Domain.repository.PlaybackTransitionRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -25,6 +25,7 @@ class EditSongViewModel @AssistedInject constructor(
     private val imageStorage: ImageStorage,
     private val genreRepository: GenreRepository,
     private val editSongRepository: EditSongRepository,
+    private val playbackTransitionRepository: PlaybackTransitionRepository
 ) : ViewModel() {
 
 
@@ -76,7 +77,7 @@ class EditSongViewModel @AssistedInject constructor(
                 genre = _genre.value,
                 art = fileUri
             )
-            editSongRepository.addEditSong(newSong)
+            playbackTransitionRepository.saveInformationEditSong(_genre.value, newSong)
         }
     }
 
