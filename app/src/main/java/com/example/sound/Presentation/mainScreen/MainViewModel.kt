@@ -1,14 +1,22 @@
 package com.example.sound.Presentation.mainScreen
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.sound.Domain.model.Song
+import com.example.sound.Domain.repository.SongRepository
 import com.example.sound.Presentation.mainScreen.components.SortButtonValue
 import com.example.sound.Presentation.mainScreen.components.choose
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
-class MainViewModel() : ViewModel() {
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    songRepository: SongRepository
+) : ViewModel() {
 
 
     private val _songsQueue = MutableStateFlow<List<Song>>(emptyList())
@@ -38,6 +46,15 @@ class MainViewModel() : ViewModel() {
             ),
         )
     )
+
+    init {
+        viewModelScope.launch {
+            songRepository.songs.collect { songs ->
+                _songsQueue.value = songs
+            }
+        }
+    }
+
     val currentDirectionOfSort = _currentDirectionOfSort.asStateFlow()
 
     fun setQueueSong(songs: List<Song>) {

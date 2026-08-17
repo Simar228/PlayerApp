@@ -18,7 +18,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
-import com.example.sound.Domain.model.Song
 import com.example.sound.Presentation.editSongInformation.EditSongScreen
 import com.example.sound.Presentation.editSongInformation.viewModel.EditSongViewModel
 import com.example.sound.Presentation.mainScreen.MainScreen
@@ -32,11 +31,13 @@ import com.example.sound.Presentation.songQueue.SongQueueViewModel
 @Composable
 fun AppNavHost(
     playerViewModel: PlayerViewModel,
+    appNavHostViewModel: AppNavHostViewModel,
     navController: NavHostController,
-    songs: List<Song>,
     modifier: Modifier = Modifier,
 ) {
+
     val songQueueViewModel: SongQueueViewModel = viewModel()
+    val songs = appNavHostViewModel.songs.collectAsStateWithLifecycle().value
 
     NavHost(
         navController = navController,
@@ -59,10 +60,7 @@ fun AppNavHost(
         ) {
 
             composable<Routes.SongsRoute> {
-                val mainViewModel: MainViewModel = viewModel()
-                LaunchedEffect(songs) {
-                    mainViewModel.setQueueSong(songs)
-                }
+                val mainViewModel: MainViewModel = hiltViewModel()
                 MainScreen(
                     mainViewModel = mainViewModel,
                     modifier = modifier,

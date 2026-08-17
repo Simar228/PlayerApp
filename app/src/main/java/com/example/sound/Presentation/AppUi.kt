@@ -10,15 +10,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.sound.Domain.model.Song
 import com.example.sound.Presentation.navigation.AppNavHost
+import com.example.sound.Presentation.navigation.AppNavHostViewModel
 import com.example.sound.Presentation.navigation.Routes
 import com.example.sound.Presentation.navigation.bottom.BottomNavigation
 import com.example.sound.Presentation.playerUi.PlayerUI
@@ -26,10 +26,10 @@ import com.example.sound.Presentation.playerUi.viewModel.PlayerViewModel
 
 @Composable
 fun AppUi(
-    songs: List<Song>,
     modifier: Modifier = Modifier,
 ) {
-    val playerViewModel: PlayerViewModel = viewModel()
+    val appNavHostViewModel: AppNavHostViewModel = hiltViewModel()
+    val playerViewModel: PlayerViewModel = hiltViewModel()
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
@@ -82,9 +82,9 @@ fun AppUi(
         }
     ) { innerPadding ->
         AppNavHost(
+            appNavHostViewModel = appNavHostViewModel,
             playerViewModel = playerViewModel,
             navController = navController,
-            songs = songs,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),

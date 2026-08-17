@@ -5,6 +5,7 @@ import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.EditSongRepository
 import com.example.sound.Domain.repository.SongRepository
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,11 +21,13 @@ class SongRepositoryImpl @Inject constructor(
 ) : SongRepository {
     private val scope = CoroutineScope(SupervisorJob())
     private val _songs = MutableStateFlow<List<Song>>(emptyList())
+    private var observeSongs: Job? = null
 
     override val songs = _songs.asStateFlow()
 
-    init {
-        scope.launch {
+    override fun loadSongs(){
+        if (observeSongs?.isActive == true) return
+        observeSongs = scope.launch {
             val editSongs = editSongRepository.observeEditSongs()
             val originalSongs = provider.observeSongs()
             combine(
@@ -40,5 +43,6 @@ class SongRepositoryImpl @Inject constructor(
                 _songs.value = songs
             }
         }
+
     }
 }

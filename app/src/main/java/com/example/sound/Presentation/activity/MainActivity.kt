@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sound.Presentation.AppUi
@@ -34,7 +35,7 @@ class MainActivity() : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val viewModel: MainActivityViewModel = viewModel()
+            val viewModel: MainActivityViewModel = hiltViewModel()
 
             SoundTheme {
                 val context = LocalContext.current
@@ -80,10 +81,8 @@ class MainActivity() : ComponentActivity() {
                             ) == PackageManager.PERMISSION_GRANTED
 
                         if (permissionGranted) {
-                            viewModel.setSongUiState()
+                            viewModel.setSongsUiState()
                             viewModel.loadSongs()//:TODO
-                        } else {
-                            viewModel.permissionDenied()
                         }
                     }
 
@@ -131,7 +130,7 @@ class MainActivity() : ComponentActivity() {
                     }
 
                     is SongsUiState.Success -> {
-                        AppUi(songs = state.songs)
+                        AppUi()
                     }
 
                     is SongsUiState.Error -> {
