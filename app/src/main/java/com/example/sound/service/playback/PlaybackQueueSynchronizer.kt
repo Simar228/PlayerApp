@@ -18,6 +18,8 @@ class PlaybackQueueSynchronizer(
             defaultQueue = state.defaultQueueSongs,
             currentSong = currentSong
         )
+
+
         val upcomingMediaItems = buildList {
             // Явная очередь воспроизводится первой.
             addAll(
@@ -36,7 +38,6 @@ class PlaybackQueueSynchronizer(
 
         val playerCurrentSongId = player.currentMediaItem?.mediaId
 
-
         //запуск первый раз
         if (
             player.mediaItemCount == 0 ||
@@ -49,6 +50,8 @@ class PlaybackQueueSynchronizer(
             )
             return
         }
+
+        //Пользователь выбрал новую песню
         if (playerCurrentSongId != currentSong.id) {
 
             Log.d(
@@ -62,6 +65,17 @@ class PlaybackQueueSynchronizer(
                 upcomingMediaItems = upcomingMediaItems,
             )
             return
+        } else { //Пользователь изменил текущую песню
+            val currentIndex = player.currentMediaItemIndex
+
+            if (currentIndex == C.INDEX_UNSET) {
+                Log.e("PlaybackService", "currentIndex = -1")
+            }
+
+            player.replaceMediaItem(
+                currentIndex,
+                currentSong.toMediaItem(),
+            )
         }
 
         Log.d(TAG, "// Песня не поменялась — обновляем только элементы вокруг неё.")

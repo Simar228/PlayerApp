@@ -24,6 +24,20 @@ class PlaybackTransitionRepositoryImpl @Inject constructor(
     private val editSongDao: EditSongDao,
     private val genreDao: GenreDao,
 ) : PlaybackTransitionRepository {
+
+    override suspend fun updateCurrentSongIfMatches(songs: List<Song>) {
+        database.withTransaction {
+
+            val currentSongId = playerStateDao.getPlayerState()?.currentSongId
+            val currentSong = songs.find { it.id == currentSongId }
+
+            currentSong?.let { currentSong ->
+                playerStateDao.savePlayerState(currentSong.toPlayerStateEntity())
+            }
+        }
+    }
+
+
     override suspend fun saveInformationEditSong(
         genre: String,
         song: Song

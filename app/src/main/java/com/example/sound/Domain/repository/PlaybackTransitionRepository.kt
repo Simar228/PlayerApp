@@ -5,6 +5,8 @@ import com.example.sound.Domain.model.Song
 
 interface PlaybackTransitionRepository {
 
+    suspend fun updateCurrentSongIfMatches(songs: List<Song>)
+
     suspend fun saveInformationEditSong(
         genre: String,
         song: Song,

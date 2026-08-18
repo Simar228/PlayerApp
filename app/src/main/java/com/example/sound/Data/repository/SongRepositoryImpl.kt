@@ -3,6 +3,7 @@ package com.example.sound.Data.repository
 import com.example.sound.Data.provider.MediaStoreSongProvider
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.EditSongRepository
+import com.example.sound.Domain.repository.PlaybackTransitionRepository
 import com.example.sound.Domain.repository.SongRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -18,6 +19,7 @@ import javax.inject.Singleton
 class SongRepositoryImpl @Inject constructor(
     private val provider: MediaStoreSongProvider,
     private val editSongRepository: EditSongRepository,
+    private val playbackTransitionRepository: PlaybackTransitionRepository,
 ) : SongRepository {
     private val scope = CoroutineScope(SupervisorJob())
     private val _songs = MutableStateFlow<List<Song>>(emptyList())
@@ -34,6 +36,7 @@ class SongRepositoryImpl @Inject constructor(
                 originalSongs,
                 editSongs,
             ) { original, edit ->
+                playbackTransitionRepository.updateCurrentSongIfMatches(edit)
                 val editById = edit.associateBy { it.id }
 
                 original.map { originalSong ->
