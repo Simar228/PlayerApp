@@ -13,13 +13,13 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
+      <SelectionState runConfigName="start Playback Updates Default Queue Player State And Queue In One Transaction()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
       <SelectionState runConfigName="startPlaybackUpdatesDefaultQueuePlayerStateAndQueueInOneTransaction()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="Интерактивный выбор жанра - EditableGenreDropdownPreview">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="EditSongScreenPreview">
+      <SelectionState runConfigName="PlaybackQueueStateRepositoryImplTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

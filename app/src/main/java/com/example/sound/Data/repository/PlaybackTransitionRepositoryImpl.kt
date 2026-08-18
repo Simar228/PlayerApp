@@ -43,10 +43,7 @@ class PlaybackTransitionRepositoryImpl @Inject constructor(
         newSong: Song,
         oldSong: Song,
     ) {
-        val correctGenre = genre
-            .trim()
-            .replace(Regex("\\s+"), " ")
-            .replaceFirstChar { it.uppercase() }
+        val correctGenre = normalizeGenre(genre)
         database.withTransaction {
             val editSongEntity = newSong.copy(genre = correctGenre).toEditSongItemEntity(oldSong)
             editSongDao.addEditSong(editSongEntity)
@@ -92,4 +89,10 @@ class PlaybackTransitionRepositoryImpl @Inject constructor(
             }
         }
     }
+}
+fun normalizeGenre(genre: String): String {
+    return genre
+        .trim()
+        .replace(Regex("\\s+"), " ")
+        .replaceFirstChar { it.uppercase() }
 }

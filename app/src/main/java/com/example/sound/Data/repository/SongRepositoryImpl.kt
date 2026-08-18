@@ -27,7 +27,7 @@ class SongRepositoryImpl @Inject constructor(
 
     override val songs = _songs.asStateFlow()
 
-    override fun loadSongs(){
+    override fun loadSongs() {
         if (observeSongs?.isActive == true) return
         observeSongs = scope.launch {
             val editSongs = editSongRepository.observeEditSongs()
@@ -36,17 +36,20 @@ class SongRepositoryImpl @Inject constructor(
                 originalSongs,
                 editSongs,
             ) { original, edit ->
-
-                val editById = edit.associateBy { it.id }
-
-                original.map { originalSong ->
-                    editById[originalSong.id] ?: originalSong
-                }
+                mergeSongs(original, edit)
             }.collect { songs ->
                 _songs.value = songs
                 playbackTransitionRepository.updateCurrentSongIfMatches(songs)
             }
         }
 
+    }
+
+    private fun mergeSongs(originalSong: List<Song>, editSong: List<Song>): List<Song> {
+        val editById = editSong.associateBy { it.id }
+
+        return originalSong.map { originalSong ->
+            editById[originalSong.id] ?: originalSong
+        }
     }
 }

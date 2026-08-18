@@ -2,14 +2,23 @@ package com.example.sound.Presentation.mainScreen
 
 
 import com.example.sound.Domain.model.Song
+import com.example.sound.Domain.repository.SongRepository
+import com.example.sound.Presentation.activity.MainDispatcherRule
 import org.junit.Assert.assertEquals
+import org.junit.Rule
 import org.junit.Test
+import org.mockito.kotlin.mock
 
 class MainViewModelTest {
 
+
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
+
     @Test
     fun `first title sort orders songs`() {
-        val viewModel = MainViewModel()
+        val repository = mock<SongRepository>()
+        val viewModel = MainViewModel(repository)
         val songs = listOf(
             createSong(id = "1", title = "Beta"),
             createSong(id = "2", title = "Alpha"),

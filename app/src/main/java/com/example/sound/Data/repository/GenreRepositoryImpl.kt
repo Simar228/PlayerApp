@@ -20,9 +20,4 @@ class GenreRepositoryImpl @Inject constructor(
         }
         return genreList
     }
-
-    override suspend fun addGenre(genre: Genre) {
-        val genreEntity = genre.toEntity()
-        genreDao.insertGenre(genreEntity)
-    }
 }
