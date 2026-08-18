@@ -1,14 +1,12 @@
 package com.example.sound.Presentation.editSongInformation.viewModel
 
 
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sound.Data.local.storage.ImageStorage
 import com.example.sound.Domain.model.Genre
 import com.example.sound.Domain.model.Song
-import com.example.sound.Domain.repository.EditSongRepository
 import com.example.sound.Domain.repository.GenreRepository
+import com.example.sound.Domain.repository.ImageRepository
 import com.example.sound.Domain.repository.PlaybackTransitionRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -22,9 +20,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel(assistedFactory = EditSongViewModel.Factory::class)
 class EditSongViewModel @AssistedInject constructor(
     @Assisted private val song: Song,
-    private val imageStorage: ImageStorage,
+    private val imageRepository: ImageRepository,
     private val genreRepository: GenreRepository,
-    private val editSongRepository: EditSongRepository,
     private val playbackTransitionRepository: PlaybackTransitionRepository
 ) : ViewModel() {
 
@@ -42,7 +39,7 @@ class EditSongViewModel @AssistedInject constructor(
 
     private val _genre = MutableStateFlow(song.genre.orEmpty())
     val genre = _genre.asStateFlow()
-    private val _art = MutableStateFlow(song.art.orEmpty())
+    private val _art = MutableStateFlow(song.art)
     val art = _art.asStateFlow()
 
     init {
@@ -66,7 +63,11 @@ class EditSongViewModel @AssistedInject constructor(
 
     fun saveSong() {
         viewModelScope.launch {
-            val fileUri = imageStorage.saveImage(_art.value.toUri())
+            var fileUri: String? = null
+            _art.value?.let { art ->
+                fileUri = imageRepository.saveImage(art)
+            }
+
             val newSong = Song(
                 id = song.id,
                 title = _title.value,

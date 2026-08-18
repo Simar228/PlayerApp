@@ -2,12 +2,14 @@ package com.example.sound.Data.di
 
 import com.example.sound.Data.repository.EditSongRepositoryImpl
 import com.example.sound.Data.repository.GenreRepositoryImpl
+import com.example.sound.Data.repository.ImageRepositoryImpl
 import com.example.sound.Data.repository.PlaybackQueueStateRepositoryImpl
 import com.example.sound.Data.repository.PlaybackTransitionRepositoryImpl
 import com.example.sound.Data.repository.PlayerQueueRepositoryImpl
 import com.example.sound.Data.repository.SongRepositoryImpl
 import com.example.sound.Domain.repository.EditSongRepository
 import com.example.sound.Domain.repository.GenreRepository
+import com.example.sound.Domain.repository.ImageRepository
 import com.example.sound.Domain.repository.PlaybackQueueStateRepository
 import com.example.sound.Domain.repository.PlaybackTransitionRepository
 import com.example.sound.Domain.repository.PlayerQueueRepository
@@ -24,6 +26,12 @@ import javax.inject.Singleton
 abstract class
 
 RepositoryModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindImageRepository(
+        implementation: ImageRepositoryImpl
+    ): ImageRepository
 
     @Binds
     @Singleton

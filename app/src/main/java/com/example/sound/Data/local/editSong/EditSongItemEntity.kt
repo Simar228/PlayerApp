@@ -28,7 +28,7 @@ data class EditSongItemEntity(
     val editSongUri: String,
     val editSongAlbum: String?,
     val editSongGenre: String?,
-    val editSongImageId: String?
+    val editSongImagePath: String?
 )
 
 fun Song.toEditSongItemEntity(): EditSongItemEntity{
@@ -40,7 +40,7 @@ fun Song.toEditSongItemEntity(): EditSongItemEntity{
         editSongUri = uri,
         editSongAlbum = album,
         editSongGenre = genre,
-        editSongImageId = art
+        editSongImagePath = art
     )
 }
 
@@ -53,6 +53,6 @@ fun EditSongItemEntity.toSong(): Song{
         uri = editSongUri,
         album = editSongAlbum,
         genre = editSongGenre,
-        art = editSongImageId
+        art = editSongImagePath
     )
 }
