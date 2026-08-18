@@ -54,12 +54,6 @@ class PlaybackQueueSynchronizer(
         //Пользователь выбрал новую песню
         if (playerCurrentSongId != currentSong.id) {
 
-            Log.d(
-                TAG, "// currentSong действительно поменялась:\n" +
-                        "            // пользователь выбрал новую песню."
-            )
-            // currentSong действительно поменялась:
-            // пользователь выбрал новую песню.
             setNewPlayerQueue(
                 currentSong = currentSong,
                 upcomingMediaItems = upcomingMediaItems,
@@ -70,6 +64,7 @@ class PlaybackQueueSynchronizer(
 
             if (currentIndex == C.INDEX_UNSET) {
                 Log.e("PlaybackService", "currentIndex = -1")
+                return
             }
 
             player.replaceMediaItem(
