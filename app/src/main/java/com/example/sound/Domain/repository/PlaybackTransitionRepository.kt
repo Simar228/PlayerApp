@@ -9,7 +9,8 @@ interface PlaybackTransitionRepository {
 
     suspend fun saveInformationEditSong(
         genre: String,
-        song: Song,
+        newSong: Song,
+        oldSong: Song,
     )
     suspend fun startPlayback(
         song: Song,

@@ -11,7 +11,7 @@ import com.example.sound.Domain.model.Song
     tableName = DatabaseTableNames.EDIT_SONG,
     indices = [
         Index(
-            value = ["editSongId"],
+            value = ["songId"],
             unique = true
         )
     ]
@@ -21,36 +21,50 @@ data class EditSongItemEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
 
-    val editSongId: String,
+    val songId: String,
+
     val editSongTitle: String?,
     val editSongArtist: String?,
-    val editSongDuration: Long,
-    val editSongUri: String,
+    val songDuration: Long,
+    val songUri: String,
     val editSongAlbum: String?,
     val editSongGenre: String?,
-    val editSongImagePath: String?
+    val editSongImagePath: String?,
+
+    val oldSongTitle: String? = null,
+    val oldSongArtist: String? = null,
+    val oldSongAlbum: String? = null,
+    val oldSongGenre: String? = null,
+    val oldSongImagePath: String? = null,
+
 )
 
-fun Song.toEditSongItemEntity(): EditSongItemEntity{
+fun Song.toEditSongItemEntity(oldSong: Song): EditSongItemEntity{
     return EditSongItemEntity(
-        editSongId = id,
+        songId = id,
         editSongTitle = title,
         editSongArtist = artist,
-        editSongDuration = duration,
-        editSongUri = uri,
+        songDuration = duration,
+        songUri = uri,
         editSongAlbum = album,
         editSongGenre = genre,
-        editSongImagePath = art
+        editSongImagePath = art,
+
+        oldSongTitle = oldSong.title,
+        oldSongArtist = oldSong.artist,
+        oldSongAlbum = oldSong.album,
+        oldSongGenre = oldSong.genre,
+        oldSongImagePath = oldSong.art
     )
 }
 
 fun EditSongItemEntity.toSong(): Song{
     return Song(
-        id = editSongId,
+        id = songId,
         title = editSongTitle,
         artist = editSongArtist,
-        duration = editSongDuration,
-        uri = editSongUri,
+        duration = songDuration,
+        uri = songUri,
         album = editSongAlbum,
         genre = editSongGenre,
         art = editSongImagePath

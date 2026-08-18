@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sound.Domain.model.Genre
 import com.example.sound.Domain.model.Song
+import com.example.sound.Domain.repository.EditSongRepository
 import com.example.sound.Domain.repository.GenreRepository
 import com.example.sound.Domain.repository.ImageRepository
 import com.example.sound.Domain.repository.PlaybackTransitionRepository
@@ -20,12 +21,13 @@ import kotlinx.coroutines.launch
 @HiltViewModel(assistedFactory = EditSongViewModel.Factory::class)
 class EditSongViewModel @AssistedInject constructor(
     @Assisted private val song: Song,
+    private val editSongRepository: EditSongRepository,
     private val imageRepository: ImageRepository,
     private val genreRepository: GenreRepository,
     private val playbackTransitionRepository: PlaybackTransitionRepository
 ) : ViewModel() {
 
-
+    private var edited = false
     private val _genreList = MutableStateFlow<List<Genre>>(emptyList())
     val genreList = _genreList.asStateFlow()
     private val _title = MutableStateFlow(song.title.orEmpty())
@@ -49,15 +51,53 @@ class EditSongViewModel @AssistedInject constructor(
     }
 
     fun setArt(newArt: String) {
+        edited = true
         _art.value = newArt
     }
 
+
     fun sendEvent(event: EditSongEvent) {
         when (event) {
-            is EditSongEvent.EditSongTitle -> _title.value = event.newTitle
-            is EditSongEvent.EditSongArtist -> _artist.value = event.newArtist
-            is EditSongEvent.EditSongAlbum -> _album.value = event.newAlbum
-            is EditSongEvent.EditSongGenre -> _genre.value = event.newGenre
+            is EditSongEvent.EditSongTitle -> {
+                if (_title.value != event.newTitle) {
+                    _title.value = event.newTitle
+                    edited = true
+                }
+            }
+
+            is EditSongEvent.EditSongArtist -> {
+                if (_artist.value != event.newArtist) {
+                    _artist.value = event.newArtist
+                    edited = true
+                }
+            }
+
+            is EditSongEvent.EditSongAlbum -> {
+                if (_album.value != event.newAlbum) {
+                    _album.value = event.newAlbum
+                    edited = true
+                }
+            }
+
+            is EditSongEvent.EditSongGenre -> {
+                if (_genre.value != event.newGenre) {
+                    _genre.value = event.newGenre
+                    edited = true
+                }
+            }
+        }
+    }
+
+    fun setSong() {
+        edited = false
+        viewModelScope.launch {
+            editSongRepository.setEditSong(song.id)?.let { oldSong ->
+                _art.value = oldSong.art
+                _title.value = oldSong.title.orEmpty()
+                _artist.value = oldSong.artist.orEmpty()
+                _album.value = oldSong.album.orEmpty()
+                _genre.value = oldSong.genre.orEmpty()
+            }
         }
     }
 
@@ -78,7 +118,9 @@ class EditSongViewModel @AssistedInject constructor(
                 genre = _genre.value,
                 art = fileUri
             )
-            playbackTransitionRepository.saveInformationEditSong(_genre.value, newSong)
+            if (edited) {
+                playbackTransitionRepository.saveInformationEditSong(_genre.value, newSong, song)
+            }
         }
     }
 

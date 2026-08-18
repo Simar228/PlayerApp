@@ -5,8 +5,8 @@ import kotlinx.coroutines.flow.Flow
 
 
 interface EditSongRepository {
+    suspend fun setEditSong(songId: String): Song?
 
-    suspend fun addEditSong(song: Song,)
     suspend fun observeEditSongs(): Flow<List<Song>>
 
 }

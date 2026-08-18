@@ -1,7 +1,6 @@
 package com.example.sound.Data.repository
 
 import com.example.sound.Data.local.editSong.EditSongDao
-import com.example.sound.Data.local.editSong.toEditSongItemEntity
 import com.example.sound.Data.local.editSong.toSong
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.EditSongRepository
@@ -13,10 +12,23 @@ class EditSongRepositoryImpl @Inject constructor(
     val editSongDao: EditSongDao,
 ) : EditSongRepository {
 
-    override suspend fun addEditSong(song: Song) {
-        val editSongEntity = song.toEditSongItemEntity()
-        editSongDao.addEditSong(editSongEntity)
+    override suspend fun setEditSong(songId: String): Song? {
+        val editSongItemEntity = editSongDao.setEditSong(songId)
+        editSongItemEntity?.let {
+            return Song(
+                id = editSongItemEntity.songId,
+                title = editSongItemEntity.oldSongTitle,
+                artist = editSongItemEntity.oldSongArtist,
+                duration = editSongItemEntity.songDuration,
+                uri = editSongItemEntity.songUri,
+                album = editSongItemEntity.oldSongAlbum,
+                genre = editSongItemEntity.oldSongGenre,
+                art = editSongItemEntity.oldSongImagePath
+            )
+        }
+        return null
     }
+
 
     override suspend fun observeEditSongs(): Flow<List<Song>> {
         val songs = editSongDao.observeEditSong().map { editSongItemEntities ->

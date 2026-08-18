@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "34bd40d9a33affdf46522aed9a12d4e7",
+    "identityHash": "493573e7d9e9451cb0025f6f1961a35c",
     "entities": [
       {
         "tableName": "queue_items",
@@ -264,7 +264,7 @@
       },
       {
         "tableName": "editSong_items",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `editSongId` TEXT NOT NULL, `editSongTitle` TEXT, `editSongArtist` TEXT, `editSongDuration` INTEGER NOT NULL, `editSongUri` TEXT NOT NULL, `editSongAlbum` TEXT, `editSongGenre` TEXT, `editSongImagePath` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `songId` TEXT NOT NULL, `editSongTitle` TEXT, `editSongArtist` TEXT, `songDuration` INTEGER NOT NULL, `songUri` TEXT NOT NULL, `editSongAlbum` TEXT, `editSongGenre` TEXT, `editSongImagePath` TEXT, `oldSongTitle` TEXT, `oldSongArtist` TEXT, `oldSongAlbum` TEXT, `oldSongGenre` TEXT, `oldSongImagePath` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -273,8 +273,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "editSongId",
-            "columnName": "editSongId",
+            "fieldPath": "songId",
+            "columnName": "songId",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -289,14 +289,14 @@
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "editSongDuration",
-            "columnName": "editSongDuration",
+            "fieldPath": "songDuration",
+            "columnName": "songDuration",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "editSongUri",
-            "columnName": "editSongUri",
+            "fieldPath": "songUri",
+            "columnName": "songUri",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -314,6 +314,31 @@
             "fieldPath": "editSongImagePath",
             "columnName": "editSongImagePath",
             "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "oldSongTitle",
+            "columnName": "oldSongTitle",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "oldSongArtist",
+            "columnName": "oldSongArtist",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "oldSongAlbum",
+            "columnName": "oldSongAlbum",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "oldSongGenre",
+            "columnName": "oldSongGenre",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "oldSongImagePath",
+            "columnName": "oldSongImagePath",
+            "affinity": "TEXT"
           }
         ],
         "primaryKey": {
@@ -324,13 +349,13 @@
         },
         "indices": [
           {
-            "name": "index_editSong_items_editSongId",
+            "name": "index_editSong_items_songId",
             "unique": true,
             "columnNames": [
-              "editSongId"
+              "songId"
             ],
             "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_editSong_items_editSongId` ON `${TABLE_NAME}` (`editSongId`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_editSong_items_songId` ON `${TABLE_NAME}` (`songId`)"
           }
         ]
       },
@@ -361,7 +386,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '34bd40d9a33affdf46522aed9a12d4e7')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '493573e7d9e9451cb0025f6f1961a35c')"
     ]
   }
 }

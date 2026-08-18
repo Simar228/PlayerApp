@@ -48,6 +48,7 @@ fun EditSongScreen(
         onEvent = editSongViewModel::sendEvent,
         onBackClick = popBackStack,
         onSaveClick = editSongViewModel::saveSong,
+        onResetClick = editSongViewModel::setSong,
         setArt = editSongViewModel::setArt,
         title = editSongViewModel.title.collectAsStateWithLifecycle().value,
         artist = editSongViewModel.artist.collectAsStateWithLifecycle().value,
@@ -64,6 +65,7 @@ private fun EditSongPreview(
     onEvent: (EditSongEvent) -> Unit,
     onBackClick: () -> Unit,
     onSaveClick: () -> Unit,
+    onResetClick: () -> Unit,
     setArt: (String) -> Unit,
     title: String,
     artist: String,
@@ -88,6 +90,7 @@ private fun EditSongPreview(
         topBar = {
             TopAppBarForEditSong(
                 onBackClick = onBackClick,
+                onResetClick = onResetClick
             )
         },
         containerColor = MaterialTheme.colorScheme.background
@@ -179,6 +182,7 @@ private fun EditSongScreenPreview() {
         genre = song.genre.orEmpty(),
         onEvent = {},
         genres = listOf(),
-        setArt = {}
+        setArt = {},
+        onResetClick = {}
     )
 }

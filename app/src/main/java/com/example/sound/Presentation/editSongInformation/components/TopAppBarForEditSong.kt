@@ -3,6 +3,7 @@ package com.example.sound.Presentation.editSongInformation.components
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun TopAppBarForEditSong(
     onBackClick: () -> Unit,
+    onResetClick: () -> Unit,
 ) {
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -43,6 +45,16 @@ fun TopAppBarForEditSong(
                     tint = Color.White
                 )
             }
+        },
+        actions = {
+            IconButton(onClick = onResetClick) {
+                Icon(
+                    modifier = Modifier.size(28.dp),
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = "Сбросить песню",
+                    tint = Color.White
+                )
+            }
         }
     )
 }
@@ -51,6 +63,7 @@ fun TopAppBarForEditSong(
 @Composable
 fun PreviewTopAppBarForEditSong() {
     TopAppBarForEditSong(
+        {},
         {}
     )
 }

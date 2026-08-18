@@ -40,14 +40,15 @@ class PlaybackTransitionRepositoryImpl @Inject constructor(
 
     override suspend fun saveInformationEditSong(
         genre: String,
-        song: Song
+        newSong: Song,
+        oldSong: Song,
     ) {
         val correctGenre = genre
             .trim()
             .replace(Regex("\\s+"), " ")
             .replaceFirstChar { it.uppercase() }
         database.withTransaction {
-            val editSongEntity = song.copy(genre = correctGenre).toEditSongItemEntity()
+            val editSongEntity = newSong.copy(genre = correctGenre).toEditSongItemEntity(oldSong)
             editSongDao.addEditSong(editSongEntity)
             genreDao.insertGenre(GenreEntity(name = correctGenre))
         }

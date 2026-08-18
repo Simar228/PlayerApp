@@ -36,7 +36,7 @@ class SongRepositoryImpl @Inject constructor(
                 originalSongs,
                 editSongs,
             ) { original, edit ->
-                playbackTransitionRepository.updateCurrentSongIfMatches(edit)
+
                 val editById = edit.associateBy { it.id }
 
                 original.map { originalSong ->
@@ -44,6 +44,7 @@ class SongRepositoryImpl @Inject constructor(
                 }
             }.collect { songs ->
                 _songs.value = songs
+                playbackTransitionRepository.updateCurrentSongIfMatches(songs)
             }
         }
 
