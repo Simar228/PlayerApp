@@ -6,6 +6,7 @@ import com.example.sound.Data.local.queue.QueueDao
 import com.example.sound.Data.local.queue.toDomain
 import com.example.sound.Data.local.queue.toEntity
 import com.example.sound.Domain.model.QueueItem
+import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.PlayerQueueRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -45,6 +46,21 @@ class PlayerQueueRepositoryImpl @Inject constructor(
     override suspend fun clearQueue() = withContext(Dispatchers.IO) {
         queueDao.clearQueue()
     }
+
+    override suspend fun insertQueueItemAtTheEnd(song: Song) =
+        withContext(Dispatchers.IO) {
+            database.withTransaction {
+                val queueItems = queueDao.getQueue()
+
+                val lastPosition = queueItems.maxOfOrNull { it.position }
+
+                val insertedQueueItemEntity =
+                    QueueItem(id = 0, position = lastPosition?.plus(1) ?: 0, song = song).toEntity()
+                queueDao.insertQueueItem(insertedQueueItemEntity)
+
+            }
+        }
+
 
     override suspend fun insertQueueItem(queueItem: QueueItem) = withContext(Dispatchers.IO) {
         database.withTransaction {

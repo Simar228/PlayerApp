@@ -1,6 +1,7 @@
 package com.example.sound.Domain.repository
 
 import com.example.sound.Domain.model.QueueItem
+import com.example.sound.Domain.model.Song
 import kotlinx.coroutines.flow.Flow
 
 class FakePlayerQueueRepository : PlayerQueueRepository {
@@ -47,7 +48,7 @@ class FakePlayerQueueRepository : PlayerQueueRepository {
     }
 
     override suspend fun saveQueueOrder(queueItemsIds: List<Long>) {
-        queueOfIds = queueItemsIds
+        queueOfIds = queueItemsIds.toMutableList()
     }
 
     override suspend fun insertQueueItem(queueItem: QueueItem) {
@@ -66,4 +67,16 @@ class FakePlayerQueueRepository : PlayerQueueRepository {
         queueItems = updatedQueue
     }
 
+    override suspend fun insertQueueItemAtTheEnd(song: Song) {
+        val length = queueItems.size
+        val mutableQueueItems = queueItems.toMutableList()
+        mutableQueueItems.add(
+            QueueItem(
+                position = length,
+                song = song,
+                id = length.toLong()
+            )
+        )
+        queueItems = mutableQueueItems.toList()
+    }
 }
