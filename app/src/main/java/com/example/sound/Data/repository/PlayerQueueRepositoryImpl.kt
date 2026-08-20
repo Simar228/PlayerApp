@@ -4,9 +4,8 @@ import androidx.room.withTransaction
 import com.example.sound.Data.local.AppDatabase
 import com.example.sound.Data.local.queue.QueueDao
 import com.example.sound.Data.local.queue.toDomain
-import com.example.sound.Data.local.queue.toQueueItemEntity
+import com.example.sound.Data.local.queue.toEntity
 import com.example.sound.Domain.model.QueueItem
-import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.PlayerQueueRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -47,16 +46,22 @@ class PlayerQueueRepositoryImpl @Inject constructor(
         queueDao.clearQueue()
     }
 
-    override suspend fun insertSong(song: Song) {
-        queueDao.appendQueueItem(
-            song.toQueueItemEntity(position = 0)
-        )
-    }
+    override suspend fun insertQueueItem(queueItem: QueueItem) = withContext(Dispatchers.IO) {
+        database.withTransaction {
+            val currentQueue = queueDao.getQueue()
+            val safePosition = queueItem.position.coerceIn(0, currentQueue.size)
 
-    override suspend fun insertSongByPosition(song: Song, position: Int) {
-        queueDao.insertQueueItemAtPosition(
-            item = song.toQueueItemEntity(position)
-        )
+            val updatedQueue = currentQueue
+                .toMutableList()
+                .apply {
+                    add(safePosition, queueItem.toEntity())
+                }
+                .mapIndexed { index, queueItem ->
+                    queueItem.copy(position = index)
+                }
+
+            queueDao.replaceQueue(updatedQueue)
+        }
     }
 
     override fun observeQueue(): Flow<List<QueueItem>> {

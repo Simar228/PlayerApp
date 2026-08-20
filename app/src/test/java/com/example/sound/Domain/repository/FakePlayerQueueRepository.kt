@@ -1,20 +1,19 @@
 package com.example.sound.Domain.repository
 
 import com.example.sound.Domain.model.QueueItem
-import com.example.sound.Domain.model.Song
 import kotlinx.coroutines.flow.Flow
 
 class FakePlayerQueueRepository : PlayerQueueRepository {
 
     private var queueOfIds = listOf<Long>()
-    private var songsQueue = listOf<QueueItem>()
+    private var queueItems = listOf<QueueItem>()
 
     fun fakeSetQueueItems(queueItems: List<QueueItem>) {
-        songsQueue = queueItems
+        this.queueItems = queueItems
     }
 
     fun getFakeQueueItems(): List<QueueItem> {
-        return songsQueue
+        return queueItems
     }
 
     fun getQueueOfIds(): List<Long> {
@@ -22,7 +21,7 @@ class FakePlayerQueueRepository : PlayerQueueRepository {
     }
 
     override suspend fun deleteQueueItemById(queueItemId: Long) {
-        val currentQueue = songsQueue
+        val currentQueue = queueItems
 
         val updatedQueue = currentQueue.filterNot { item ->
             item.id == queueItemId
@@ -36,22 +35,11 @@ class FakePlayerQueueRepository : PlayerQueueRepository {
             item.copy(position = index)
         }
 
-        songsQueue = reindexedQueue
+        queueItems = reindexedQueue
     }
 
     override suspend fun clearQueue() {
-        songsQueue = emptyList()
-    }
-
-    override suspend fun insertSong(song: Song) {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun insertSongByPosition(
-        song: Song,
-        position: Int
-    ) {
-        TODO("Not yet implemented")
+        queueItems = emptyList()
     }
 
     override fun observeQueue(): Flow<List<QueueItem>> {
@@ -60,6 +48,22 @@ class FakePlayerQueueRepository : PlayerQueueRepository {
 
     override suspend fun saveQueueOrder(queueItemsIds: List<Long>) {
         queueOfIds = queueItemsIds
+    }
+
+    override suspend fun insertQueueItem(queueItem: QueueItem) {
+        val currentQueue = queueItems
+        val safePosition = queueItem.position.coerceIn(0, currentQueue.size)
+
+        val updatedQueue = currentQueue
+            .toMutableList()
+            .apply {
+                add(safePosition, queueItem)
+            }
+            .mapIndexed { index, queueItem ->
+                queueItem.copy(position = index)
+            }
+
+        queueItems = updatedQueue
     }
 
 }

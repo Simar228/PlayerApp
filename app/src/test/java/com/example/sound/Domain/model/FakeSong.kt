@@ -2,7 +2,7 @@ package com.example.sound.Domain.model
 
 object FakeSong {
 
-    val SONG_1 = Song(
+    val SONG_0 = Song(
         id = "song_id_1",
         title = "Bohemian Rhapsody",
         artist = "Queen",
@@ -13,7 +13,7 @@ object FakeSong {
         art = "https://example.com"
     )
 
-    val SONG_2 = Song(
+    val SONG_1 = Song(
         id = "song_id_2",
         title = "Blinding Lights",
         artist = "The Weeknd",
@@ -24,7 +24,7 @@ object FakeSong {
         art = "https://example.com"
     )
 
-    val SONG_3 = Song(
+    val SONG_2 = Song(
         id = "song_id_3",
         title = "Shape of You",
         artist = "Ed Sheeran",
@@ -34,7 +34,7 @@ object FakeSong {
         genre = "Pop"
     )
 
-    val SONG_4 = Song(
+    val SONG_3 = Song(
         id = "song_id_4",
         title = null,
         artist = "Unknown Artist",
@@ -44,7 +44,7 @@ object FakeSong {
         genre = "Lo-Fi"
     )
 
-    val SONG_5 = Song(
+    val SONG_4 = Song(
         id = "song_id_5",
         title = "Lose Yourself",
         artist = "Eminem",

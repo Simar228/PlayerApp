@@ -11,11 +11,10 @@ interface PlayerQueueRepository {
     suspend fun deleteQueueItemById(queueItemId: Long)
     
     suspend fun clearQueue()
-    suspend fun insertSong(song: Song)
 
-    suspend fun insertSongByPosition(song: Song, position: Int)
     fun observeQueue(): Flow<List<QueueItem>>
 
     suspend fun saveQueueOrder(queueItemsIds: List<Long>)
 
+    suspend fun insertQueueItem(queueItem: QueueItem)
 }

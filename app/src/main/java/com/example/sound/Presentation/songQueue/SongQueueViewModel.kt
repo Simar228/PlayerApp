@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.PlayerQueueRepository
+import com.example.sound.Domain.useCase.queue.ChooseNextSongUseCase
 import com.example.sound.Domain.useCase.queue.ClearSongQueueUseCase
 import com.example.sound.Domain.useCase.queue.DeleteQueueItemUseCase
 import com.example.sound.Domain.useCase.queue.MoveQueueItemUseCase
@@ -21,6 +22,7 @@ class SongQueueViewModel @Inject constructor(
     private val moveQueueItemUseCase: MoveQueueItemUseCase,
     private val deleteQueueItemUseCase: DeleteQueueItemUseCase,
     private val clearSongQueueUseCase: ClearSongQueueUseCase,
+    private val chooseNextSongUseCase: ChooseNextSongUseCase,
     private val playerQueueRepository: PlayerQueueRepository,
 ) : ViewModel() {
     private val _songQueue = MutableStateFlow<List<QueueItem>>(emptyList())
@@ -64,15 +66,13 @@ class SongQueueViewModel @Inject constructor(
 
     fun addSongToQueue(song: Song) {
         viewModelScope.launch {
-            playerQueueRepository.insertSong(song)
+            chooseNextSong(song)
         }
     }
 
     fun chooseNextSong(song: Song) {
         viewModelScope.launch {
-            playerQueueRepository.insertSongByPosition(
-                song = song, position = 0
-            )
+            chooseNextSongUseCase(song)
         }
     }
 

@@ -21,27 +21,6 @@ interface QueueDao {
             item.copy(position = nextPosition)
         )
     }
-
-    @Transaction
-    suspend fun insertQueueItemAtPosition(
-        item: QueueItemEntity,
-    ) {
-        val currentQueue = getQueue()
-        val safePosition = item.position.coerceIn(0, currentQueue.size)
-
-        val updatedQueue = currentQueue
-            .toMutableList()
-            .apply {
-                add(safePosition, item)
-            }
-            .mapIndexed { index, queueItem ->
-                queueItem.copy(position = index)
-            }
-
-        replaceQueue(updatedQueue)
-    }
-
-
     @Query("SELECT * FROM ${DatabaseTableNames.QUEUE_ITEMS} ORDER BY position ASC")
     fun observeQueue(): Flow<List<QueueItemEntity>>
 
@@ -85,6 +64,7 @@ interface QueueDao {
 
         replaceQueue(finalQueue)
     }
+
     @Transaction
     suspend fun replaceQueue(queueItems: List<QueueItemEntity>) {
         clearQueue()
