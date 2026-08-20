@@ -14,12 +14,13 @@ import com.example.sound.Data.local.playerState.toPlayerStateEntity
 import com.example.sound.Data.local.queue.QueueDao
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.PlaybackTransitionRepository
+import com.example.sound.Domain.repository.PlayerQueueRepository
 import javax.inject.Inject
 
 class PlaybackTransitionRepositoryImpl @Inject constructor(
     private val database: AppDatabase,
     private val playerStateDao: PlayerStateDao,
-    private val queueDao: QueueDao,
+    private val playerQueueRepository: PlayerQueueRepository,
     private val defaultQueueDao: DefaultQueueDao,
     private val editSongDao: EditSongDao,
     private val genreDao: GenreDao,
@@ -73,7 +74,7 @@ class PlaybackTransitionRepositoryImpl @Inject constructor(
             )
 
             if (queueItemId != null) {
-                queueDao.deleteQueueItemAndReindex(queueItemId)
+                playerQueueRepository.deleteQueueItemById(queueItemId)
             }
         }
     }
@@ -85,7 +86,7 @@ class PlaybackTransitionRepositoryImpl @Inject constructor(
             )
 
             if (queueItemId != null) {
-                queueDao.deleteQueueItemAndReindex(queueItemId)
+                playerQueueRepository.deleteQueueItemById(queueItemId)
             }
         }
     }

@@ -16,8 +16,8 @@ class MoveQueueItemUseCaseTest {
     fun setUp() {
         sut = MoveQueueItemUseCase()
         expectedQueueItemList = listOf(
-            FakeQueueItem.create(FakeSong.SONG_1),
-            FakeQueueItem.create(FakeSong.SONG_1, 1, 1)
+            FakeQueueItem.ITEM_0,
+            FakeQueueItem.ITEM_1
         )
     }
 
@@ -52,8 +52,8 @@ class MoveQueueItemUseCaseTest {
         val currentQueueItemList = sut.invoke(expectedQueueItemList, 1, 0)
 
         val changedList = listOf(
-            FakeQueueItem.create(FakeSong.SONG_1, 1, 1),
-            FakeQueueItem.create(FakeSong.SONG_1, 0, 0)
+            FakeQueueItem.ITEM_1,
+            FakeQueueItem.ITEM_0,
         )
 
         assertThat(currentQueueItemList).isEqualTo(changedList)

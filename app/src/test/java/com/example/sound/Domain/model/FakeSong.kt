@@ -1,6 +1,7 @@
 package com.example.sound.Domain.model
 
 object FakeSong {
+
     val SONG_1 = Song(
         id = "song_id_1",
         title = "Bohemian Rhapsody",

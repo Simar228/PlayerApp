@@ -21,8 +21,22 @@ class FakePlayerQueueRepository : PlayerQueueRepository {
         return queueOfIds
     }
 
-    override suspend fun deleteQueueItem(queueItemId: Long) {
-        TODO("Not yet implemented")
+    override suspend fun deleteQueueItemById(queueItemId: Long) {
+        val currentQueue = songsQueue
+
+        val updatedQueue = currentQueue.filterNot { item ->
+            item.id == queueItemId
+        }
+
+        if (updatedQueue.size == currentQueue.size) {
+            return
+        }
+
+        val reindexedQueue = updatedQueue.mapIndexed { index, item ->
+            item.copy(position = index)
+        }
+
+        songsQueue = reindexedQueue
     }
 
     override suspend fun clearQueue() {

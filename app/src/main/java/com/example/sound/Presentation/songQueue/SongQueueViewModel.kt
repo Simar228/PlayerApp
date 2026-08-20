@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.PlayerQueueRepository
+import com.example.sound.Domain.useCase.queue.DeleteQueueItemUseCase
 import com.example.sound.Domain.useCase.queue.MoveQueueItemUseCase
 import com.example.sound.Domain.useCase.queue.SaveQueueOrderUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,6 +18,7 @@ import javax.inject.Inject
 class SongQueueViewModel @Inject constructor(
     private val saveQueueOrderUseCase: SaveQueueOrderUseCase,
     private val moveQueueItemUseCase: MoveQueueItemUseCase,
+    private val deleteQueueItemUseCase: DeleteQueueItemUseCase,
     private val playerQueueRepository: PlayerQueueRepository
 ) : ViewModel() {
     private val _songQueue = MutableStateFlow<List<QueueItem>>(emptyList())
@@ -39,7 +41,8 @@ class SongQueueViewModel @Inject constructor(
 
 
     fun moveQueueItem(
-        fromIndex: Int, toIndex: Int
+        fromIndex: Int,
+        toIndex: Int
     ) {
         _songQueue.value = moveQueueItemUseCase(_songQueue.value, fromIndex, toIndex)
     }
@@ -47,7 +50,7 @@ class SongQueueViewModel @Inject constructor(
 
     fun deleteQueueItem(queueItemId: Long) {
         viewModelScope.launch {
-            playerQueueRepository.deleteQueueItem(queueItemId)
+            deleteQueueItem(queueItemId)
         }
     }
 

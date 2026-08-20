@@ -1,5 +1,7 @@
 package com.example.sound.Data.repository
 
+import androidx.room.withTransaction
+import com.example.sound.Data.local.AppDatabase
 import com.example.sound.Data.local.queue.QueueDao
 import com.example.sound.Data.local.queue.toDomain
 import com.example.sound.Data.local.queue.toQueueItemEntity
@@ -14,13 +16,30 @@ import javax.inject.Inject
 
 class PlayerQueueRepositoryImpl @Inject constructor(
     private val queueDao: QueueDao,
+    private val database: AppDatabase,
 ) : PlayerQueueRepository {
 
 
-    override suspend fun deleteQueueItem(
+    override suspend fun deleteQueueItemById(
         queueItemId: Long
-    ) {
-        queueDao.deleteQueueItemAndReindex(queueItemId)
+    ) = withContext(Dispatchers.IO) {
+        database.withTransaction {
+            val currentQueue = queueDao.getQueue()
+
+            val updatedQueue = currentQueue.filterNot { item ->
+                item.id == queueItemId
+            }
+
+            if (updatedQueue.size == currentQueue.size) {
+                return@withTransaction
+            }
+
+            val reindexedQueue = updatedQueue.mapIndexed { index, item ->
+                item.copy(position = index)
+            }
+
+            queueDao.replaceQueue(reindexedQueue)
+        }
     }
 
 
@@ -41,10 +60,9 @@ class PlayerQueueRepositoryImpl @Inject constructor(
     }
 
     override fun observeQueue(): Flow<List<QueueItem>> {
-        return queueDao.observeQueue()
-            .map { items ->
-                items.map { it.toDomain() }
-            }
+        return queueDao.observeQueue().map { items ->
+            items.map { it.toDomain() }
+        }
     }
 
     override suspend fun saveQueueOrder(queueItemsIds: List<Long>) {

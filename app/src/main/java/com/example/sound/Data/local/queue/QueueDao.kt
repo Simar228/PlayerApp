@@ -12,25 +12,6 @@ import kotlinx.coroutines.flow.Flow
 interface QueueDao {
 
     @Transaction
-    suspend fun deleteQueueItemAndReindex(queueItemId: Long) {
-        val currentQueue = getQueue()
-
-        val updatedQueue = currentQueue.filterNot { item ->
-            item.id == queueItemId
-        }
-
-        if (updatedQueue.size == currentQueue.size) {
-            return
-        }
-
-        val reindexedQueue = updatedQueue.mapIndexed { index, item ->
-            item.copy(position = index)
-        }
-
-        replaceQueue(reindexedQueue)
-    }
-
-    @Transaction
     suspend fun appendQueueItem(item: QueueItemEntity) {
         val currentQueue = getQueue()
         val nextPosition =

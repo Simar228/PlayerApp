@@ -27,8 +27,8 @@ class SaveQueueOrderUseCaseTest {
     @Test
     fun `Use Case returns only QueueItem's ID`() = runTest {
         val queueItems = listOf(
-            FakeQueueItem.create(FakeSong.SONG_1, 1, 0),
-            FakeQueueItem.create(FakeSong.SONG_2, 0, 1)
+            FakeQueueItem.ITEM_1,
+            FakeQueueItem.ITEM_0,
         )
 
         sut.invoke(queueItems)
