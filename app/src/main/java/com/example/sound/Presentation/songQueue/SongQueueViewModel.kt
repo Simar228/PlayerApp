@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.PlayerQueueRepository
+import com.example.sound.Domain.useCase.queue.SaveQueueOrderUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,6 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SongQueueViewModel @Inject constructor(
+    private val saveQueueOrderUseCase: SaveQueueOrderUseCase,
     private val playerQueueRepository: PlayerQueueRepository
 ) : ViewModel() {
     private val _songQueue = MutableStateFlow<List<QueueItem>>(emptyList())
@@ -28,11 +30,8 @@ class SongQueueViewModel @Inject constructor(
     }
 
     fun saveQueueOrder() {
-        val queueItemIds = _songQueue.value.map { queueItem ->
-            queueItem.id
-        }
         viewModelScope.launch {
-            playerQueueRepository.saveQueueOrder(queueItemIds)
+            saveQueueOrderUseCase(_songQueue.value)
         }
     }
 

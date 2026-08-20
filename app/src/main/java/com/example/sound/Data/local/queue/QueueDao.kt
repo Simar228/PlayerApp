@@ -78,12 +78,12 @@ interface QueueDao {
 
 
     @Transaction
-    suspend fun reorderQueue(queueItemId: List<Long>) {
+    suspend fun reorderQueue(queueItemIds: List<Long>) {
         val currentQueue = getQueue()
         val itemsById = currentQueue.associateBy { item ->
             item.id
         }
-        val reorderedItems = queueItemId
+        val reorderedItems = queueItemIds
             .mapNotNull { queueItemId ->
                 itemsById[queueItemId]
             }

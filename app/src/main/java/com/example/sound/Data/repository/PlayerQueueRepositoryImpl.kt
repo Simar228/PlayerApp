@@ -6,8 +6,10 @@ import com.example.sound.Data.local.queue.toQueueItemEntity
 import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.PlayerQueueRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class PlayerQueueRepositoryImpl @Inject constructor(
@@ -46,8 +48,9 @@ class PlayerQueueRepositoryImpl @Inject constructor(
     }
 
     override suspend fun saveQueueOrder(queueItemsIds: List<Long>) {
-
-        queueDao.reorderQueue(queueItemsIds)
+        withContext(Dispatchers.IO) {
+            queueDao.reorderQueue(queueItemsIds)
+        }
     }
 
 }
