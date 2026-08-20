@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.PlayerQueueRepository
+import com.example.sound.Domain.useCase.queue.ClearSongQueueUseCase
 import com.example.sound.Domain.useCase.queue.DeleteQueueItemUseCase
 import com.example.sound.Domain.useCase.queue.MoveQueueItemUseCase
 import com.example.sound.Domain.useCase.queue.SaveQueueOrderUseCase
@@ -19,7 +20,8 @@ class SongQueueViewModel @Inject constructor(
     private val saveQueueOrderUseCase: SaveQueueOrderUseCase,
     private val moveQueueItemUseCase: MoveQueueItemUseCase,
     private val deleteQueueItemUseCase: DeleteQueueItemUseCase,
-    private val playerQueueRepository: PlayerQueueRepository
+    private val clearSongQueueUseCase: ClearSongQueueUseCase,
+    private val playerQueueRepository: PlayerQueueRepository,
 ) : ViewModel() {
     private val _songQueue = MutableStateFlow<List<QueueItem>>(emptyList())
     val songQueue = _songQueue.asStateFlow()
@@ -50,13 +52,13 @@ class SongQueueViewModel @Inject constructor(
 
     fun deleteQueueItem(queueItemId: Long) {
         viewModelScope.launch {
-            deleteQueueItem(queueItemId)
+            deleteQueueItemUseCase(queueItemId)
         }
     }
 
     fun clearSongQueue() {
         viewModelScope.launch {
-            playerQueueRepository.clearQueue()
+            clearSongQueueUseCase()
         }
     }
 

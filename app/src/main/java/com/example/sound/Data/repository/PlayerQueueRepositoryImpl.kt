@@ -43,7 +43,7 @@ class PlayerQueueRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun clearQueue() {
+    override suspend fun clearQueue() = withContext(Dispatchers.IO) {
         queueDao.clearQueue()
     }
 

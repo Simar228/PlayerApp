@@ -40,7 +40,7 @@ class FakePlayerQueueRepository : PlayerQueueRepository {
     }
 
     override suspend fun clearQueue() {
-        TODO("Not yet implemented")
+        songsQueue = emptyList()
     }
 
     override suspend fun insertSong(song: Song) {

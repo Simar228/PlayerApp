@@ -11,7 +11,7 @@ import org.junit.Test
 
 class DeleteQueueItemUseCaseTest {
 
-    lateinit var cut: DeleteQueueItemUseCase
+    lateinit var sut: DeleteQueueItemUseCase
     lateinit var repository: FakePlayerQueueRepository
 
     @get:Rule
@@ -20,7 +20,7 @@ class DeleteQueueItemUseCaseTest {
     @Before
     fun setUp() {
         repository = FakePlayerQueueRepository()
-        cut = DeleteQueueItemUseCase(repository)
+        sut = DeleteQueueItemUseCase(repository)
         repository.fakeSetQueueItems(
             listOf(
                 FakeQueueItem.ITEM_0,
@@ -33,7 +33,7 @@ class DeleteQueueItemUseCaseTest {
     fun `use case delete QueueItem by id`() = runTest {
         val expectedList = listOf(FakeQueueItem.ITEM_1.copy(position = 0))
 
-        cut.invoke(0)
+        sut.invoke(0)
 
         val currentQueueItemList = repository.getFakeQueueItems()
         assertThat(currentQueueItemList).containsExactlyElementsIn(expectedList).inOrder()
