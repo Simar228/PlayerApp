@@ -1,6 +1,7 @@
 package com.example.sound.Domain.useCase.queue
 
 import com.example.sound.Domain.model.FakeQueueItem
+import com.example.sound.Domain.model.FakeSong
 import com.example.sound.Domain.repository.FakePlayerQueueRepository
 import com.example.sound.utill.MainDispatcherRule
 import com.google.common.truth.Truth.assertThat
@@ -23,17 +24,17 @@ class DeleteQueueItemUseCaseTest {
         sut = DeleteQueueItemUseCase(repository)
         repository.fakeSetQueueItems(
             listOf(
-                FakeQueueItem.ITEM_0,
-                FakeQueueItem.ITEM_1,
+                FakeQueueItem.create(id = 10L, song = FakeSong.SONG_0, position = 0),
+                FakeQueueItem.create(id = 11L, song = FakeSong.SONG_1, position = 1)
             )
         )
     }
 
     @Test
     fun `use case delete QueueItem by id`() = runTest {
-        val expectedList = listOf(FakeQueueItem.ITEM_1.copy(position = 0))
+        val expectedList = listOf(FakeQueueItem.create(id = 11, FakeSong.SONG_1, position = 0))
 
-        sut.invoke(0)
+        sut(10)
 
         val currentQueueItemList = repository.getFakeQueueItems()
         assertThat(currentQueueItemList).containsExactlyElementsIn(expectedList).inOrder()

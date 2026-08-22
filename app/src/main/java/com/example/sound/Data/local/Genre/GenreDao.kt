@@ -1,6 +1,5 @@
 package com.example.sound.Data.local.Genre
 
-import android.util.Log
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy

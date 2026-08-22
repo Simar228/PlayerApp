@@ -16,8 +16,8 @@ class MoveQueueItemUseCaseTest {
     fun setUp() {
         sut = MoveQueueItemUseCase()
         expectedQueueItemList = listOf(
-            FakeQueueItem.ITEM_0,
-            FakeQueueItem.ITEM_1
+            FakeQueueItem.create(),
+            FakeQueueItem.create(id = 1, song = FakeSong.SONG_1, position = 1)
         )
     }
 
@@ -25,14 +25,14 @@ class MoveQueueItemUseCaseTest {
     fun `if from index is not in current queue, list is not change`() {
 
 
-        val currentQueueItemList = sut.invoke(expectedQueueItemList, 3, 1)
+        val currentQueueItemList = sut(expectedQueueItemList, 3, 1)
 
         assertThat(currentQueueItemList).isEqualTo(expectedQueueItemList)
     }
 
     @Test
     fun `if list is empty`() {
-        val currentQueueItemList = sut.invoke(emptyList(), 0, 1)
+        val currentQueueItemList = sut(emptyList(), 0, 1)
 
         assertThat(currentQueueItemList).isEqualTo(listOf<QueueItem>())
     }
@@ -40,7 +40,7 @@ class MoveQueueItemUseCaseTest {
     @Test
     fun `if toIndex is not in current queue, list is not change`() {
 
-        val currentQueueItemList = sut.invoke(expectedQueueItemList, 1, 3)
+        val currentQueueItemList = sut(expectedQueueItemList, 1, 3)
 
         assertThat(currentQueueItemList).isEqualTo(expectedQueueItemList)
 
@@ -49,11 +49,11 @@ class MoveQueueItemUseCaseTest {
     @Test
     fun `fromIndex toIndex change list`() {
 
-        val currentQueueItemList = sut.invoke(expectedQueueItemList, 1, 0)
+        val currentQueueItemList = sut(expectedQueueItemList, 1, 0)
 
         val changedList = listOf(
-            FakeQueueItem.ITEM_1,
-            FakeQueueItem.ITEM_0,
+            FakeQueueItem.create(id = 1, song = FakeSong.SONG_1, position = 1),
+            FakeQueueItem.create(position = 0, id = 0, song = FakeSong.SONG_0),
         )
 
         assertThat(currentQueueItemList).isEqualTo(changedList)

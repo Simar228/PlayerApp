@@ -3,14 +3,24 @@ package com.example.sound.Domain.repository
 import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.model.Song
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class FakePlayerQueueRepository : PlayerQueueRepository {
 
     private var queueOfIds = listOf<Long>()
-    private var queueItems = listOf<QueueItem>()
+    private val _queueItemsFlow = MutableStateFlow<List<QueueItem>>(emptyList())
+
+    private var queueItems: List<QueueItem>
+        get() = _queueItemsFlow.value
+        set(value) {
+            _queueItemsFlow.value = value
+        }
+    private var idCounter = 0L
 
     fun fakeSetQueueItems(queueItems: List<QueueItem>) {
         this.queueItems = queueItems
+        idCounter = (queueItems.maxOfOrNull { it.id } ?: -1L) + 1
     }
 
     fun getFakeQueueItems(): List<QueueItem> {
@@ -44,21 +54,27 @@ class FakePlayerQueueRepository : PlayerQueueRepository {
     }
 
     override fun observeQueue(): Flow<List<QueueItem>> {
-        TODO("Not yet implemented")
+        return _queueItemsFlow.asStateFlow()
     }
 
     override suspend fun saveQueueOrder(queueItemsIds: List<Long>) {
-        queueOfIds = queueItemsIds.toMutableList()
+        queueOfIds = queueItemsIds
     }
 
-    override suspend fun insertQueueItem(queueItem: QueueItem) {
+    override suspend fun insertSongAtTheStart(song: Song) {
+
         val currentQueue = queueItems
-        val safePosition = queueItem.position.coerceIn(0, currentQueue.size)
+
+        val newQueueItem = QueueItem(
+            position = 0,
+            song = song,
+            id = idCounter++,
+        )
 
         val updatedQueue = currentQueue
             .toMutableList()
             .apply {
-                add(safePosition, queueItem)
+                add(0, newQueueItem)
             }
             .mapIndexed { index, queueItem ->
                 queueItem.copy(position = index)
@@ -67,16 +83,13 @@ class FakePlayerQueueRepository : PlayerQueueRepository {
         queueItems = updatedQueue
     }
 
-    override suspend fun insertQueueItemAtTheEnd(song: Song) {
-        val length = queueItems.size
-        val mutableQueueItems = queueItems.toMutableList()
-        mutableQueueItems.add(
-            QueueItem(
-                position = length,
-                song = song,
-                id = length.toLong()
-            )
+
+    override suspend fun insertSongAtTheEnd(song: Song) {
+        val newQueueItem = QueueItem(
+            position = queueItems.size,
+            song = song,
+            id = idCounter++
         )
-        queueItems = mutableQueueItems.toList()
+        queueItems = queueItems + newQueueItem
     }
 }

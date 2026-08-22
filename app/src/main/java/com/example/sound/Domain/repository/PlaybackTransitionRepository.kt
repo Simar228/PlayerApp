@@ -1,6 +1,5 @@
 package com.example.sound.Domain.repository
 
-import com.example.sound.Domain.model.Genre
 import com.example.sound.Domain.model.Song
 
 interface PlaybackTransitionRepository {

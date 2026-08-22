@@ -2,7 +2,6 @@ package com.example.sound.Presentation.activity
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.SongRepository
 import com.example.sound.Presentation.SongsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel

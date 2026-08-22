@@ -16,6 +16,6 @@ interface PlayerQueueRepository {
 
     suspend fun saveQueueOrder(queueItemsIds: List<Long>)
 
-    suspend fun insertQueueItem(queueItem: QueueItem)
-    suspend fun insertQueueItemAtTheEnd(song: Song)
+    suspend fun insertSongAtTheStart(song: Song)
+    suspend fun insertSongAtTheEnd(song: Song)
 }

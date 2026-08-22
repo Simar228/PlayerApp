@@ -47,7 +47,7 @@ class PlayerQueueRepositoryImpl @Inject constructor(
         queueDao.clearQueue()
     }
 
-    override suspend fun insertQueueItemAtTheEnd(song: Song) =
+    override suspend fun insertSongAtTheEnd(song: Song) =
         withContext(Dispatchers.IO) {
             database.withTransaction {
                 val queueItems = queueDao.getQueue()
@@ -62,19 +62,19 @@ class PlayerQueueRepositoryImpl @Inject constructor(
         }
 
 
-    override suspend fun insertQueueItem(queueItem: QueueItem) = withContext(Dispatchers.IO) {
+    override suspend fun insertSongAtTheStart(song: Song) = withContext(Dispatchers.IO) {
         database.withTransaction {
             val currentQueue = queueDao.getQueue()
-            val safePosition = queueItem.position.coerceIn(0, currentQueue.size)
+
+            val queueItem = QueueItem(
+                id = 0,
+                position = 0,
+                song = song
+            )
 
             val updatedQueue = currentQueue
                 .toMutableList()
-                .apply {
-                    add(safePosition, queueItem.toEntity())
-                }
-                .mapIndexed { index, queueItem ->
-                    queueItem.copy(position = index)
-                }
+                .apply { add(0, queueItem.toEntity()) }
 
             queueDao.replaceQueue(updatedQueue)
         }

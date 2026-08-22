@@ -24,21 +24,23 @@ class AddSongAtTheEndQueueUseCaseTest {
         sut = AddSongAtTheEndQueueUseCase(repository)
         repository.fakeSetQueueItems(
             listOf(
-                FakeQueueItem.ITEM_0
+                FakeQueueItem.create(),
+                FakeQueueItem.create(id = 1, song = FakeSong.SONG_1, position = 1),
             )
         )
     }
 
     @Test
     fun `if song added it must be at the end`() = runTest {
-        val song = FakeSong.SONG_1
+        val song = FakeSong.SONG_2
 
-        sut.invoke(song)
+        sut(song)
 
         val currentList = repository.getFakeQueueItems()
         val expectedList = listOf(
-            FakeQueueItem.ITEM_0,
-            FakeQueueItem.ITEM_1,
+            FakeQueueItem.create(),
+            FakeQueueItem.create(id = 1, song = FakeSong.SONG_1, position = 1),
+            FakeQueueItem.create(id = 2, song = FakeSong.SONG_2, position = 2)
         )
 
         assertThat(currentList).containsExactlyElementsIn(expectedList).inOrder()

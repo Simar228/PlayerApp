@@ -8,6 +8,6 @@ class AddSongAtTheEndQueueUseCase @Inject constructor(
     private val playerQueueRepository: PlayerQueueRepository
 ) {
     suspend operator fun invoke(song: Song) {
-        playerQueueRepository.insertQueueItemAtTheEnd(song)
+        playerQueueRepository.insertSongAtTheEnd(song)
     }
 }

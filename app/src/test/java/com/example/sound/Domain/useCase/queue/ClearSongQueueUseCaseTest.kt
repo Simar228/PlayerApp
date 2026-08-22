@@ -1,6 +1,5 @@
 package com.example.sound.Domain.useCase.queue
 
-import android.media.session.MediaSession
 import com.example.sound.Domain.model.FakeQueueItem
 import com.example.sound.Domain.repository.FakePlayerQueueRepository
 import com.example.sound.utill.MainDispatcherRule
@@ -22,14 +21,14 @@ class ClearSongQueueUseCaseTest {
     fun setUp(){
         repository = FakePlayerQueueRepository()
         repository.fakeSetQueueItems(listOf(
-            FakeQueueItem.ITEM_0
+            FakeQueueItem.create()
         ))
         sut = ClearSongQueueUseCase(repository)
     }
 
     @Test
     fun `sut clear song queue item list`() = runTest {
-        sut.invoke()
+        sut()
 
         val currentQueueItems = repository.getFakeQueueItems()
 
