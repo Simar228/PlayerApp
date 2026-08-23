@@ -4,12 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.model.Song
-import com.example.sound.Domain.useCase.queue.AddSongAtTheEndQueueUseCase
-import com.example.sound.Domain.useCase.queue.ChooseNextSongUseCase
-import com.example.sound.Domain.useCase.queue.ClearSongQueueUseCase
-import com.example.sound.Domain.useCase.queue.DeleteQueueItemUseCase
+import com.example.sound.Domain.repository.PlayerQueueRepository
 import com.example.sound.Domain.useCase.queue.MoveQueueItemUseCase
-import com.example.sound.Domain.useCase.queue.ObserveQueueUseCase
 import com.example.sound.Domain.useCase.queue.SaveQueueOrderUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,20 +15,16 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SongQueueViewModel @Inject constructor(
-    private val observeQueueUseCase: ObserveQueueUseCase,
+    private val playerQueueRepository: PlayerQueueRepository,
     private val saveQueueOrderUseCase: SaveQueueOrderUseCase,
     private val moveQueueItemUseCase: MoveQueueItemUseCase,
-    private val deleteQueueItemUseCase: DeleteQueueItemUseCase,
-    private val clearSongQueueUseCase: ClearSongQueueUseCase,
-    private val chooseNextSongUseCase: ChooseNextSongUseCase,
-    private val addSongAtTheEndQueueUseCase: AddSongAtTheEndQueueUseCase,
 ) : ViewModel() {
     private val _songQueue = MutableStateFlow<List<QueueItem>>(emptyList())
     val songQueue = _songQueue.asStateFlow()
 
     init {
         viewModelScope.launch {
-            observeQueueUseCase().collect { queue ->
+            playerQueueRepository.observeQueue().collect { queue ->
                 _songQueue.value = queue
             }
         }
@@ -53,25 +45,25 @@ class SongQueueViewModel @Inject constructor(
 
     fun deleteQueueItem(queueItemId: Long) {
         viewModelScope.launch {
-            deleteQueueItemUseCase(queueItemId)
+            playerQueueRepository.deleteQueueItemById(queueItemId)
         }
     }
 
     fun clearSongQueue() {
         viewModelScope.launch {
-            clearSongQueueUseCase()
+            playerQueueRepository.clearQueue()
         }
     }
 
     fun addSongToQueue(song: Song) {
         viewModelScope.launch {
-            addSongAtTheEndQueueUseCase(song)
+            playerQueueRepository.insertSongAtTheEnd(song)
         }
     }
 
     fun chooseNextSong(song: Song) {
         viewModelScope.launch {
-            chooseNextSongUseCase(song)
+            playerQueueRepository.insertSongAtTheStart(song)
         }
     }
 }
