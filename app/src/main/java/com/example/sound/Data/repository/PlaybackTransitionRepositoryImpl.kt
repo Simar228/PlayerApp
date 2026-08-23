@@ -14,6 +14,8 @@ import com.example.sound.Data.local.playerState.toPlayerStateEntity
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.PlaybackTransitionRepository
 import com.example.sound.Domain.repository.PlayerQueueRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class PlaybackTransitionRepositoryImpl @Inject constructor(
@@ -56,7 +58,7 @@ class PlaybackTransitionRepositoryImpl @Inject constructor(
         song: Song,
         defaultQueueSongs: List<Song>?,
         queueItemId: Long?
-    ) {
+    ) = withContext(Dispatchers.IO) {
         database.withTransaction {
             defaultQueueSongs?.let { songs ->
                 val defaultQueueEntities =
@@ -90,6 +92,7 @@ class PlaybackTransitionRepositoryImpl @Inject constructor(
         }
     }
 }
+
 fun normalizeGenre(genre: String): String {
     return genre
         .trim()

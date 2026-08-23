@@ -1,6 +1,4 @@
 plugins {
-
-
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
@@ -53,6 +51,14 @@ android {
 }
 
 dependencies {
+
+    androidTestImplementation("androidx.media3:media3-test-utils:1.10.1")
+    androidTestImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
+    androidTestImplementation("com.google.truth:truth:1.4.5")
+    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
+    androidTestImplementation("com.google.guava:guava:33.0.0-android")
+    implementation("androidx.media3:media3-test-utils:1.10.1")
+    testImplementation("org.mockito:mockito-inline:5.2.0")
     implementation("sh.calvin.reorderable:reorderable:3.1.0")
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.session)
@@ -82,7 +88,6 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
-    androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

@@ -13,10 +13,13 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="clearQueue_shouldDeleteAllItemsFromDatabase()">
+      <SelectionState runConfigName="PlayerControllerTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="PlayerQueueRepositoryImplTest">
+      <SelectionState runConfigName="FakePlayerTest">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="onIsPlayingChangedShouldUpdateIsPlayingFieldInStateFlow()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

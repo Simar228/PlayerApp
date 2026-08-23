@@ -8,6 +8,7 @@ import com.example.sound.Domain.repository.PlaybackTransitionRepository
 import com.example.sound.Presentation.playerUi.PlayerConnectionState
 import com.example.sound.Presentation.playerUi.PlayerUIEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -36,7 +37,6 @@ class PlayerViewModel @Inject constructor(
         selectedSong: Song,
         queueItemId: Long?
     ) {
-        Log.d(TAG, "Get song: ${selectedSong.title}")
         playbackRequestJob?.cancel()
         playbackRequestJob = viewModelScope.launch {
             playbackTransitionRepository.startPlayback(
@@ -59,10 +59,6 @@ class PlayerViewModel @Inject constructor(
                     queueSongs = queueSongs,
                     selectedSong = song,
                     queueItemId = queueItemId
-                )
-                Log.d(
-                    TAG,
-                    pendingPlaybackRequest.toString()
                 )
             }
 

@@ -83,7 +83,6 @@ class PlayerController(
     fun connect() {
         if (isConnectionStarted || isReleased) return
         isConnectionStarted = true
-        Log.d(TAG, "Connecting MediaController")
         controllerFuture.addListener(
             {
                 if (isReleased) {
@@ -102,12 +101,10 @@ class PlayerController(
                         )
                     }
 
-                    Log.d(TAG, "MediaController is ready")
                     onControllerReady()
 
                 } catch (error: Exception) {
                     controller = null
-                    Log.e(TAG, "Error connecting MediaController", error)
                     _mediaControllerState.update { state ->
                         state.copy(
                             connectionState = PlayerConnectionState.Error(error)
@@ -173,16 +170,8 @@ class PlayerController(
     }
 
     fun seekTo(positionMs: Long) {
-        if (isReleased) return
-        val mediaController = controller ?: return
-        _mediaControllerState.update { state ->
-            state.copy(
-                currentPosition = positionMs,
-            )
-        }
-
-        mediaController.seekTo(positionMs)
-
+        _mediaControllerState.update { it.copy(currentPosition = positionMs) }
+        withController { seekTo(positionMs) }
     }
 
     fun next() {
@@ -195,10 +184,6 @@ class PlayerController(
         withController {
             seekToPreviousMediaItem()
         }
-    }
-
-    private companion object {
-        const val TAG = "PlayerController"
     }
 
     private inline fun withController(
