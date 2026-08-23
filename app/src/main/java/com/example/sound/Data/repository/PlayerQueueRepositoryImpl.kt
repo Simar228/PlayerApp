@@ -75,6 +75,9 @@ class PlayerQueueRepositoryImpl @Inject constructor(
             val updatedQueue = currentQueue
                 .toMutableList()
                 .apply { add(0, queueItem.toEntity()) }
+                .mapIndexed { index, entity ->
+                    entity.copy(position = index)
+                }
 
             queueDao.replaceQueue(updatedQueue)
         }

@@ -72,7 +72,7 @@ class SongQueueViewModelTest {
 
         val currentQueue = sut.songQueue.value
         assertThat(currentQueue).hasSize(2)
-        assertThat(currentQueue.first().song).isEqualTo(FakeSong.SONG_2) // Должна встать первой
+        assertThat(currentQueue.first().song).isEqualTo(FakeSong.SONG_2)
     }
 
     @Test
