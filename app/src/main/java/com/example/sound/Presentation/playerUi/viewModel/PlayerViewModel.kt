@@ -18,11 +18,11 @@ import javax.inject.Inject
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
     private val playbackTransitionRepository: PlaybackTransitionRepository,
-    playerControllerFactory: PlayerControllerFactory
+    playerControllerProvider: PlayerControllerProvider
 ) : ViewModel() {
     private var pendingPlaybackRequest: PendingPlaybackRequest? = null
     private var positionUpdatesJob: Job? = null
-    private val playerController: PlayerController = playerControllerFactory.create(
+    private val playerController: PlayerController = playerControllerProvider.create(
         onControllerReady = ::handleControllerReady
     )
     private var playbackRequestJob: Job? = null

@@ -12,8 +12,8 @@ import javax.inject.Inject
 class PlayerControllerFactory @Inject constructor(
     @param:ApplicationContext
     private val context: Context
-) {
-    fun create(
+) : PlayerControllerProvider {
+    override fun create(
         onControllerReady: () -> Unit
     ): PlayerController {
         val sessionToken = SessionToken(

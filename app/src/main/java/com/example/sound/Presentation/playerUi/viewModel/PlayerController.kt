@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.util.concurrent.Executor
 
-class PlayerController(
+open class PlayerController(
     private val controllerListenerExecutor: Executor,
     private val onControllerReady: () -> Unit,
     private val controllerFuture: ListenableFuture<MediaController>
@@ -24,7 +24,7 @@ class PlayerController(
     private var isConnectionStarted = false
     private var isReleased = false
     private val _mediaControllerState = MutableStateFlow(PlayerUiState())
-    val mediaControllerState = _mediaControllerState.asStateFlow()
+    open val mediaControllerState = _mediaControllerState.asStateFlow()
     private var controller: MediaController? = null
     private val playerListener = object : Player.Listener {
 
@@ -80,7 +80,7 @@ class PlayerController(
         }
     }
 
-    fun connect() {
+    open fun connect() {
         if (isConnectionStarted || isReleased) return
         isConnectionStarted = true
         controllerFuture.addListener(
@@ -115,7 +115,7 @@ class PlayerController(
         )
     }
 
-    fun release() {
+    open fun release() {
         if (isReleased) return
         isReleased = true
         controller?.removeListener(playerListener)
@@ -136,7 +136,7 @@ class PlayerController(
         }
     }
 
-    fun showSelectedSong(song: Song) {
+    open fun showSelectedSong(song: Song) {
         _mediaControllerState.update { state ->
             state.copy(
                 currentSong = song,
@@ -146,7 +146,7 @@ class PlayerController(
         }
     }
 
-    fun updatePosition() {
+    open fun updatePosition() {
         val mediaController = controller ?: return
         if (!mediaController.isPlaying) return
 
@@ -157,30 +157,30 @@ class PlayerController(
         }
     }
 
-    fun play() {
+    open fun play() {
         withController {
             play()
         }
     }
 
-    fun pause() {
+    open fun pause() {
         withController {
             pause()
         }
     }
 
-    fun seekTo(positionMs: Long) {
+    open fun seekTo(positionMs: Long) {
         _mediaControllerState.update { it.copy(currentPosition = positionMs) }
         withController { seekTo(positionMs) }
     }
 
-    fun next() {
+    open fun next() {
         withController {
             seekToNextMediaItem()
         }
     }
 
-    fun previous() {
+    open fun previous() {
         withController {
             seekToPreviousMediaItem()
         }

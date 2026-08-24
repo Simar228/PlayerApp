@@ -16,9 +16,6 @@
       <SelectionState runConfigName="PlayerControllerTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="FakePlayerTest">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="onIsPlayingChangedShouldUpdateIsPlayingFieldInStateFlow()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>

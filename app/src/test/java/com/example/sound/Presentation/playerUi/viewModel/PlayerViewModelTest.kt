@@ -1,26 +1,22 @@
 package com.example.sound.Presentation.playerUi.viewModel
 
+import androidx.lifecycle.viewModelScope
 import com.example.sound.Domain.model.FakeSong
-import com.example.sound.Domain.repository.PlaybackTransitionRepository
+import com.example.sound.Domain.repository.FakePlaybackTransitionRepository
 import com.example.sound.Presentation.playerUi.PlayerConnectionState
 import com.example.sound.Presentation.playerUi.PlayerUIEvent
 import com.example.sound.Presentation.playerUi.PlayerUiState
 import com.example.sound.utill.MainDispatcherRule
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mockito.atLeast
-import org.mockito.Mockito.never
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoInteractions
-import org.mockito.kotlin.any
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PlayerViewModelTest {
@@ -28,143 +24,261 @@ class PlayerViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    // 1. Создаем моки внешних зависимостей
-    private val playbackTransitionRepository: PlaybackTransitionRepository = mock()
-    private val playerControllerFactory: PlayerControllerFactory = mock()
-    private val playerController: PlayerController = mock()
-
-    // 2. Создаем реальный StateFlow для подмены состояния плеера
-    private val fakeControllerState = MutableStateFlow(PlayerUiState())
-
+    private lateinit var repository: FakePlaybackTransitionRepository
+    private lateinit var playerController: FakePlayerController
     private lateinit var sut: PlayerViewModel
-    private var capturedOnControllerReady: (() -> Unit)? = null
 
     @Before
     fun setUp() {
-        // Подкладываем наш StateFlow вместо реального внутри контроллера
-        whenever(playerController.mediaControllerState).thenReturn(fakeControllerState)
+        repository = FakePlaybackTransitionRepository()
+        playerController = FakePlayerController()
 
-        // Настраиваем фабрику: при вызове create() перехватываем лямбду обратного вызова
-        whenever(playerControllerFactory.create(any())).thenAnswer { invocation ->
-            capturedOnControllerReady = invocation.getArgument(0) as () -> Unit
-            playerController
+        val playerControllerProvider = PlayerControllerProvider { onControllerReady ->
+            playerController.apply {
+                this.onControllerReady = onControllerReady
+            }
         }
 
-        // Инициализируем ViewModel (в этот момент отработает блок init и вызовется connect())
-        sut = PlayerViewModel(playbackTransitionRepository, playerControllerFactory)
+        sut = PlayerViewModel(repository, playerControllerProvider)
     }
 
     @Test
     fun `init should immediately call connect on playerController`() {
-        // Проверяем, что ViewModel сразу пытается установить соединение
-        verify(playerController).connect()
+        assertThat(playerController.connectCalled).isTrue()
     }
 
     @Test
     fun `sendSong when connection is Connecting should cache request and show song stub`() = runTest {
-        // Устанавливаем состояние "Подключение"
-        fakeControllerState.value = PlayerUiState(connectionState = PlayerConnectionState.Connecting)
+        playerController.emitState(
+            PlayerUiState(connectionState = PlayerConnectionState.Connecting)
+        )
         val song = FakeSong.SONG_0
 
         sut.sendSong(song = song)
 
-        // Должен обновиться UI (заглушка), но реальное воспроизведение в репозитории еще не началось
-        verify(playerController).showSelectedSong(song)
-        verifyNoInteractions(playbackTransitionRepository)
+        assertThat(playerController.showSelectedSongCalledWith).isEqualTo(song)
+        assertThat(repository.startPlaybackCalls).isEmpty()
     }
 
     @Test
     fun `when controller becomes Ready, any pending playback request must be executed`() = runTest {
-        // 1. Пользователь нажимает на трек, пока плеер еще грузится
-        fakeControllerState.value = PlayerUiState(connectionState = PlayerConnectionState.Connecting)
+        playerController.emitState(
+            PlayerUiState(connectionState = PlayerConnectionState.Connecting)
+        )
         val song = FakeSong.SONG_1
         sut.sendSong(song = song)
 
-        // 2. Имитируем успешное подключение сервиса Media3
-        fakeControllerState.value = PlayerUiState(connectionState = PlayerConnectionState.Ready)
-        capturedOnControllerReady?.invoke() // Симулируем вызов handleControllerReady()
+        playerController.triggerReady()
         advanceUntilIdle()
 
-        // Проверяем, что отложенная песня автоматически отправилась на проигрывание
-        verify(playbackTransitionRepository).startPlayback(
-            song = song,
-            defaultQueueSongs = null,
-            queueItemId = null
+        assertThat(repository.startPlaybackCalls).containsExactly(
+            FakePlaybackTransitionRepository.StartPlaybackCall(
+                song = song,
+                defaultQueueSongs = null,
+                queueItemId = null
+            )
+        )
+    }
+
+    @Test
+    fun `pending playback request should preserve queue and queue item id`() = runTest {
+        playerController.emitState(
+            PlayerUiState(connectionState = PlayerConnectionState.Connecting)
+        )
+        val queueSongs = listOf(FakeSong.SONG_0, FakeSong.SONG_1, FakeSong.SONG_2)
+
+        sut.sendSong(
+            queueSongs = queueSongs,
+            song = FakeSong.SONG_1,
+            queueItemId = 42L
+        )
+        playerController.triggerReady()
+        advanceUntilIdle()
+
+        assertThat(repository.startPlaybackCalls).containsExactly(
+            FakePlaybackTransitionRepository.StartPlaybackCall(
+                song = FakeSong.SONG_1,
+                defaultQueueSongs = queueSongs,
+                queueItemId = 42L
+            )
+        )
+    }
+
+    @Test
+    fun `pending playback request should be executed only once`() = runTest {
+        playerController.emitState(
+            PlayerUiState(connectionState = PlayerConnectionState.Connecting)
+        )
+        sut.sendSong(song = FakeSong.SONG_0)
+
+        playerController.triggerReady()
+        playerController.triggerReady()
+        advanceUntilIdle()
+
+        assertThat(repository.startPlaybackCalls).containsExactly(
+            FakePlaybackTransitionRepository.StartPlaybackCall(
+                song = FakeSong.SONG_0,
+                defaultQueueSongs = null,
+                queueItemId = null
+            )
+        )
+    }
+
+    @Test
+    fun `latest pending playback request should replace previous request`() = runTest {
+        playerController.emitState(
+            PlayerUiState(connectionState = PlayerConnectionState.Connecting)
+        )
+
+        sut.sendSong(song = FakeSong.SONG_0)
+        sut.sendSong(song = FakeSong.SONG_2)
+        playerController.triggerReady()
+        advanceUntilIdle()
+
+        assertThat(repository.startPlaybackCalls).containsExactly(
+            FakePlaybackTransitionRepository.StartPlaybackCall(
+                song = FakeSong.SONG_2,
+                defaultQueueSongs = null,
+                queueItemId = null
+            )
         )
     }
 
     @Test
     fun `sendSong when connection is Ready should play song instantly`() = runTest {
-        // Плеер уже готов
-        fakeControllerState.value = PlayerUiState(connectionState = PlayerConnectionState.Ready)
+        playerController.emitState(
+            PlayerUiState(connectionState = PlayerConnectionState.Ready)
+        )
         val song = FakeSong.SONG_2
 
         sut.sendSong(song = song)
         advanceUntilIdle()
 
-        // Воспроизведение должно запуститься сразу же
-        verify(playbackTransitionRepository).startPlayback(song, null, null)
+        assertThat(repository.startPlaybackCalls).containsExactly(
+            FakePlaybackTransitionRepository.StartPlaybackCall(song = song, defaultQueueSongs = null, queueItemId = null)
+        )
+    }
+
+    @Test
+    fun `new playback request should cancel unfinished previous request`() = runTest {
+        playerController.emitState(
+            PlayerUiState(connectionState = PlayerConnectionState.Ready)
+        )
+        repository.songToSuspend = FakeSong.SONG_0
+
+        try {
+            sut.sendSong(song = FakeSong.SONG_0)
+            sut.sendSong(song = FakeSong.SONG_1)
+            runCurrent()
+
+            assertThat(repository.startPlaybackCalls.map { it.song }).containsExactly(
+                FakeSong.SONG_0,
+                FakeSong.SONG_1
+            ).inOrder()
+            assertThat(repository.cancelledPlaybackSongs).containsExactly(FakeSong.SONG_0)
+        } finally {
+            sut.viewModelScope.cancel()
+        }
     }
 
     @Test
     fun `sendEvent should forward corresponding UI events to playerController`() {
         sut.sendEvent(PlayerUIEvent.NextSong)
-        verify(playerController).next()
-
         sut.sendEvent(PlayerUIEvent.PreviousSong)
-        verify(playerController).previous()
-
         sut.sendEvent(PlayerUIEvent.Play)
-        verify(playerController).play()
-
         sut.sendEvent(PlayerUIEvent.Pause)
-        verify(playerController).pause()
-
         sut.sendEvent(PlayerUIEvent.SeekTo(4200L))
-        verify(playerController).seekTo(4200L)
+
+        assertThat(playerController.invokedEvents).containsExactly(
+            "next",
+            "previous",
+            "play",
+            "pause",
+            "seekTo-4200"
+        ).inOrder()
     }
 
     @Test
     fun `startPositionUpdates should poll player position periodically`() = runTest {
         sut.startPositionUpdates()
 
-        // Сдвигаем виртуальное время корутин на 510 мс вперед
         advanceTimeBy(510L)
 
-        // За это время метод обновления должен вызваться минимум 2 раза (каждые 250мс)
-        verify(playerController, atLeast(2)).updatePosition()
-
+        assertThat(playerController.invokedEvents.count { it == "updatePosition" })
+            .isAtLeast(2)
         sut.stopPositionUpdates()
     }
 
     @Test
-    fun `sendSong when connection is Error should not play song and not update controller`() = runTest {
-        // Имитируем ошибку подключения плеера
-        fakeControllerState.value = PlayerUiState(
-            connectionState = PlayerConnectionState.Error(Exception("Media3 Connection Failed"))
-        )
-        val song = FakeSong.SONG_0
+    fun `stopPositionUpdates should stop polling player position`() = runTest {
+        sut.startPositionUpdates()
+        try {
+            advanceTimeBy(510L)
+            sut.stopPositionUpdates()
+            val callsBeforeStop = updatePositionCallCount()
 
-        sut.sendSong(song = song)
-        advanceUntilIdle()
+            advanceTimeBy(1_000L)
 
-        // Проверяем, что методы воспроизведения НЕ вызывались
-        verifyNoInteractions(playbackTransitionRepository)
-        verify(playerController, never()).showSelectedSong(any())
+            assertThat(updatePositionCallCount()).isEqualTo(callsBeforeStop)
+        } finally {
+            sut.viewModelScope.cancel()
+        }
     }
 
     @Test
-    fun `ViewModel cleared should stop position updates and release playerController`() {
+    fun `repeated startPositionUpdates should not start another polling job`() = runTest {
         sut.startPositionUpdates()
+        try {
+            sut.startPositionUpdates()
 
-        // Вызываем скрытый метод onCleared() через рефлексию
+            advanceTimeBy(510L)
+
+            assertThat(updatePositionCallCount()).isEqualTo(3)
+        } finally {
+            sut.viewModelScope.cancel()
+        }
+    }
+
+    @Test
+    fun `sendSong when connection is Error should not play song and not update controller`() = runTest {
+        playerController.emitState(
+            PlayerUiState(
+                connectionState = PlayerConnectionState.Error(
+                    Exception("Media3 Connection Failed")
+                )
+            )
+        )
+
+        sut.sendSong(song = FakeSong.SONG_0)
+        advanceUntilIdle()
+
+        assertThat(repository.startPlaybackCalls).isEmpty()
+        assertThat(playerController.showSelectedSongCalledWith).isNull()
+    }
+
+    @Test
+    fun `ViewModel cleared should stop position updates and release playerController`() = runTest {
+        sut.startPositionUpdates()
+        try {
+            advanceTimeBy(510L)
+            val callsBeforeCleared = updatePositionCallCount()
+
+            clearViewModel()
+            advanceTimeBy(1_000L)
+
+            assertThat(playerController.releaseCalled).isTrue()
+            assertThat(updatePositionCallCount()).isEqualTo(callsBeforeCleared)
+        } finally {
+            sut.viewModelScope.cancel()
+        }
+    }
+
+    private fun updatePositionCallCount(): Int =
+        playerController.invokedEvents.count { it == "updatePosition" }
+
+    private fun clearViewModel() {
         val method = PlayerViewModel::class.java.getDeclaredMethod("onCleared")
         method.isAccessible = true
         method.invoke(sut)
-
-        // Проверяем, что контроллер освобожден
-        verify(playerController).release()
     }
-
-
 }
