@@ -83,7 +83,6 @@ class EditSongViewModel @AssistedInject constructor(
     }
 
     fun setSong() {
-        _edited.value = false
         viewModelScope.launch {
             setSongUseCase(_uiState, song, _edited)
         }
