@@ -5,6 +5,7 @@ import kotlinx.coroutines.awaitCancellation
 
 class FakePlaybackTransitionRepository : PlaybackTransitionRepository {
     val startPlaybackCalls = mutableListOf<StartPlaybackCall>()
+    val saveInformationEditSongCalls = mutableListOf<SaveInformationEditSongCall>()
     val cancelledPlaybackSongs = mutableListOf<Song>()
     var songToSuspend: Song? = null
 
@@ -29,7 +30,13 @@ class FakePlaybackTransitionRepository : PlaybackTransitionRepository {
         genre: String,
         newSong: Song,
         oldSong: Song
-    ) = Unit
+    ) {
+        saveInformationEditSongCalls += SaveInformationEditSongCall(
+            genre = genre,
+            newSong = newSong,
+            oldSong = oldSong,
+        )
+    }
 
     override suspend fun saveTransition(song: Song, queueItemId: Long?) = Unit
 
@@ -38,5 +45,11 @@ class FakePlaybackTransitionRepository : PlaybackTransitionRepository {
         val song: Song,
         val defaultQueueSongs: List<Song>?,
         val queueItemId: Long?
+    )
+
+    data class SaveInformationEditSongCall(
+        val genre: String,
+        val newSong: Song,
+        val oldSong: Song,
     )
 }
