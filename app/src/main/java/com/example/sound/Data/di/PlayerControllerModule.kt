@@ -1,5 +1,7 @@
-package com.example.sound.Presentation.playerUi.viewModel
+package com.example.sound.Data.di
 
+import com.example.sound.Presentation.playerUi.viewModel.PlayerControllerFactory
+import com.example.sound.Presentation.playerUi.viewModel.PlayerControllerProvider
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

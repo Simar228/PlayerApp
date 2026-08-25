@@ -35,6 +35,7 @@ import com.example.sound.Presentation.editSongInformation.components.EditableGen
 import com.example.sound.Presentation.editSongInformation.components.SongIconForEditSong
 import com.example.sound.Presentation.editSongInformation.components.TopAppBarForEditSong
 import com.example.sound.Presentation.editSongInformation.viewModel.EditSongEvent
+import com.example.sound.Presentation.editSongInformation.viewModel.EditSongUiState
 import com.example.sound.Presentation.editSongInformation.viewModel.EditSongViewModel
 import kotlinx.coroutines.launch
 
@@ -44,37 +45,27 @@ fun EditSongScreen(
     popBackStack: () -> Unit,
     editSongViewModel: EditSongViewModel
 ) {
+    val uiState = editSongViewModel.uiState.collectAsStateWithLifecycle().value
     EditSongPreview(
+        uiState = uiState,
         onEvent = editSongViewModel::sendEvent,
         onBackClick = popBackStack,
         onSaveClick = editSongViewModel::saveSong,
         onResetClick = editSongViewModel::setSong,
         setArt = editSongViewModel::setArt,
-        title = editSongViewModel.title.collectAsStateWithLifecycle().value,
-        artist = editSongViewModel.artist.collectAsStateWithLifecycle().value,
-        album = editSongViewModel.album.collectAsStateWithLifecycle().value,
-        genre = editSongViewModel.genre.collectAsStateWithLifecycle().value,
-        art = editSongViewModel.art.collectAsStateWithLifecycle().value,
-        genres = editSongViewModel.genreList.collectAsStateWithLifecycle().value,
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EditSongPreview(
+    uiState: EditSongUiState,
     onEvent: (EditSongEvent) -> Unit,
     onBackClick: () -> Unit,
     onSaveClick: () -> Unit,
     onResetClick: () -> Unit,
     setArt: (String) -> Unit,
-    title: String,
-    artist: String,
-    album: String,
-    genres: List<Genre>,
-    genre: String,
-    art: String?,
-
-    ) {
+) {
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -82,7 +73,7 @@ private fun EditSongPreview(
             setArt(uri.toString())
         }
     }
-    val genresList = genres.map { genre ->
+    val genresList = uiState.genres.map { genre ->
         genre.name
     }
     val scope = rememberCoroutineScope()
@@ -103,7 +94,7 @@ private fun EditSongPreview(
             verticalArrangement = Arrangement.Top
         ) {
             SongIconForEditSong(
-                icon = art,
+                icon = uiState.art,
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 onChangeClick = {
                     imagePicker.launch(
@@ -116,19 +107,19 @@ private fun EditSongPreview(
             // 1. Все ваши верхние элементы формы (идут строго друг за другом)
             CustomInputField(
                 label = "Название",
-                value = title,
+                value = uiState.title,
                 onValueChange = { onEvent(EditSongEvent.EditSongTitle(it)) })
             CustomInputField(
                 label = "Артист",
-                value = artist,
+                value = uiState.artist,
                 onValueChange = { onEvent(EditSongEvent.EditSongArtist(it)) })
             CustomInputField(
                 label = "Альбом",
-                value = album,
+                value = uiState.album,
                 onValueChange = { onEvent(EditSongEvent.EditSongAlbum(it)) })
             EditableGenreDropdown(
                 label = "Жанр",
-                currentValue = genre,
+                currentValue = uiState.genre,
                 suggestions = genresList,
                 onValueChange = { onEvent(EditSongEvent.EditSongGenre(it)) },
             )
@@ -173,16 +164,17 @@ private fun EditSongScreenPreview() {
         genre = "Pop",
     )
     EditSongPreview(
+        uiState = EditSongUiState(
+            title = song.title.orEmpty(),
+            artist = song.artist.orEmpty(),
+            album = song.album.orEmpty(),
+            art = song.art,
+            genre = song.genre.orEmpty(),
+        ),
         onBackClick = {},
         onSaveClick = {},
-        title = song.title.orEmpty(),
-        artist = song.artist.orEmpty(),
-        album = song.album.orEmpty(),
-        art = song.art,
-        genre = song.genre.orEmpty(),
         onEvent = {},
-        genres = listOf(),
         setArt = {},
-        onResetClick = {}
+        onResetClick = {},
     )
 }

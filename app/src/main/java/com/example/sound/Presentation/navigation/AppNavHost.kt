@@ -100,7 +100,7 @@ fun AppNavHost(
         }
 
         composable<Routes.SongEditRoute> { backStackEntry ->
-            val route = backStackEntry.toRoute<Routes.SongBottomSheet>()
+            val route = backStackEntry.toRoute<Routes.SongEditRoute>()
             val song = songs.firstOrNull { it.id == route.songId }
             if (song != null) {
                 val viewModel: EditSongViewModel = hiltViewModel(
