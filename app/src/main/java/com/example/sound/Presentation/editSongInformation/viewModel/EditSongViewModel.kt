@@ -25,7 +25,8 @@ class EditSongViewModel @AssistedInject constructor(
     private val genreRepository: GenreRepository,
 ) : ViewModel() {
 
-    private var edited = false
+    private val _edited = MutableStateFlow(false)
+    val edited = _edited.asStateFlow()
     private val _uiState = MutableStateFlow(
         EditSongUiState(
             title = song.title.orEmpty(),
@@ -44,7 +45,7 @@ class EditSongViewModel @AssistedInject constructor(
     }
 
     fun setArt(newArt: String) {
-        edited = true
+        _edited.value = true
         _uiState.update { state -> state.copy(art = newArt) }
     }
 
@@ -54,43 +55,43 @@ class EditSongViewModel @AssistedInject constructor(
             is EditSongEvent.EditSongTitle -> {
                 if (_uiState.value.title != event.newTitle) {
                     _uiState.update { state -> state.copy(title = event.newTitle) }
-                    edited = true
+                    _edited.value = true
                 }
             }
 
             is EditSongEvent.EditSongArtist -> {
                 if (_uiState.value.artist != event.newArtist) {
                     _uiState.update { state -> state.copy(artist = event.newArtist) }
-                    edited = true
+                    _edited.value = true
                 }
             }
 
             is EditSongEvent.EditSongAlbum -> {
                 if (_uiState.value.album != event.newAlbum) {
                     _uiState.update { state -> state.copy(album = event.newAlbum) }
-                    edited = true
+                    _edited.value = true
                 }
             }
 
             is EditSongEvent.EditSongGenre -> {
                 if (_uiState.value.genre != event.newGenre) {
                     _uiState.update { state -> state.copy(genre = event.newGenre) }
-                    edited = true
+                    _edited.value = true
                 }
             }
         }
     }
 
     fun setSong() {
-        edited = false
+        _edited.value = false
         viewModelScope.launch {
-            setSongUseCase(_uiState, song)
+            setSongUseCase(_uiState, song, _edited)
         }
     }
 
     fun saveSong() {
         viewModelScope.launch {
-            if (edited) {
+            if (_edited.value) {
                 saveSongUseCase(_uiState, song)
             }
         }

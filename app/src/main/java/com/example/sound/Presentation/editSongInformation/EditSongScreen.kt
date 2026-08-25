@@ -53,6 +53,7 @@ fun EditSongScreen(
         onSaveClick = editSongViewModel::saveSong,
         onResetClick = editSongViewModel::setSong,
         setArt = editSongViewModel::setArt,
+        edited = editSongViewModel.edited.collectAsStateWithLifecycle().value
     )
 }
 
@@ -65,6 +66,7 @@ private fun EditSongPreview(
     onSaveClick: () -> Unit,
     onResetClick: () -> Unit,
     setArt: (String) -> Unit,
+    edited: Boolean,
 ) {
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
@@ -128,6 +130,7 @@ private fun EditSongPreview(
 
 
             Button(
+                enabled = edited,
                 onClick = {
                     scope.launch {
                         onSaveClick()
@@ -176,5 +179,6 @@ private fun EditSongScreenPreview() {
         onEvent = {},
         setArt = {},
         onResetClick = {},
+        edited = false
     )
 }

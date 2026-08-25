@@ -10,7 +10,12 @@ import javax.inject.Inject
 class SetSongUseCase @Inject constructor(
     private val editSongRepository: EditSongRepository,
 ) {
-    suspend operator fun invoke(uiState: MutableStateFlow<EditSongUiState>, song: Song) {
+    suspend operator fun invoke(
+        uiState: MutableStateFlow<EditSongUiState>,
+        song: Song,
+        edited: MutableStateFlow<Boolean>
+    ) {
+        edited.value = false
         editSongRepository.setEditSong(song.id)?.let { oldSong ->
             uiState.update { state ->
                 state.copy(
@@ -21,6 +26,16 @@ class SetSongUseCase @Inject constructor(
                     art = oldSong.art,
                 )
             }
+            return
+        }
+        uiState.update { state ->
+            state.copy(
+                title = song.title.orEmpty(),
+                artist = song.artist.orEmpty(),
+                album = song.album.orEmpty(),
+                genre = song.genre.orEmpty(),
+                art = song.art,
+            )
         }
     }
 }

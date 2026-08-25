@@ -32,7 +32,7 @@ class EditSongRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun observeEditSongs(): Flow<List<Song>> {
+    override fun observeEditSongs(): Flow<List<Song>> {
         val songs = editSongDao.observeEditSong().map { editSongItemEntities ->
             editSongItemEntities.map { editSongItemEntity ->
                 editSongItemEntity.toSong()
