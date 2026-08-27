@@ -91,11 +91,12 @@ class PlaybackTransitionRepositoryImpl @Inject constructor(
             }
         }
     }
+    private fun normalizeGenre(genre: String): String {
+        return genre
+            .trim()
+            .replace(Regex("\\s+"), " ")
+            .replaceFirstChar { it.uppercase() }
+    }
 }
 
-fun normalizeGenre(genre: String): String {
-    return genre
-        .trim()
-        .replace(Regex("\\s+"), " ")
-        .replaceFirstChar { it.uppercase() }
-}
+
