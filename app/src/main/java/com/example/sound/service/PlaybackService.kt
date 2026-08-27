@@ -27,6 +27,8 @@ import kotlin.coroutines.cancellation.CancellationException
 
 @AndroidEntryPoint
 class PlaybackService : MediaSessionService() {
+
+    private var currentMediaItem: MediaItem? = null
     private lateinit var player: ExoPlayer
 
     private val mediaTransitionEvents =
@@ -51,9 +53,8 @@ class PlaybackService : MediaSessionService() {
             reason: Int
         ) {
             val transitionedMediaItem = mediaItem ?: return
-            // Пользователь переключил песню, в том числе
-            // через системный плеер или Bluetooth.
             mediaTransitionEvents.trySend(transitionedMediaItem)
+            currentMediaItem = mediaItem
         }
     }
 

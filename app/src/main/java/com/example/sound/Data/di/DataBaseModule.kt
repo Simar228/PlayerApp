@@ -8,6 +8,7 @@ import com.example.sound.Data.local.Genre.GenreDao
 import com.example.sound.Data.local.Genre.GenreEntity
 import com.example.sound.Data.local.defualtQueue.DefaultQueueDao
 import com.example.sound.Data.local.editSong.EditSongDao
+import com.example.sound.Data.local.historyQueue.HistoryQueueDao
 import com.example.sound.Data.local.imageStorage.ImageStorageDao
 import com.example.sound.Data.local.playerState.PlayerStateDao
 import com.example.sound.Data.local.queue.QueueDao
@@ -63,22 +64,32 @@ object DatabaseModule {
         }
     }
 
+
     @Provides
-    fun provideEditSongDao(database: AppDatabase): EditSongDao{
+    fun provideHistoryQueueDao(database: AppDatabase): HistoryQueueDao {
+        return database.historyQueueDao()
+    }
+
+    @Provides
+    fun provideEditSongDao(database: AppDatabase): EditSongDao {
         return database.editSongDao()
     }
+
     @Provides
-    fun provideImageStorageDao(database: AppDatabase): ImageStorageDao{
+    fun provideImageStorageDao(database: AppDatabase): ImageStorageDao {
         return database.imageStorageDao()
     }
+
     @Provides
     fun provideGenreDao(database: AppDatabase): GenreDao {
         return database.genreDao()
     }
+
     @Provides
     fun provideDefaultQueueDao(database: AppDatabase): DefaultQueueDao {
         return database.defaultQueueDao()
     }
+
     @Provides
     fun provideQueueDao(database: AppDatabase): QueueDao {
         return database.queueDao()
