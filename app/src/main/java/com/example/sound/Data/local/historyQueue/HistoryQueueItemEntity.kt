@@ -22,12 +22,14 @@ data class HistoryQueueItemEntity(
     val id: Long = 0,
 
     val position: Int,
+    val playedAt: Long,
     @Embedded(prefix = "song_")
     val song: Song
 )
 
-fun Song.toHistoryQueueItemEntity(position: Int): HistoryQueueItemEntity {
+fun Song.toHistoryQueueItemEntity(position: Int, playedAt: Long): HistoryQueueItemEntity {
     return HistoryQueueItemEntity(
+        playedAt = playedAt,
         position = position,
         song = this
     )
