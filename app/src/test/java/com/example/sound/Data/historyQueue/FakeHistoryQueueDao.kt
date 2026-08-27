@@ -13,11 +13,6 @@ class FakeHistoryQueueDao : HistoryQueueDao {
     val historyQueueItemEntity: List<Song>
         get() = _historyQueueItemEntity.value.map { it.song }
 
-
-    fun setHistoryQueueItemEntity(historyQueueItemEntity: List<HistoryQueueItemEntity>) {
-        _historyQueueItemEntity.value = historyQueueItemEntity
-    }
-
     override fun observeHistoryQueueItems(): Flow<List<HistoryQueueItemEntity>> {
         return _historyQueueItemEntity
     }
@@ -30,4 +25,9 @@ class FakeHistoryQueueDao : HistoryQueueDao {
     override suspend fun insertHistoryQueueItems(historyQueueItemEntities: List<HistoryQueueItemEntity>) {
         _historyQueueItemEntity.value += historyQueueItemEntities
     }
+
+    fun setHistoryQueueItemEntity(historyQueueItemEntity: List<HistoryQueueItemEntity>) {
+        _historyQueueItemEntity.value = historyQueueItemEntity
+    }
+
 }

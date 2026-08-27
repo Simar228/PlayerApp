@@ -170,6 +170,38 @@ class HistoryQueueRepositoryImplTest {
             .containsExactly(FakeSong.SONG_0)
     }
 
+    @Test
+    fun `first Song has first position`() = runTest {
+        historyQueueDao.setHistoryQueueItemEntity(
+            listOf(
+                HistoryQueueItemEntity(
+                    position = 0,
+                    playedAt = NOW,
+                    song = FakeSong.SONG_0
+                )
+            )
+        )
+
+        sut.addHistoryItem(FakeSong.SONG_1, NOW)
+
+        val expectedList = historyQueueDao.observeHistoryQueueItems().first()
+
+        assertThat(
+            listOf(
+                HistoryQueueItemEntity(
+                    position = 0,
+                    playedAt = NOW,
+                    song = FakeSong.SONG_1
+                ),
+                HistoryQueueItemEntity(
+                    position = 1,
+                    playedAt = NOW,
+                    song = FakeSong.SONG_0
+                )
+            )
+        ).containsExactlyElementsIn(expectedList).inOrder()
+    }
+
     private companion object {
         const val NOW = 1_725_000_000_000L
         const val YESTERDAY = NOW - 86_400_000L

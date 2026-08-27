@@ -8,9 +8,11 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
+import com.example.sound.Domain.repository.HistoryQueueRepository
 import com.example.sound.Domain.repository.PlaybackQueueStateRepository
 import com.example.sound.service.playback.HandleMediaItemTransition
 import com.example.sound.service.playback.PlaybackQueueSynchronizer
+import com.example.sound.service.playback.toSong
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,12 +33,16 @@ class PlaybackService : MediaSessionService() {
     private var currentMediaItem: MediaItem? = null
     private lateinit var player: ExoPlayer
 
+    private val savedItemToHistory = Channel<MediaItem>(capacity = Channel.UNLIMITED)
     private val mediaTransitionEvents =
         Channel<MediaItem>(capacity = Channel.UNLIMITED)
     private lateinit var playbackQueueSynchronizer: PlaybackQueueSynchronizer
 
     @Inject
     lateinit var playbackQueueStateRepository: PlaybackQueueStateRepository
+
+    @Inject
+    lateinit var historyQueueRepository: HistoryQueueRepository
 
     @Inject
     lateinit var handleMediaItemTransition: HandleMediaItemTransition
@@ -54,7 +60,10 @@ class PlaybackService : MediaSessionService() {
         ) {
             val transitionedMediaItem = mediaItem ?: return
             mediaTransitionEvents.trySend(transitionedMediaItem)
-            currentMediaItem = mediaItem
+            currentMediaItem?.let { mediaItem ->
+                savedItemToHistory.trySend(mediaItem)
+            }
+            currentMediaItem = transitionedMediaItem
         }
     }
 
@@ -79,6 +88,9 @@ class PlaybackService : MediaSessionService() {
         serviceScope.launch {
             processMediaTransitionEvents()
         }
+        serviceScope.launch {
+            processMediaItemSaveToHistory()
+        }
     }
 
     override fun onDestroy() {
@@ -99,6 +111,25 @@ class PlaybackService : MediaSessionService() {
     }
 
 
+    private suspend fun processMediaItemSaveToHistory() {
+        for (mediaItem in savedItemToHistory) {
+            try {
+                historyQueueRepository.addHistoryItem(
+                    mediaItem.toSong(),
+                    System.currentTimeMillis()
+                )
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                Log.e(
+                    TAG,
+                    "Failed to save media item in history",
+                    error
+                )
+            }
+        }
+    }
+
     private suspend fun processMediaTransitionEvents() {
         for (mediaItem in mediaTransitionEvents) {
             try {
@@ -114,6 +145,7 @@ class PlaybackService : MediaSessionService() {
             }
         }
     }
+
     private fun buildQueue() {
         playbackQueueStateRepository.observePlaybackQueueState().onEach { state ->
             playbackQueueSynchronizer.synchronizePlayerQueue(state)
