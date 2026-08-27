@@ -47,11 +47,8 @@ interface QueueDao {
             .mapNotNull { queueItemId ->
                 itemsById[queueItemId]
             }
-        val reorderedIds = reorderedItems
-            .distinct()
-            .map { item ->
-                item.id
-            }
+            .distinctBy { item -> item.id }
+        val reorderedIds = reorderedItems.map { item -> item.id }
 
         val remainingItems = currentQueue.filterNot { item ->
             item.id in reorderedIds

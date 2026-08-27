@@ -2,28 +2,16 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "2c0a7ef101ae3a548823fd3651b0a042",
+    "identityHash": "88611d9b3c0fdf11939b475f2c7d58aa",
     "entities": [
       {
         "tableName": "queue_items",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `songId` TEXT NOT NULL, `songUri` TEXT NOT NULL, `position` INTEGER NOT NULL, `title` TEXT, `artist` TEXT, `duration` INTEGER NOT NULL, `album` TEXT, `genre` TEXT, `artUri` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `position` INTEGER NOT NULL, `song_id` TEXT NOT NULL, `song_title` TEXT, `song_artist` TEXT, `song_duration` INTEGER NOT NULL, `song_uri` TEXT NOT NULL, `song_album` TEXT, `song_genre` TEXT, `song_art` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "songId",
-            "columnName": "songId",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "songUri",
-            "columnName": "songUri",
-            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -33,34 +21,46 @@
             "notNull": true
           },
           {
-            "fieldPath": "title",
-            "columnName": "title",
+            "fieldPath": "song.id",
+            "columnName": "song_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "song.title",
+            "columnName": "song_title",
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "artist",
-            "columnName": "artist",
+            "fieldPath": "song.artist",
+            "columnName": "song_artist",
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "duration",
-            "columnName": "duration",
+            "fieldPath": "song.duration",
+            "columnName": "song_duration",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "album",
-            "columnName": "album",
+            "fieldPath": "song.uri",
+            "columnName": "song_uri",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "song.album",
+            "columnName": "song_album",
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "genre",
-            "columnName": "genre",
+            "fieldPath": "song.genre",
+            "columnName": "song_genre",
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "artUri",
-            "columnName": "artUri",
+            "fieldPath": "song.art",
+            "columnName": "song_art",
             "affinity": "TEXT"
           }
         ],
@@ -145,24 +145,12 @@
       },
       {
         "tableName": "defaultQueue_items",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `songId` TEXT NOT NULL, `songUri` TEXT NOT NULL, `position` INTEGER NOT NULL, `title` TEXT, `artist` TEXT, `duration` INTEGER NOT NULL, `album` TEXT, `genre` TEXT, `artUri` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `position` INTEGER NOT NULL, `song_id` TEXT NOT NULL, `song_title` TEXT, `song_artist` TEXT, `song_duration` INTEGER NOT NULL, `song_uri` TEXT NOT NULL, `song_album` TEXT, `song_genre` TEXT, `song_art` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "songId",
-            "columnName": "songId",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "songUri",
-            "columnName": "songUri",
-            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -172,34 +160,46 @@
             "notNull": true
           },
           {
-            "fieldPath": "title",
-            "columnName": "title",
+            "fieldPath": "song.id",
+            "columnName": "song_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "song.title",
+            "columnName": "song_title",
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "artist",
-            "columnName": "artist",
+            "fieldPath": "song.artist",
+            "columnName": "song_artist",
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "duration",
-            "columnName": "duration",
+            "fieldPath": "song.duration",
+            "columnName": "song_duration",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "album",
-            "columnName": "album",
+            "fieldPath": "song.uri",
+            "columnName": "song_uri",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "song.album",
+            "columnName": "song_album",
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "genre",
-            "columnName": "genre",
+            "fieldPath": "song.genre",
+            "columnName": "song_genre",
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "artUri",
-            "columnName": "artUri",
+            "fieldPath": "song.art",
+            "columnName": "song_art",
             "affinity": "TEXT"
           }
         ],
@@ -208,18 +208,7 @@
           "columnNames": [
             "id"
           ]
-        },
-        "indices": [
-          {
-            "name": "index_defaultQueue_items_position",
-            "unique": true,
-            "columnNames": [
-              "position"
-            ],
-            "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_defaultQueue_items_position` ON `${TABLE_NAME}` (`position`)"
-          }
-        ]
+        }
       },
       {
         "tableName": "genre_names",
@@ -385,24 +374,12 @@
       },
       {
         "tableName": "historyQueue_items",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `songId` TEXT NOT NULL, `songUri` TEXT NOT NULL, `position` INTEGER NOT NULL, `title` TEXT, `artist` TEXT, `duration` INTEGER NOT NULL, `album` TEXT, `genre` TEXT, `artUri` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `position` INTEGER NOT NULL, `song_id` TEXT NOT NULL, `song_title` TEXT, `song_artist` TEXT, `song_duration` INTEGER NOT NULL, `song_uri` TEXT NOT NULL, `song_album` TEXT, `song_genre` TEXT, `song_art` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "songId",
-            "columnName": "songId",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "songUri",
-            "columnName": "songUri",
-            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -412,34 +389,46 @@
             "notNull": true
           },
           {
-            "fieldPath": "title",
-            "columnName": "title",
+            "fieldPath": "song.id",
+            "columnName": "song_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "song.title",
+            "columnName": "song_title",
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "artist",
-            "columnName": "artist",
+            "fieldPath": "song.artist",
+            "columnName": "song_artist",
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "duration",
-            "columnName": "duration",
+            "fieldPath": "song.duration",
+            "columnName": "song_duration",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "album",
-            "columnName": "album",
+            "fieldPath": "song.uri",
+            "columnName": "song_uri",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "song.album",
+            "columnName": "song_album",
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "genre",
-            "columnName": "genre",
+            "fieldPath": "song.genre",
+            "columnName": "song_genre",
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "artUri",
-            "columnName": "artUri",
+            "fieldPath": "song.art",
+            "columnName": "song_art",
             "affinity": "TEXT"
           }
         ],
@@ -464,7 +453,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2c0a7ef101ae3a548823fd3651b0a042')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '88611d9b3c0fdf11939b475f2c7d58aa')"
     ]
   }
 }

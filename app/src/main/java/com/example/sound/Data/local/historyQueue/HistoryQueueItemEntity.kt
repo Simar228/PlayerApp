@@ -1,9 +1,11 @@
 package com.example.sound.Data.local.historyQueue
 
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.example.sound.Data.local.DatabaseTableNames
+import com.example.sound.Domain.model.Song
 
 
 @Entity(
@@ -19,13 +21,14 @@ data class HistoryQueueItemEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
 
-    val songId: String,
-    val songUri: String,
     val position: Int,
-    val title: String?,
-    val artist: String?,
-    val duration: Long,
-    val album: String?,
-    val genre: String?,
-    val artUri: String?
+    @Embedded(prefix = "song_")
+    val song: Song
 )
+
+fun Song.toHistoryQueueItemEntity(position: Int): HistoryQueueItemEntity {
+    return HistoryQueueItemEntity(
+        position = position,
+        song = this
+    )
+}
