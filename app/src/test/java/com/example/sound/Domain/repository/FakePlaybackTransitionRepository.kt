@@ -26,17 +26,6 @@ class FakePlaybackTransitionRepository : PlaybackTransitionRepository {
 
     override suspend fun updateCurrentSongIfMatches(songs: List<Song>) = Unit
 
-    override suspend fun saveInformationEditSong(
-        genre: String,
-        newSong: Song,
-        oldSong: Song
-    ) {
-        saveInformationEditSongCalls += SaveInformationEditSongCall(
-            newSong = newSong,
-            originalSong = oldSong,
-        )
-    }
-
     override suspend fun saveTransition(song: Song, queueItemId: Long?) = Unit
 
 

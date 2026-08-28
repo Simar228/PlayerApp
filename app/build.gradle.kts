@@ -52,6 +52,7 @@ android {
 
 dependencies {
 
+    androidTestImplementation("app.cash.turbine:turbine:1.1.0")
     androidTestImplementation("androidx.media3:media3-test-utils:1.10.1")
     androidTestImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
     androidTestImplementation("com.google.truth:truth:1.4.5")

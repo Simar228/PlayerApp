@@ -1,21 +1,27 @@
 package com.example.sound.Domain.useCase.editSong
 
 import com.example.sound.Domain.model.Song
+import com.example.sound.Domain.repository.EditSongRepository
+import com.example.sound.Domain.repository.GenreRepository
 import com.example.sound.Domain.repository.ImageRepository
-import com.example.sound.Domain.repository.PlaybackTransitionRepository
 import com.example.sound.Domain.repository.SongRepository
 import com.example.sound.Presentation.editSongInformation.viewModel.EditSongUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 
 class SaveSongUseCase @Inject constructor(
-    private val playbackTransitionRepository: PlaybackTransitionRepository,
     private val imageRepository: ImageRepository,
     private val songRepository: SongRepository,
+    private val genreRepository: GenreRepository,
+    private val editSongRepository: EditSongRepository,
 ) {
 
     suspend operator fun invoke(uiState: MutableStateFlow<EditSongUiState>, song: Song) {
-        val state = uiState.value
+
+        val correctGenre = normalizeGenre(uiState.value.genre)
+
+        val state = uiState.value.copy(genre = correctGenre)
+
         var fileUri: String? = null
         state.art?.let { art ->
             fileUri = imageRepository.saveImage(art)
@@ -33,8 +39,16 @@ class SaveSongUseCase @Inject constructor(
             art = fileUri
         )
 
-        playbackTransitionRepository.saveInformationEditSong(state.genre, newSong, oldSong)
+
+        genreRepository.insertGenre(correctGenre)
+        editSongRepository.insertEditSong(newSong, oldSong)
 
     }
 
+    private fun normalizeGenre(genre: String): String {
+        return genre
+            .trim()
+            .replace(Regex("\\s+"), " ")
+            .replaceFirstChar { it.uppercase() }
+    }
 }

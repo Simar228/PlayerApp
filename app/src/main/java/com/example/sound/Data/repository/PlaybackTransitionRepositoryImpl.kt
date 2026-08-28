@@ -39,21 +39,6 @@ class PlaybackTransitionRepositoryImpl @Inject constructor(
         }
     }
 
-
-    override suspend fun saveInformationEditSong(
-        genre: String,
-        newSong: Song,
-        oldSong: Song,
-    ) {
-        val correctGenre = normalizeGenre(genre)
-        database.withTransaction {
-            val editSongEntity = newSong.copy(genre = correctGenre).toEditSongItemEntity(oldSong)
-            editSongDao.addEditSong(editSongEntity)
-            genreDao.insertGenre(GenreEntity(name = correctGenre))
-        }
-    }
-
-
     override suspend fun startPlayback(
         song: Song,
         defaultQueueSongs: List<Song>?,
@@ -90,12 +75,6 @@ class PlaybackTransitionRepositoryImpl @Inject constructor(
                 playerQueueRepository.deleteQueueItemById(queueItemId)
             }
         }
-    }
-    private fun normalizeGenre(genre: String): String {
-        return genre
-            .trim()
-            .replace(Regex("\\s+"), " ")
-            .replaceFirstChar { it.uppercase() }
     }
 }
 

@@ -6,7 +6,7 @@ import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.FakeEditSongRepository
 import com.example.sound.Domain.repository.FakeGenreRepository
 import com.example.sound.Domain.repository.FakeImageRepository
-import com.example.sound.Domain.repository.FakePlaybackTransitionRepository
+import com.example.sound.Domain.repository.FakeSongRepository
 import com.example.sound.Domain.useCase.editSong.SaveSongUseCase
 import com.example.sound.Domain.useCase.editSong.SetSongUseCase
 import com.example.sound.utill.MainDispatcherRule
@@ -29,7 +29,7 @@ class EditSongViewModelTest {
     private lateinit var genreRepository: FakeGenreRepository
     private lateinit var editSongRepository: FakeEditSongRepository
     private lateinit var imageRepository: FakeImageRepository
-    private lateinit var playbackTransitionRepository: FakePlaybackTransitionRepository
+    private lateinit var songRepository: FakeSongRepository
     private lateinit var genres: List<Genre>
 
     @Before
@@ -42,16 +42,17 @@ class EditSongViewModelTest {
         genreRepository = FakeGenreRepository().apply {
             this.genres = this@EditSongViewModelTest.genres
         }
+        songRepository = FakeSongRepository()
         editSongRepository = FakeEditSongRepository()
         imageRepository = FakeImageRepository()
-        playbackTransitionRepository = FakePlaybackTransitionRepository()
-
         sut = EditSongViewModel(
             song = song,
             setSongUseCase = SetSongUseCase(editSongRepository),
             saveSongUseCase = SaveSongUseCase(
-                playbackTransitionRepository = playbackTransitionRepository,
                 imageRepository = imageRepository,
+                songRepository = songRepository,
+                genreRepository = genreRepository,
+                editSongRepository = editSongRepository,
             ),
             genreRepository = genreRepository,
         )
@@ -120,7 +121,6 @@ class EditSongViewModelTest {
         advanceUntilIdle()
 
         assertThat(imageRepository.saveImageCalls).isEmpty()
-        assertThat(playbackTransitionRepository.saveInformationEditSongCalls).isEmpty()
     }
 
     @Test
@@ -130,6 +130,7 @@ class EditSongViewModelTest {
         sut.saveSong()
         advanceUntilIdle()
 
-        assertThat(playbackTransitionRepository.saveInformationEditSongCalls).hasSize(1)
+        assertThat(editSongRepository.editSongList).hasSize(1)
+        assertThat(genreRepository.genres).hasSize(3)
     }
 }

@@ -1,20 +1,18 @@
 package com.example.sound.Data.repository
 
+import app.cash.turbine.test
 import com.example.sound.Data.local.AppDatabase
 import com.example.sound.Data.local.historyQueue.HistoryQueueDao
 import com.example.sound.Domain.model.FakeSong
 import com.example.sound.utill.InMemoryDatabaseRule
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-class HistoryQueueRepositoryIntegrationTest {
+class HistoryQueueRepositoryImplIntegrationTest {
     @get:Rule
     val dbRule = InMemoryDatabaseRule(AppDatabase::class.java)
 
@@ -32,20 +30,15 @@ class HistoryQueueRepositoryIntegrationTest {
 
     @Test
     fun observeHistoryQueue_emitsUpdatedHistory() = runTest {
-        val first = async {
-            sut.observeHistoryQueue().take(2).toList()
+        sut.observeHistoryQueue().test {
+            assertThat(awaitItem()).isEmpty()
+            sut.addHistoryItem(
+                song = FakeSong.SONG_0,
+                playedAt = NOW
+            )
+            assertThat(awaitItem().first().song).isEqualTo(FakeSong.SONG_0)
+            cancelAndIgnoreRemainingEvents()
         }
-
-        sut.addHistoryItem(
-            song = FakeSong.SONG_0,
-            playedAt = NOW
-        )
-
-        val emissions = first.await()
-
-        assertThat(emissions[0]).isEmpty()
-        assertThat(emissions[1].first().song)
-            .isEqualTo(FakeSong.SONG_0)
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.example.sound.Data.repository
 
 import com.example.sound.Data.local.editSong.EditSongDao
+import com.example.sound.Data.local.editSong.toEditSongItemEntity
 import com.example.sound.Data.local.editSong.toNewSong
 import com.example.sound.Data.local.editSong.toOriginalSong
 import com.example.sound.Domain.model.Song
@@ -12,6 +13,14 @@ import javax.inject.Inject
 class EditSongRepositoryImpl @Inject constructor(
     val editSongDao: EditSongDao,
 ) : EditSongRepository {
+    override suspend fun insertEditSong(
+        newSong: Song,
+        oldSong: Song
+    ) {
+        val editSong = newSong.toEditSongItemEntity(oldSong)
+        editSongDao.addEditSong(editSong)
+    }
+
 
     override suspend fun setEditSong(songId: String): Song? {
         val editSongItemEntity = editSongDao.setEditSong(songId)

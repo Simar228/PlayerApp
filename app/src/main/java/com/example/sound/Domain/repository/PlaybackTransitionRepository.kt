@@ -6,11 +6,6 @@ interface PlaybackTransitionRepository {
 
     suspend fun updateCurrentSongIfMatches(songs: List<Song>)
 
-    suspend fun saveInformationEditSong(
-        genre: String,
-        newSong: Song,
-        oldSong: Song,
-    )
     suspend fun startPlayback(
         song: Song,
         defaultQueueSongs: List<Song>?,

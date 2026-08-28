@@ -1,6 +1,7 @@
 package com.example.sound.Data.repository
 
 import com.example.sound.Data.local.Genre.GenreDao
+import com.example.sound.Data.local.Genre.GenreEntity
 import com.example.sound.Domain.model.Genre
 import com.example.sound.Domain.repository.GenreRepository
 import javax.inject.Inject
@@ -18,5 +19,13 @@ class GenreRepositoryImpl @Inject constructor(
             )
         }
         return genreList
+    }
+
+    override suspend fun insertGenre(genre: String) {
+        genreDao.insertGenre(
+            GenreEntity(
+                name = genre
+            )
+        )
     }
 }
