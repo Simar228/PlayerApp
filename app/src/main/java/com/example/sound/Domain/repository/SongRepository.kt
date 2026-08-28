@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface SongRepository {
     val songs: StateFlow<List<Song>>
+    val originalSongs: StateFlow<List<Song>>
 
     fun loadSongs()
 

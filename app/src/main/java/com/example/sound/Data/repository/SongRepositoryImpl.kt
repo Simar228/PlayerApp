@@ -20,12 +20,15 @@ class SongRepositoryImpl @Inject constructor(
     private val provider: MediaStoreSongProvider,
     private val editSongRepository: EditSongRepository,
     private val playbackTransitionRepository: PlaybackTransitionRepository,
-) : SongRepository {
+
+    ) : SongRepository {
     private val scope = CoroutineScope(SupervisorJob())
     private val _songs = MutableStateFlow<List<Song>>(emptyList())
+    private val _originalSongs = MutableStateFlow<List<Song>>(emptyList())
     private var observeSongs: Job? = null
 
     override val songs = _songs.asStateFlow()
+    override val originalSongs = _originalSongs.asStateFlow()
 
     override fun loadSongs() {
         if (observeSongs?.isActive == true) return
@@ -36,6 +39,7 @@ class SongRepositoryImpl @Inject constructor(
                 originalSongs,
                 editSongs,
             ) { original, edit ->
+                _originalSongs.value = original
                 mergeSongs(original, edit)
             }.collect { songs ->
                 _songs.value = songs
