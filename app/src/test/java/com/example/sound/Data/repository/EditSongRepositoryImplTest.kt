@@ -93,10 +93,10 @@ class EditSongRepositoryImplTest {
             editSongAlbum = "edit_album",
             editSongGenre = "edit_genre",
             editSongImagePath = "edit_imagePath",
-            oldSongTitle = "original_title",
-            oldSongArtist = "original_artist",
-            oldSongAlbum = "original_album",
-            oldSongGenre = "original_genre",
-            oldSongImagePath = "original_imagePath"
+            originalSongTitle = "original_title",
+            originalSongArtist = "original_artist",
+            originalSongAlbum = "original_album",
+            originalSongGenre = "original_genre",
+            originalSongImagePath = "original_imagePath"
         )
 }

@@ -7,10 +7,14 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class FakeSongRepository(
     var songsToLoad: List<Song> = emptyList(),
-) : SongRepository {
+
+    ) : SongRepository {
 
     private val _songs = MutableStateFlow<List<Song>>(emptyList())
-    override val songs: StateFlow<List<Song>> = _songs.asStateFlow()
+    private val _originalSongs = MutableStateFlow<List<Song>>(emptyList())
+
+    override val songs = _songs.asStateFlow()
+    override val originalSongs = _originalSongs.asStateFlow()
 
     var loadSongsCallCount: Int = 0
         private set
@@ -20,5 +24,9 @@ class FakeSongRepository(
         loadSongsCallCount++
         loadSongsException?.let { exception -> throw exception }
         _songs.value = songsToLoad
+    }
+
+    fun setOriginalSongs(songs: List<Song>){
+        _originalSongs.value = songs
     }
 }

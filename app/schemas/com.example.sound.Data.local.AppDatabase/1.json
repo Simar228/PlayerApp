@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "c6d8ee103f8e5ff28a78db7fe9054a6b",
+    "identityHash": "ceea022cba8e4e05ee1fef839a2d79ab",
     "entities": [
       {
         "tableName": "queue_items",
@@ -253,7 +253,7 @@
       },
       {
         "tableName": "editSong_items",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `songId` TEXT NOT NULL, `editSongTitle` TEXT, `editSongArtist` TEXT, `songDuration` INTEGER NOT NULL, `songUri` TEXT NOT NULL, `editSongAlbum` TEXT, `editSongGenre` TEXT, `editSongImagePath` TEXT, `oldSongTitle` TEXT, `oldSongArtist` TEXT, `oldSongAlbum` TEXT, `oldSongGenre` TEXT, `oldSongImagePath` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `songId` TEXT NOT NULL, `editSongTitle` TEXT, `editSongArtist` TEXT, `songDuration` INTEGER NOT NULL, `songUri` TEXT NOT NULL, `editSongAlbum` TEXT, `editSongGenre` TEXT, `editSongImagePath` TEXT, `originalSongTitle` TEXT, `originalSongArtist` TEXT, `originalSongAlbum` TEXT, `originalSongGenre` TEXT, `originalSongImagePath` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -305,28 +305,28 @@
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "oldSongTitle",
-            "columnName": "oldSongTitle",
+            "fieldPath": "originalSongTitle",
+            "columnName": "originalSongTitle",
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "oldSongArtist",
-            "columnName": "oldSongArtist",
+            "fieldPath": "originalSongArtist",
+            "columnName": "originalSongArtist",
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "oldSongAlbum",
-            "columnName": "oldSongAlbum",
+            "fieldPath": "originalSongAlbum",
+            "columnName": "originalSongAlbum",
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "oldSongGenre",
-            "columnName": "oldSongGenre",
+            "fieldPath": "originalSongGenre",
+            "columnName": "originalSongGenre",
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "oldSongImagePath",
-            "columnName": "oldSongImagePath",
+            "fieldPath": "originalSongImagePath",
+            "columnName": "originalSongImagePath",
             "affinity": "TEXT"
           }
         ],
@@ -459,7 +459,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c6d8ee103f8e5ff28a78db7fe9054a6b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ceea022cba8e4e05ee1fef839a2d79ab')"
     ]
   }
 }

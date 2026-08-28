@@ -32,9 +32,8 @@ class FakePlaybackTransitionRepository : PlaybackTransitionRepository {
         oldSong: Song
     ) {
         saveInformationEditSongCalls += SaveInformationEditSongCall(
-            genre = genre,
             newSong = newSong,
-            oldSong = oldSong,
+            originalSong = oldSong,
         )
     }
 
@@ -48,8 +47,7 @@ class FakePlaybackTransitionRepository : PlaybackTransitionRepository {
     )
 
     data class SaveInformationEditSongCall(
-        val genre: String,
         val newSong: Song,
-        val oldSong: Song,
+        val originalSong: Song,
     )
 }
