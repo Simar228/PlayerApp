@@ -37,9 +37,9 @@ data class EditSongItemEntity(
     val oldSongGenre: String? = null,
     val oldSongImagePath: String? = null,
 
-)
+    )
 
-fun Song.toEditSongItemEntity(oldSong: Song): EditSongItemEntity{
+fun Song.toEditSongItemEntity(oldSong: Song): EditSongItemEntity {
     return EditSongItemEntity(
         songId = id,
         editSongTitle = title,
@@ -58,7 +58,7 @@ fun Song.toEditSongItemEntity(oldSong: Song): EditSongItemEntity{
     )
 }
 
-fun EditSongItemEntity.toSong(): Song{
+fun EditSongItemEntity.toNewSong(): Song {
     return Song(
         id = songId,
         title = editSongTitle,
@@ -68,5 +68,18 @@ fun EditSongItemEntity.toSong(): Song{
         album = editSongAlbum,
         genre = editSongGenre,
         art = editSongImagePath
+    )
+}
+
+fun EditSongItemEntity.toOriginalSong(): Song {
+    return Song(
+        id = this.songId,
+        title = this.oldSongTitle,
+        artist = this.oldSongArtist,
+        duration = this.songDuration,
+        uri = this.songUri,
+        album = this.oldSongAlbum,
+        genre = this.oldSongGenre,
+        art = this.oldSongImagePath
     )
 }
