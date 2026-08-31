@@ -32,7 +32,7 @@ fun MainScreen(
         currentButtons = mainViewModel.currentDirectionOfSort.collectAsStateWithLifecycle().value,
         modifier = modifier,
         onSongMenuClick = onSongMenuClick,
-        sendSong = playerViewModel::sendSong,
+        sendSong = playerViewModel::playFromLibrary,
         sortQueueSong = mainViewModel::sortQueueSong,
     )
 }
@@ -44,7 +44,7 @@ private fun MainScreenRoute(
     modifier: Modifier,
     onSongMenuClick: (String) -> Unit,
     sortQueueSong: (MainSortScreenEvents) -> Unit,
-    sendSong: (List<Song>, Song) -> Unit
+    sendSong: (Song, List<Song>) -> Unit
 ) {
 
     val lazyColumnState = rememberLazyListState()
@@ -75,7 +75,7 @@ private fun MainScreenRoute(
                 songs = songs,
                 listState = lazyColumnState,
                 onSongClick = { song ->
-                    sendSong(songs, song)
+                    sendSong(song, songs)
                 },
                 onSongMenuClick = onSongMenuClick,
                 modifier = Modifier

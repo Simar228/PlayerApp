@@ -86,7 +86,7 @@ fun AppNavHost(
                     onBackClick = { navController.popBackStack() },
                     onClearClick = { songQueueViewModel.clearSongQueue() },
                     onSongClick = { song, queueItemId ->
-                        playerViewModel.sendSong(
+                        playerViewModel.playFromQueue(
                             song = song,
                             queueItemId = queueItemId
                         )

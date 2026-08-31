@@ -48,13 +48,16 @@ class PlayerViewModelTest {
     }
 
     @Test
-    fun `sendSong when connection is Connecting should cache request and show song stub`() = runTest {
+    fun `playFromLibrary when connection is Connecting should cache request and show song stub`() = runTest {
         playerController.emitState(
             PlayerUiState(connectionState = PlayerConnectionState.Connecting)
         )
         val song = FakeSong.SONG_0
 
-        sut.sendSong(song = song)
+        sut.playFromLibrary(
+            song = song,
+            songs = listOf(song)
+        )
 
         assertThat(playerController.showSelectedSongCalledWith).isEqualTo(song)
         assertThat(repository.startPlaybackCalls).isEmpty()
@@ -66,7 +69,8 @@ class PlayerViewModelTest {
             PlayerUiState(connectionState = PlayerConnectionState.Connecting)
         )
         val song = FakeSong.SONG_1
-        sut.sendSong(song = song)
+        val songs = listOf(FakeSong.SONG_0, song, FakeSong.SONG_2)
+        sut.playFromLibrary(song = song, songs = songs)
 
         playerController.triggerReady()
         advanceUntilIdle()
@@ -74,21 +78,42 @@ class PlayerViewModelTest {
         assertThat(repository.startPlaybackCalls).containsExactly(
             FakePlaybackTransitionRepository.StartPlaybackCall(
                 song = song,
-                defaultQueueSongs = null,
+                defaultQueueSongs = songs,
                 queueItemId = null
             )
         )
     }
 
     @Test
-    fun `pending playback request should preserve queue and queue item id`() = runTest {
+    fun `pending library playback request should preserve songs`() = runTest {
         playerController.emitState(
             PlayerUiState(connectionState = PlayerConnectionState.Connecting)
         )
         val queueSongs = listOf(FakeSong.SONG_0, FakeSong.SONG_1, FakeSong.SONG_2)
 
-        sut.sendSong(
-            queueSongs = queueSongs,
+        sut.playFromLibrary(
+            song = FakeSong.SONG_1,
+            songs = queueSongs
+        )
+        playerController.triggerReady()
+        advanceUntilIdle()
+
+        assertThat(repository.startPlaybackCalls).containsExactly(
+            FakePlaybackTransitionRepository.StartPlaybackCall(
+                song = FakeSong.SONG_1,
+                defaultQueueSongs = queueSongs,
+                queueItemId = null
+            )
+        )
+    }
+
+    @Test
+    fun `pending queue playback request should preserve queue item id`() = runTest {
+        playerController.emitState(
+            PlayerUiState(connectionState = PlayerConnectionState.Connecting)
+        )
+
+        sut.playFromQueue(
             song = FakeSong.SONG_1,
             queueItemId = 42L
         )
@@ -98,7 +123,7 @@ class PlayerViewModelTest {
         assertThat(repository.startPlaybackCalls).containsExactly(
             FakePlaybackTransitionRepository.StartPlaybackCall(
                 song = FakeSong.SONG_1,
-                defaultQueueSongs = queueSongs,
+                defaultQueueSongs = null,
                 queueItemId = 42L
             )
         )
@@ -109,7 +134,8 @@ class PlayerViewModelTest {
         playerController.emitState(
             PlayerUiState(connectionState = PlayerConnectionState.Connecting)
         )
-        sut.sendSong(song = FakeSong.SONG_0)
+        val songs = listOf(FakeSong.SONG_0)
+        sut.playFromLibrary(song = FakeSong.SONG_0, songs = songs)
 
         playerController.triggerReady()
         playerController.triggerReady()
@@ -118,7 +144,7 @@ class PlayerViewModelTest {
         assertThat(repository.startPlaybackCalls).containsExactly(
             FakePlaybackTransitionRepository.StartPlaybackCall(
                 song = FakeSong.SONG_0,
-                defaultQueueSongs = null,
+                defaultQueueSongs = songs,
                 queueItemId = null
             )
         )
@@ -129,33 +155,39 @@ class PlayerViewModelTest {
         playerController.emitState(
             PlayerUiState(connectionState = PlayerConnectionState.Connecting)
         )
+        val songs = listOf(FakeSong.SONG_0, FakeSong.SONG_2)
 
-        sut.sendSong(song = FakeSong.SONG_0)
-        sut.sendSong(song = FakeSong.SONG_2)
+        sut.playFromLibrary(song = FakeSong.SONG_0, songs = songs)
+        sut.playFromLibrary(song = FakeSong.SONG_2, songs = songs)
         playerController.triggerReady()
         advanceUntilIdle()
 
         assertThat(repository.startPlaybackCalls).containsExactly(
             FakePlaybackTransitionRepository.StartPlaybackCall(
                 song = FakeSong.SONG_2,
-                defaultQueueSongs = null,
+                defaultQueueSongs = songs,
                 queueItemId = null
             )
         )
     }
 
     @Test
-    fun `sendSong when connection is Ready should play song instantly`() = runTest {
+    fun `playFromLibrary when connection is Ready should play song instantly`() = runTest {
         playerController.emitState(
             PlayerUiState(connectionState = PlayerConnectionState.Ready)
         )
         val song = FakeSong.SONG_2
+        val songs = listOf(FakeSong.SONG_0, FakeSong.SONG_1, song)
 
-        sut.sendSong(song = song)
+        sut.playFromLibrary(song = song, songs = songs)
         advanceUntilIdle()
 
         assertThat(repository.startPlaybackCalls).containsExactly(
-            FakePlaybackTransitionRepository.StartPlaybackCall(song = song, defaultQueueSongs = null, queueItemId = null)
+            FakePlaybackTransitionRepository.StartPlaybackCall(
+                song = song,
+                defaultQueueSongs = songs,
+                queueItemId = null
+            )
         )
     }
 
@@ -165,10 +197,11 @@ class PlayerViewModelTest {
             PlayerUiState(connectionState = PlayerConnectionState.Ready)
         )
         repository.songToSuspend = FakeSong.SONG_0
+        val songs = listOf(FakeSong.SONG_0, FakeSong.SONG_1)
 
         try {
-            sut.sendSong(song = FakeSong.SONG_0)
-            sut.sendSong(song = FakeSong.SONG_1)
+            sut.playFromLibrary(song = FakeSong.SONG_0, songs = songs)
+            sut.playFromLibrary(song = FakeSong.SONG_1, songs = songs)
             runCurrent()
 
             assertThat(repository.startPlaybackCalls.map { it.song }).containsExactly(
@@ -240,7 +273,7 @@ class PlayerViewModelTest {
     }
 
     @Test
-    fun `sendSong when connection is Error should not play song and not update controller`() = runTest {
+    fun `playFromLibrary when connection is Error should not play song and not update controller`() = runTest {
         playerController.emitState(
             PlayerUiState(
                 connectionState = PlayerConnectionState.Error(
@@ -249,7 +282,10 @@ class PlayerViewModelTest {
             )
         )
 
-        sut.sendSong(song = FakeSong.SONG_0)
+        sut.playFromLibrary(
+            song = FakeSong.SONG_0,
+            songs = listOf(FakeSong.SONG_0)
+        )
         advanceUntilIdle()
 
         assertThat(repository.startPlaybackCalls).isEmpty()

@@ -8,7 +8,6 @@ import com.example.sound.Domain.repository.PlaybackTransitionRepository
 import com.example.sound.Presentation.playerUi.PlayerConnectionState
 import com.example.sound.Presentation.playerUi.PlayerUIEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -47,7 +46,27 @@ class PlayerViewModel @Inject constructor(
         }
     }
 
-    fun sendSong(
+    fun playFromLibrary(
+        song: Song,
+        songs: List<Song>,
+    ) {
+        receiveSong(
+            song = song,
+            queueSongs = songs
+        )
+    }
+
+    fun playFromQueue(
+        song: Song,
+        queueItemId: Long,
+    ) {
+        receiveSong(
+            song = song,
+            queueItemId = queueItemId
+        )
+    }
+
+    private fun receiveSong(
         queueSongs: List<Song>? = null,
         song: Song,
         queueItemId: Long? = null
