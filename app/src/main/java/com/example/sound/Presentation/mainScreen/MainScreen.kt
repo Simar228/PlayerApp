@@ -26,12 +26,16 @@ fun MainScreen(
     playerViewModel: PlayerViewModel,
     modifier: Modifier,
     onSongMenuClick: (String) -> Unit,
+    onSettingsClick: () -> Unit,
+    onSongHistoryClick: () -> Unit,
 ) {
     MainScreenRoute(
         songs = mainViewModel.songsQueue.collectAsStateWithLifecycle().value,
         currentButtons = mainViewModel.currentDirectionOfSort.collectAsStateWithLifecycle().value,
         modifier = modifier,
         onSongMenuClick = onSongMenuClick,
+        onSettingsClick = onSettingsClick,
+        onSongHistoryClick = onSongHistoryClick,
         sendSong = playerViewModel::playFromLibrary,
         sortQueueSong = mainViewModel::sortQueueSong,
     )
@@ -43,6 +47,8 @@ private fun MainScreenRoute(
     currentButtons: List<SortButtonValue>,
     modifier: Modifier,
     onSongMenuClick: (String) -> Unit,
+    onSettingsClick: () -> Unit,
+    onSongHistoryClick: () -> Unit,
     sortQueueSong: (MainSortScreenEvents) -> Unit,
     sendSong: (Song, List<Song>) -> Unit
 ) {
@@ -62,8 +68,9 @@ private fun MainScreenRoute(
     ) {
         Column() {
             MainTopBar(
-                modifier = Modifier
-                    .weight(0.7f)
+                modifier = Modifier.weight(0.7f),
+                onSettingsClick = onSettingsClick,
+                onSongHistoryClick = onSongHistoryClick,
             )
             MainSortBar(
                 buttons = currentButtons,
@@ -144,6 +151,8 @@ private fun PreviewMainScreen() {
         ),
         modifier = Modifier,
         onSongMenuClick = {},
+        onSettingsClick = {},
+        onSongHistoryClick = {},
         sortQueueSong = {},
         sendSong = { song, songs ->
 

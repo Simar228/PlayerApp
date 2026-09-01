@@ -22,5 +22,7 @@ sealed interface Routes {
     @Serializable
     data object QueueRoute : Routes
     @Serializable
+    data object HistoryRoute : Routes
+    @Serializable
     data object SongPageRoute: Routes
 }

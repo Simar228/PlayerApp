@@ -25,6 +25,7 @@ import com.example.sound.Presentation.mainScreen.MainViewModel
 import com.example.sound.Presentation.mainScreen.components.SongMenuBottomSheet
 import com.example.sound.Presentation.playerUi.viewModel.PlayerViewModel
 import com.example.sound.Presentation.songPage.SongPage
+import com.example.sound.Presentation.songHistory.SongHistoryScreen
 import com.example.sound.Presentation.songQueue.SongQueueScreen
 import com.example.sound.Presentation.songQueue.SongQueueViewModel
 
@@ -69,7 +70,21 @@ fun AppNavHost(
                         navController.navigate(
                             Routes.SongBottomSheet(songId)
                         )
-                    }
+                    },
+                    onSettingsClick = {},
+                    onSongHistoryClick = {
+                        navController.navigate(Routes.HistoryRoute) {
+                            launchSingleTop = true
+                        }
+                    },
+                )
+            }
+
+            composable<Routes.HistoryRoute> {
+                SongHistoryScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onClearClick = {},
+                    modifier = modifier,
                 )
             }
 
