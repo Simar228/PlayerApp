@@ -1,4 +1,4 @@
-package com.example.sound.Presentation.songQueue.utills
+package com.example.sound.Presentation.utill
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode

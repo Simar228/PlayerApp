@@ -27,7 +27,7 @@ import com.example.sound.Presentation.mainScreen.MainViewModel
 import com.example.sound.Presentation.mainScreen.components.SongMenuBottomSheet
 import com.example.sound.Presentation.playerUi.viewModel.PlayerViewModel
 import com.example.sound.Presentation.songPage.SongPage
-import com.example.sound.Presentation.songHistory.SongHistoryScreen
+import com.example.sound.Presentation.songHistory.HistorySongScreen
 import com.example.sound.Presentation.songHistory.HistorySongViewModel
 import com.example.sound.Presentation.songQueue.SongQueueScreen
 import com.example.sound.Presentation.songQueue.SongQueueViewModel
@@ -86,7 +86,7 @@ fun AppNavHost(
 
             composable<Routes.HistoryRoute> {
                 val viewModel: HistorySongViewModel = hiltViewModel()
-                SongHistoryScreen(
+                HistorySongScreen(
                     onBackClick = { navController.popBackStack() },
                     onClearClick = {},
                     modifier = modifier,

@@ -28,7 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.sound.Domain.model.HistoryItem
-import com.example.sound.Presentation.mainScreen.components.MusicCard
+import com.example.sound.Presentation.songHistory.components.HistoryCard
 import com.example.sound.R
 import com.example.sound.ui.theme.SoundTheme
 import java.time.MonthDay
@@ -37,7 +37,7 @@ import java.time.format.TextStyle
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun SongHistoryScreen(
+fun HistorySongScreen(
     viewModel: HistorySongViewModel,
     onBackClick: () -> Unit,
     onClearClick: () -> Unit,
@@ -102,11 +102,12 @@ private fun SongHistoryTopBar(
                 items(
                     items = historyItemList,
                     key = { it.song.id + it.position }
-                ) { historySong ->
-                    MusicCard(
-                        song = historySong.song,
+                ) { historyItem ->
+                    HistoryCard(
+                        isPlaying = false,
+                        song = historyItem.song,
                         onClick = {},
-                        onMenuClick = {},
+                        onDelete = {},
                     )
                 }
             }
@@ -134,7 +135,7 @@ private fun SongHistoryScreenPreview() {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun DateDivider(
+private fun DateDivider(
     date: String,
     modifier: Modifier = Modifier
 ) {

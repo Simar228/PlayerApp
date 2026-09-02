@@ -1,4 +1,4 @@
-package com.example.sound.Presentation.songQueue.components
+package com.example.sound.Presentation.utill
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animate
@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -40,7 +41,7 @@ import kotlin.math.roundToInt
 
 @Composable
 fun SwipeRevealDelete(
-    isActive: Boolean,
+    isActive: Boolean = true,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
     actionWidth: Dp = 88.dp,
@@ -218,7 +219,7 @@ private fun SwipeRevealDeletePreviewContent() {
         modifier = Modifier
             .fillMaxWidth()
             .height(120.dp)
-            .background(MaterialTheme.colorScheme.surface),
+            .background(Color.Transparent),
         contentAlignment = Alignment.Center
     ) {
         Text(text = "Queue item")

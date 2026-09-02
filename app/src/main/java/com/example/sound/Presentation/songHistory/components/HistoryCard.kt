@@ -1,4 +1,4 @@
-package com.example.sound.Presentation.songQueue
+package com.example.sound.Presentation.songHistory.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,11 +30,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import com.example.sound.Domain.model.Song
-import com.example.sound.Presentation.utill.SwipeRevealDelete
 import com.example.sound.Presentation.utill.AnimatedPlayingBars
+import com.example.sound.Presentation.utill.SwipeRevealDelete
 
 @Composable
-fun MusicQueueCard(
+fun HistoryCard(
     modifier: Modifier = Modifier,
     isPlaying: Boolean = false,
     isMain: Boolean = false,
@@ -116,31 +115,28 @@ fun MusicQueueCard(
 
 
             Text(
+                modifier = if (!isPlaying) Modifier.padding(end = 10.dp) else Modifier,
                 text = formatDuration(song.duration),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
-            IconButton(
-                onClick = {},
-                modifier = dragHandleModifier.size(70.dp)
-            ) {
-                if (isMain) {
+            if (isPlaying) {
+                IconButton(
+                    onClick = {},
+                    modifier = dragHandleModifier.size(70.dp)
+                ) {
+
                     AnimatedPlayingBars(
-                        isPlaying = isPlaying,
+                        isPlaying = true,
                         modifier = Modifier.size(25.dp),
                         color = MaterialTheme.colorScheme.primary
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.Menu,
-                        contentDescription = "Меню песни",
-                        tint = MaterialTheme.colorScheme.onBackground
                     )
                 }
             }
         }
     }
 }
+
 
 @Composable
 private fun MusicArtworkPlaceholder() {
@@ -163,7 +159,7 @@ private fun formatDuration(durationMillis: Long): String {
 @Preview
 @Composable
 private fun PreviewMusicCard() {
-    MusicQueueCard(
+    HistoryCard(
         song = Song(
             id = "",
             title = "Пока-Пока",
