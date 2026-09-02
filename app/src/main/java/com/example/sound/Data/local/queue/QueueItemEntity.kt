@@ -24,7 +24,8 @@ data class QueueItemEntity(
 
     val position: Int,
     @Embedded(prefix = "song_")
-    val song: Song
+    val song: Song,
+    val fromUser: Boolean,
 )
 
 
@@ -33,6 +34,7 @@ fun QueueItem.toEntity(): QueueItemEntity {
         id = this.id,
         song = song,
         position = position,
+        fromUser = fromUser,
     )
 }
 
@@ -40,14 +42,16 @@ fun QueueItemEntity.toDomain(): QueueItem {
     return QueueItem(
         song = song,
         id = id,
-        position = position
+        position = position,
+        fromUser = fromUser
     )
 }
 
-fun Song.toQueueItemEntity(position: Int): QueueItemEntity {
+fun Song.toQueueItemEntity(position: Int, fromUser: Boolean): QueueItemEntity {
     return QueueItemEntity(
+        song = this,
+        id = 0,
         position = position,
-        song = this
-
+        fromUser = fromUser
     )
 }

@@ -3,8 +3,9 @@ package com.example.sound.Data.repository
 import androidx.room.withTransaction
 import com.example.sound.Data.local.AppDatabase
 import com.example.sound.Data.local.queue.QueueDao
+import com.example.sound.Data.local.queue.QueueItemEntity
 import com.example.sound.Data.local.queue.toDomain
-import com.example.sound.Data.local.queue.toEntity
+import com.example.sound.Data.local.queue.toQueueItemEntity
 import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.PlayerQueueRepository
@@ -20,6 +21,32 @@ class PlayerQueueRepositoryImpl @Inject constructor(
 ) : PlayerQueueRepository {
 
 
+    override suspend fun chooseSongFromQueue(queueItemId: Long) {
+        val currentList = queueDao.getQueue().toMutableList()
+        val removedItemIndex =
+            currentList.find { it.id == queueItemId && it.fromUser }?.position
+        removedItemIndex?.let { removedItemIndex ->
+            currentList.removeAt(removedItemIndex)
+            queueDao.replaceQueue(currentList)
+        }
+
+    }
+
+
+    override suspend fun setCurrentSong(
+        currentSong: Song,
+        songs: List<Song>
+    ) {
+        val currentList = queueDao.getQueue().toMutableList()
+        currentList.removeAt(0)
+        currentList.add(
+            0, currentSong.toQueueItemEntity(0, true)
+        )
+        queueDao.replaceQueue(currentList)
+
+    }
+
+
     override suspend fun deleteQueueItemById(
         queueItemId: Long
     ) = withContext(Dispatchers.IO) {
@@ -27,18 +54,13 @@ class PlayerQueueRepositoryImpl @Inject constructor(
             val currentQueue = queueDao.getQueue()
 
             val updatedQueue = currentQueue.filterNot { item ->
-                item.id == queueItemId
+                item.id == queueItemId && item.fromUser
             }
 
             if (updatedQueue.size == currentQueue.size) {
                 return@withTransaction
             }
-
-            val reindexedQueue = updatedQueue.mapIndexed { index, item ->
-                item.copy(position = index)
-            }
-
-            queueDao.replaceQueue(reindexedQueue)
+            queueDao.replaceQueue(repositionQueue(updatedQueue))
         }
     }
 
@@ -52,10 +74,11 @@ class PlayerQueueRepositoryImpl @Inject constructor(
             database.withTransaction {
                 val queueItems = queueDao.getQueue()
 
-                val lastPosition = queueItems.maxOfOrNull { it.position }
+                val lastPosition = queueItems.filter { it.fromUser }.maxOfOrNull { it.position }
 
-                val insertedQueueItemEntity =
-                    QueueItem(id = 0, position = lastPosition?.plus(1) ?: 0, song = song).toEntity()
+                val position = lastPosition?.plus(1) ?: 0
+                val insertedQueueItemEntity = song.toQueueItemEntity(position, true)
+
                 queueDao.insertQueueItem(insertedQueueItemEntity)
 
             }
@@ -66,20 +89,15 @@ class PlayerQueueRepositoryImpl @Inject constructor(
         database.withTransaction {
             val currentQueue = queueDao.getQueue()
 
-            val queueItem = QueueItem(
-                id = 0,
-                position = 0,
-                song = song
+            val queueItemEntity = song.toQueueItemEntity(
+                1, true
             )
-
             val updatedQueue = currentQueue
                 .toMutableList()
-                .apply { add(0, queueItem.toEntity()) }
-                .mapIndexed { index, entity ->
-                    entity.copy(position = index)
-                }
+                .apply { add(1, queueItemEntity) }
 
-            queueDao.replaceQueue(updatedQueue)
+
+            queueDao.replaceQueue(repositionQueue(updatedQueue))
         }
     }
 
@@ -94,5 +112,10 @@ class PlayerQueueRepositoryImpl @Inject constructor(
             queueDao.reorderQueue(queueItemsIds)
         }
     }
+
+    private fun repositionQueue(queueItems: List<QueueItemEntity>) =
+        queueItems.mapIndexed { index, entity ->
+            entity.copy(position = index)
+        }
 
 }
