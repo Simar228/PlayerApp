@@ -2,8 +2,8 @@ package com.example.sound.Data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.example.sound.Data.local.Genre.GenreDao
-import com.example.sound.Data.local.Genre.GenreEntity
+import com.example.sound.Data.local.genre.GenreDao
+import com.example.sound.Data.local.genre.GenreEntity
 import com.example.sound.Data.local.defualtQueue.DefaultQueueDao
 import com.example.sound.Data.local.defualtQueue.DefaultQueueItemEntity
 import com.example.sound.Data.local.editSong.EditSongDao

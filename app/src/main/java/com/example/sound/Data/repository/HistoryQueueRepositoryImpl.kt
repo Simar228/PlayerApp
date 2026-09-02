@@ -16,7 +16,7 @@ class HistoryQueueRepositoryImpl @Inject constructor(
     override fun observeHistoryQueue(): Flow<List<HistoryItem>> {
         return historyQueueDao.observeHistoryQueueItems().map { itemEntities ->
             itemEntities.map { item ->
-                HistoryItem(item.song, item.playedAt)
+                HistoryItem(item.song, item.playedAt, item.position)
             }
         }
     }

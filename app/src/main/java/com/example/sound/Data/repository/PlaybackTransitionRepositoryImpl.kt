@@ -3,10 +3,8 @@ package com.example.sound.Data.repository
 
 import androidx.room.withTransaction
 import com.example.sound.Data.local.AppDatabase
-import com.example.sound.Data.local.Genre.GenreDao
 import com.example.sound.Data.local.defualtQueue.DefaultQueueDao
 import com.example.sound.Data.local.defualtQueue.toDefaultQueueEntity
-import com.example.sound.Data.local.editSong.EditSongDao
 import com.example.sound.Data.local.playerState.PlayerStateDao
 import com.example.sound.Data.local.playerState.toPlayerStateEntity
 import com.example.sound.Domain.model.Song

@@ -1,7 +1,9 @@
 package com.example.sound.Presentation.navigation
 
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -26,9 +28,11 @@ import com.example.sound.Presentation.mainScreen.components.SongMenuBottomSheet
 import com.example.sound.Presentation.playerUi.viewModel.PlayerViewModel
 import com.example.sound.Presentation.songPage.SongPage
 import com.example.sound.Presentation.songHistory.SongHistoryScreen
+import com.example.sound.Presentation.songHistory.HistorySongViewModel
 import com.example.sound.Presentation.songQueue.SongQueueScreen
 import com.example.sound.Presentation.songQueue.SongQueueViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavHost(
     playerViewModel: PlayerViewModel,
@@ -81,10 +85,12 @@ fun AppNavHost(
             }
 
             composable<Routes.HistoryRoute> {
+                val viewModel: HistorySongViewModel = hiltViewModel()
                 SongHistoryScreen(
                     onBackClick = { navController.popBackStack() },
                     onClearClick = {},
                     modifier = modifier,
+                    viewModel = viewModel
                 )
             }
 

@@ -1,8 +1,8 @@
 package com.example.sound.Data.repository
 
 import com.example.sound.Data.local.AppDatabase
-import com.example.sound.Data.local.Genre.GenreDao
-import com.example.sound.Data.local.Genre.GenreEntity
+import com.example.sound.Data.local.genre.GenreDao
+import com.example.sound.Data.local.genre.GenreEntity
 import com.example.sound.utill.InMemoryDatabaseRule
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest

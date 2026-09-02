@@ -1,4 +1,4 @@
-package com.example.sound.Data.local.Genre
+package com.example.sound.Data.local.genre
 
 import androidx.room.Dao
 import androidx.room.Insert

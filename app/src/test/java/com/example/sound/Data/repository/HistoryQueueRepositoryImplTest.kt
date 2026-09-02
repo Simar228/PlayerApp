@@ -99,11 +99,13 @@ class HistoryQueueRepositoryImplTest {
             .containsExactly(
                 HistoryItem(
                     song = FakeSong.SONG_0,
-                    playedAt = NOW
+                    playedAt = NOW,
+                    position = 0,
                 ),
                 HistoryItem(
                     song = FakeSong.SONG_1,
-                    playedAt = NOW
+                    playedAt = NOW,
+                    position = 1,
                 )
             )
             .inOrder()
