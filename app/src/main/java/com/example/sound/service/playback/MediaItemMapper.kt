@@ -8,16 +8,17 @@ import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.model.Song
 
 
-fun Song.toMediaItem(): MediaItem {
-    return buildMediaItem()
+fun Song.toMediaItem(isHistory: Boolean): MediaItem {
+    return buildMediaItem(isHistory = isHistory)
 }
 
 fun QueueItem.toMediaItem(): MediaItem {
-    return song.buildMediaItem(queueItemId = id)
+    return song.buildMediaItem(queueItemId = id, isHistory = false)
 }
 
 private fun Song.buildMediaItem(
-    queueItemId: Long? = null
+    queueItemId: Long? = null,
+    isHistory: Boolean,
 ): MediaItem {
     val metadata = MediaMetadata.Builder()
         .setTitle(title)
@@ -31,6 +32,7 @@ private fun Song.buildMediaItem(
                 setExtras(
                     Bundle().apply {
                         putLong(EXTRA_QUEUE_ITEM_ID, queueItemId)
+                        putBoolean(IS_HISTORY, isHistory)
                     }
                 )
             }
@@ -59,6 +61,15 @@ fun MediaItem.toSong(): Song {
     )
 }
 
+fun MediaItem.isHistory(): Boolean {
+    val extras = mediaMetadata.extras ?: return false
+    if (!extras.containsKey(EXTRA_QUEUE_ITEM_ID)) {
+        return false
+    }
+
+    return extras.getBoolean(IS_HISTORY)
+}
+
 fun MediaItem.queueItemIdOrNull(): Long? {
     val extras = mediaMetadata.extras ?: return null
 
@@ -70,5 +81,7 @@ fun MediaItem.queueItemIdOrNull(): Long? {
 }
 
 
+private const val IS_HISTORY =
+    "com.example.sound.extra.IS_HISTORY"
 private const val EXTRA_QUEUE_ITEM_ID =
     "com.example.sound.extra.QUEUE_ITEM_ID"

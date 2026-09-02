@@ -4,6 +4,7 @@ import androidx.room.withTransaction
 import com.example.sound.Data.local.AppDatabase
 import com.example.sound.Data.local.DatabaseTableNames
 import com.example.sound.Data.local.queue.QueueDao
+import com.example.sound.Data.local.queue.toDomain
 import com.example.sound.Domain.model.PlaybackQueueState
 import com.example.sound.Domain.repository.HistoryQueueRepository
 import com.example.sound.Domain.repository.PlaybackQueueStateRepository
@@ -39,7 +40,7 @@ class PlaybackQueueStateRepositoryImpl @Inject constructor(
                     playerQueueSongs = queueDao
                         .getQueue()
                         .map { entity ->
-                            entity.song
+                            entity.toDomain()
                         },
                 )
             }

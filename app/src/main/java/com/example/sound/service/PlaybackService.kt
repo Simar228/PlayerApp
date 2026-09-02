@@ -35,7 +35,7 @@ class PlaybackService : MediaSessionService() {
 
     private val savedItemToHistory = Channel<MediaItem>(capacity = Channel.UNLIMITED)
     private val mediaTransitionEvents =
-        Channel<MediaItem>(capacity = Channel.UNLIMITED)
+        Channel<MediaItem?>(capacity = Channel.UNLIMITED)
     private lateinit var playbackQueueSynchronizer: PlaybackQueueSynchronizer
 
     @Inject
@@ -59,9 +59,9 @@ class PlaybackService : MediaSessionService() {
             reason: Int
         ) {
             val transitionedMediaItem = mediaItem ?: return
-            mediaTransitionEvents.trySend(transitionedMediaItem)
+            mediaTransitionEvents.trySend(currentMediaItem)
             currentMediaItem?.let { mediaItem ->
-                savedItemToHistory.trySend(mediaItem)
+//                savedItemToHistory.trySend(mediaItem)
             }
             currentMediaItem = transitionedMediaItem
         }

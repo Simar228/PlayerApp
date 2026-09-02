@@ -177,6 +177,7 @@ private fun SongQueueViewPreview() {
             ),
             id = 1,
             position = 0,
+            fromUser = true,
         ),
         QueueItem(
             id = 2,
@@ -190,6 +191,7 @@ private fun SongQueueViewPreview() {
                 album = "Second Album",
                 genre = "Rock",
             ),
+            fromUser = true
         ),
         QueueItem(
             id = 3,
@@ -203,6 +205,7 @@ private fun SongQueueViewPreview() {
                 album = "Third Album",
                 genre = "Electronic",
             ),
+            fromUser = true
         ),
     )
 

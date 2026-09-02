@@ -23,8 +23,7 @@ class PlayerQueueRepositoryImpl @Inject constructor(
 
     override suspend fun chooseSongFromQueue(queueItemId: Long) {
         val currentList = queueDao.getQueue().toMutableList()
-        val removedItemIndex =
-            currentList.find { it.id == queueItemId && it.fromUser }?.position
+        val removedItemIndex = currentList.find { it.id == queueItemId && it.fromUser }?.position
         removedItemIndex?.let { removedItemIndex ->
             currentList.removeAt(removedItemIndex)
             queueDao.replaceQueue(currentList)
@@ -34,16 +33,34 @@ class PlayerQueueRepositoryImpl @Inject constructor(
 
 
     override suspend fun setCurrentSong(
-        currentSong: Song,
-        songs: List<Song>
+        currentSong: Song, songs: List<Song>
     ) {
-        val currentList = queueDao.getQueue().toMutableList()
-        currentList.removeAt(0)
-        currentList.add(
-            0, currentSong.toQueueItemEntity(0, true)
-        )
-        queueDao.replaceQueue(currentList)
+        database.withTransaction {
+            val existingQueue = queueDao.getQueue()
 
+            val explicitQueue = existingQueue
+                .drop(1)
+                .filter { it.fromUser }
+
+            val currentIndex = songs.indexOfFirst { it.id == currentSong.id }
+            val rotatedDefaultQueue = if (currentIndex >= 0) {
+                songs.drop(currentIndex + 1) + songs.take(currentIndex)
+            } else {
+                songs
+            }
+            val newQueue = buildList {
+                add(currentSong.toQueueItemEntity(position = 0, fromUser = true))
+                addAll(explicitQueue)
+                addAll(
+                    rotatedDefaultQueue.map { song ->
+                        song.toQueueItemEntity(position = 0, fromUser = false)
+                    }
+                )
+            }
+
+            queueDao.replaceQueue(newQueue.repositionQueue())
+
+        }
     }
 
 
@@ -60,7 +77,7 @@ class PlayerQueueRepositoryImpl @Inject constructor(
             if (updatedQueue.size == currentQueue.size) {
                 return@withTransaction
             }
-            queueDao.replaceQueue(repositionQueue(updatedQueue))
+            queueDao.replaceQueue(updatedQueue.repositionQueue())
         }
     }
 
@@ -72,15 +89,22 @@ class PlayerQueueRepositoryImpl @Inject constructor(
     override suspend fun insertSongAtTheEnd(song: Song) =
         withContext(Dispatchers.IO) {
             database.withTransaction {
-                val queueItems = queueDao.getQueue()
+                val queueItems = queueDao.getQueue().toMutableList()
 
-                val lastPosition = queueItems.filter { it.fromUser }.maxOfOrNull { it.position }
+                val insertionIndex =
+                    queueItems.indexOfLast { it.fromUser } + 1
 
-                val position = lastPosition?.plus(1) ?: 0
-                val insertedQueueItemEntity = song.toQueueItemEntity(position, true)
+                queueItems.add(
+                    insertionIndex,
+                    song.toQueueItemEntity(
+                        position = insertionIndex,
+                        fromUser = true,
+                    )
+                )
 
-                queueDao.insertQueueItem(insertedQueueItemEntity)
-
+                queueDao.replaceQueue(
+                    queueItems.repositionQueue()
+                )
             }
         }
 
@@ -92,12 +116,10 @@ class PlayerQueueRepositoryImpl @Inject constructor(
             val queueItemEntity = song.toQueueItemEntity(
                 1, true
             )
-            val updatedQueue = currentQueue
-                .toMutableList()
-                .apply { add(1, queueItemEntity) }
+            val updatedQueue = currentQueue.toMutableList().apply { add(1, queueItemEntity) }
 
 
-            queueDao.replaceQueue(repositionQueue(updatedQueue))
+            queueDao.replaceQueue(updatedQueue.repositionQueue())
         }
     }
 
@@ -113,8 +135,8 @@ class PlayerQueueRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun repositionQueue(queueItems: List<QueueItemEntity>) =
-        queueItems.mapIndexed { index, entity ->
+    private fun List<QueueItemEntity>.repositionQueue() =
+        this.mapIndexed { index, entity ->
             entity.copy(position = index)
         }
 
