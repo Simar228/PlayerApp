@@ -3,8 +3,6 @@ package com.example.sound.Data.repository
 
 import androidx.room.withTransaction
 import com.example.sound.Data.local.AppDatabase
-import com.example.sound.Data.local.defualtQueue.DefaultQueueDao
-import com.example.sound.Data.local.defualtQueue.toDefaultQueueEntity
 import com.example.sound.Data.local.playerState.PlayerStateDao
 import com.example.sound.Data.local.playerState.toPlayerStateEntity
 import com.example.sound.Domain.model.Song
@@ -18,7 +16,6 @@ class PlaybackTransitionRepositoryImpl @Inject constructor(
     private val database: AppDatabase,
     private val playerStateDao: PlayerStateDao,
     private val playerQueueRepository: PlayerQueueRepository,
-    private val defaultQueueDao: DefaultQueueDao,
 ) : PlaybackTransitionRepository {
 
     override suspend fun updateCurrentSongIfMatches(songs: List<Song>) {
@@ -40,14 +37,11 @@ class PlaybackTransitionRepositoryImpl @Inject constructor(
     ) = withContext(Dispatchers.IO) {
         database.withTransaction {
             defaultQueueSongs?.let { songs ->
-                val defaultQueueEntities =
-                    songs.mapIndexed { index, queueSong ->
-                        queueSong.toDefaultQueueEntity(index)
-                    }
-
-                defaultQueueDao.replaceDefaultQueue(defaultQueueEntities)
+                playerQueueRepository.setCurrentSong(
+                    currentSong = song,
+                    songs = songs
+                )
             }
-
 
             playerStateDao.savePlayerState(
                 song.toPlayerStateEntity()
