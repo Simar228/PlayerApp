@@ -21,14 +21,16 @@ class PlayerQueueRepositoryImpl @Inject constructor(
 ) : PlayerQueueRepository {
 
 
-    override suspend fun chooseSongFromQueue(queueItemId: Long) {
-        val currentList = queueDao.getQueue().toMutableList()
-        val removedItemIndex = currentList.find { it.id == queueItemId && it.fromUser }?.position
-        removedItemIndex?.let { removedItemIndex ->
-            currentList.removeAt(removedItemIndex)
-            queueDao.replaceQueue(currentList)
-        }
+    override suspend fun moveQueueItemToCurrent(queueItemId: Long) {
+        database.withTransaction {
+            val currentQueue = queueDao.getQueue().toMutableList()
+            val movedQueueItem =
+                currentQueue.find { it.id == queueItemId } ?: return@withTransaction
+            currentQueue.remove(movedQueueItem)
+            currentQueue[0] = movedQueueItem.copy(position = 0)
 
+            queueDao.replaceQueue(currentQueue.repositionQueue())
+        }
     }
 
 
@@ -48,8 +50,16 @@ class PlayerQueueRepositoryImpl @Inject constructor(
             } else {
                 songs
             }
+            val currentQueueItem = existingQueue.firstOrNull()
+                ?.takeIf { item -> item.song.id == currentSong.id }
+                ?.copy(
+                    song = currentSong,
+                    position = 0,
+                    fromUser = true,
+                )
+                ?: currentSong.toQueueItemEntity(position = 0, fromUser = true)
             val newQueue = buildList {
-                add(currentSong.toQueueItemEntity(position = 0, fromUser = true))
+                add(currentQueueItem)
                 addAll(explicitQueue)
                 addAll(
                     rotatedDefaultQueue.map { song ->
@@ -57,9 +67,7 @@ class PlayerQueueRepositoryImpl @Inject constructor(
                     }
                 )
             }
-
             queueDao.replaceQueue(newQueue.repositionQueue())
-
         }
     }
 
@@ -71,7 +79,7 @@ class PlayerQueueRepositoryImpl @Inject constructor(
             val currentQueue = queueDao.getQueue()
 
             val updatedQueue = currentQueue.filterNot { item ->
-                item.id == queueItemId && item.fromUser
+                item.position > 0 && item.id == queueItemId && item.fromUser
             }
 
             if (updatedQueue.size == currentQueue.size) {
@@ -92,7 +100,8 @@ class PlayerQueueRepositoryImpl @Inject constructor(
                 val queueItems = queueDao.getQueue().toMutableList()
 
                 val insertionIndex =
-                    queueItems.indexOfLast { it.fromUser } + 1
+                    maxOf(1, queueItems.indexOfLast { it.fromUser } + 1)
+                        .coerceAtMost(queueItems.size)
 
                 queueItems.add(
                     insertionIndex,
@@ -113,10 +122,11 @@ class PlayerQueueRepositoryImpl @Inject constructor(
         database.withTransaction {
             val currentQueue = queueDao.getQueue()
 
-            val queueItemEntity = song.toQueueItemEntity(
-                1, true
-            )
-            val updatedQueue = currentQueue.toMutableList().apply { add(1, queueItemEntity) }
+            val insertionIndex = minOf(1, currentQueue.size)
+            val queueItemEntity = song.toQueueItemEntity(insertionIndex, true)
+            val updatedQueue = currentQueue.toMutableList().apply {
+                add(insertionIndex, queueItemEntity)
+            }
 
 
             queueDao.replaceQueue(updatedQueue.repositionQueue())
@@ -131,7 +141,25 @@ class PlayerQueueRepositoryImpl @Inject constructor(
 
     override suspend fun saveQueueOrder(queueItemsIds: List<Long>) {
         withContext(Dispatchers.IO) {
-            queueDao.reorderQueue(queueItemsIds)
+            database.withTransaction {
+                val currentQueue = queueDao.getQueue()
+                val currentItem = currentQueue.firstOrNull()
+                    ?: return@withTransaction
+                val upcomingItems = currentQueue.drop(1)
+                val upcomingItemsById = upcomingItems.associateBy { item -> item.id }
+                val reorderedItems = queueItemsIds
+                    .asSequence()
+                    .filterNot { queueItemId -> queueItemId == currentItem.id }
+                    .mapNotNull(upcomingItemsById::get)
+                    .distinctBy { item -> item.id }
+                    .toList()
+                val reorderedIds = reorderedItems.mapTo(mutableSetOf()) { item -> item.id }
+                val omittedItems = upcomingItems.filterNot { item -> item.id in reorderedIds }
+
+                queueDao.replaceQueue(
+                    (listOf(currentItem) + reorderedItems + omittedItems).repositionQueue()
+                )
+            }
         }
     }
 

@@ -5,6 +5,7 @@ import androidx.room.withTransaction
 import com.example.sound.Data.local.AppDatabase
 import com.example.sound.Data.local.playerState.PlayerStateDao
 import com.example.sound.Data.local.playerState.toPlayerStateEntity
+import com.example.sound.Data.local.queue.QueueDao
 import com.example.sound.Domain.model.Song
 import com.example.sound.Domain.repository.PlaybackTransitionRepository
 import com.example.sound.Domain.repository.PlayerQueueRepository
@@ -14,19 +15,39 @@ import javax.inject.Inject
 
 class PlaybackTransitionRepositoryImpl @Inject constructor(
     private val database: AppDatabase,
+    private val queueDao: QueueDao,
     private val playerStateDao: PlayerStateDao,
     private val playerQueueRepository: PlayerQueueRepository,
 ) : PlaybackTransitionRepository {
 
     override suspend fun updateCurrentSongIfMatches(songs: List<Song>) {
         database.withTransaction {
+            val savedState = playerStateDao.getPlayerState()
+                ?: return@withTransaction
 
-            val currentSongId = playerStateDao.getPlayerState()?.currentSong?.id
-            val currentSong = songs.find { it.id == currentSongId }
+            val updatedSong = songs.find { song ->
+                song.id == savedState.currentSong.id
+            } ?: return@withTransaction
 
-            currentSong?.let { currentSong ->
-                playerStateDao.savePlayerState(currentSong.toPlayerStateEntity())
+            playerStateDao.savePlayerState(
+                updatedSong.toPlayerStateEntity()
+            )
+
+            val queue = queueDao.getQueue()
+            val currentItem = queue.firstOrNull()
+                ?: return@withTransaction
+
+            if (currentItem.song.id != updatedSong.id) {
+                return@withTransaction
             }
+
+            val updatedQueue = queue.toMutableList().apply {
+                this[0] = currentItem.copy(
+                    song = updatedSong
+                )
+            }
+
+            queueDao.replaceQueue(updatedQueue)
         }
     }
 
@@ -48,7 +69,7 @@ class PlaybackTransitionRepositoryImpl @Inject constructor(
             )
 
             if (queueItemId != null) {
-                playerQueueRepository.deleteQueueItemById(queueItemId)
+                playerQueueRepository.moveQueueItemToCurrent(queueItemId)
             }
         }
     }
@@ -60,7 +81,7 @@ class PlaybackTransitionRepositoryImpl @Inject constructor(
             )
 
             if (queueItemId != null) {
-                playerQueueRepository.deleteQueueItemById(queueItemId)
+                playerQueueRepository.moveQueueItemToCurrent(queueItemId)
             }
         }
     }

@@ -4,14 +4,17 @@ import android.util.Log
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import com.example.sound.Domain.repository.HistoryQueueRepository
 import com.example.sound.Domain.repository.PlaybackQueueStateRepository
+import com.example.sound.Domain.repository.PlaybackTransitionRepository
 import com.example.sound.service.playback.HandleMediaItemTransition
 import com.example.sound.service.playback.PlaybackQueueSynchronizer
+import com.example.sound.service.playback.queueItemIdOrNull
 import com.example.sound.service.playback.toSong
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -35,9 +38,8 @@ class PlaybackService : MediaSessionService() {
 
     private val savedItemToHistory = Channel<MediaItem>(capacity = Channel.UNLIMITED)
     private val mediaTransitionEvents =
-        Channel<MediaItem?>(capacity = Channel.UNLIMITED)
+        Channel<MediaItem>(capacity = Channel.UNLIMITED)
     private lateinit var playbackQueueSynchronizer: PlaybackQueueSynchronizer
-
     @Inject
     lateinit var playbackQueueStateRepository: PlaybackQueueStateRepository
 
@@ -59,11 +61,19 @@ class PlaybackService : MediaSessionService() {
             reason: Int
         ) {
             val transitionedMediaItem = mediaItem ?: return
-            mediaTransitionEvents.trySend(currentMediaItem)
-            currentMediaItem?.let { mediaItem ->
-//                savedItemToHistory.trySend(mediaItem)
-            }
+            val previousMediaItem = currentMediaItem
             currentMediaItem = transitionedMediaItem
+
+            if (
+                previousMediaItem != null &&
+                previousMediaItem.queueItemIdOrNull() != transitionedMediaItem.queueItemIdOrNull()
+            ) {
+                savedItemToHistory.trySend(previousMediaItem)
+            }
+
+            if (reason != Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED) {
+                mediaTransitionEvents.trySend(transitionedMediaItem)
+            }
         }
     }
 
@@ -95,6 +105,7 @@ class PlaybackService : MediaSessionService() {
 
     override fun onDestroy() {
         mediaTransitionEvents.close()
+        savedItemToHistory.close()
         serviceScope.cancel()
         player.removeListener(playerListener)
         mediaSession?.release()

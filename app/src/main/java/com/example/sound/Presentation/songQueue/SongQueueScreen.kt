@@ -36,6 +36,8 @@ fun SongQueueScreen(
     modifier: Modifier,
     onDeleteSong: (Long) -> Unit,
 ) {
+    val fullQueue = songQueueViewModel.songQueue.collectAsStateWithLifecycle().value
+
     SongQueueView(
         currentSong = currentSong,
         isPlaying = isPlaying,
@@ -45,8 +47,15 @@ fun SongQueueScreen(
         onSongClick = onSongClick,
         onDeleteSong = onDeleteSong,
         saveQueueOrder =  songQueueViewModel::saveQueueOrder,
-        currentSongQueue = songQueueViewModel.songQueue.collectAsStateWithLifecycle().value,
-        moveQueueItem = songQueueViewModel::moveQueueItem
+        currentSongQueue = fullQueue
+            .drop(1)
+            .takeWhile { item -> item.fromUser },
+        moveQueueItem = { fromIndex, toIndex ->
+            songQueueViewModel.moveQueueItem(
+                fromIndex = fromIndex + 1,
+                toIndex = toIndex + 1,
+            )
+        }
     )
 }
 

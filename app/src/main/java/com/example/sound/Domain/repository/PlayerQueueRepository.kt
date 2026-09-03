@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface PlayerQueueRepository {
 
-    suspend fun chooseSongFromQueue(queueItemId: Long)
+    suspend fun moveQueueItemToCurrent(queueItemId: Long)
     suspend fun setCurrentSong(currentSong: Song, songs: List<Song>)
     suspend fun deleteQueueItemById(queueItemId: Long)
 

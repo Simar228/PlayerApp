@@ -8,7 +8,7 @@ import com.example.sound.Domain.model.QueueItem
 import com.example.sound.Domain.model.Song
 
 
-fun Song.toMediaItem(isHistory: Boolean): MediaItem {
+fun Song.toMediaItem(isHistory: Boolean = false): MediaItem {
     return buildMediaItem(isHistory = isHistory)
 }
 
