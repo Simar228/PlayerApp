@@ -122,12 +122,13 @@ Use case не добавляется для механического вызо�
 
 Room хранит:
 
-- текущую песню;
-- explicit queue;
-- default queue snapshot;
+- полный циклический порядок playback queue в `queue_items`;
+- текущую песню первым элементом этой очереди;
+- признак одноразового explicit item в `QueueItem.fromUser`;
+- зеркало текущей песни в `player_state` для восстановления metadata;
 - данные, нужные для восстановления проигрывания.
 
-`PlaybackQueueStateRepositoryImpl` строит согласованный `PlaybackQueueState` внутри Room transaction и объединяет его с текущим списком песен.
+`PlaybackQueueStateRepositoryImpl` напрямую преобразует упорядоченный DAO Flow в domain `PlaybackQueueState`. `QueueItem.id` сохраняется при повороте и перестановке очереди и переносится в `MediaItem`.
 
 ExoPlayer не является долговременным источником истины. Он синхронизируется из repository snapshot, а фактические media transitions записываются обратно в Room.
 
@@ -187,15 +188,17 @@ Player.Listener.onMediaItemTransition()
    -> Room transaction
 ```
 
-Последовательный channel consumer нужен, чтобы соседние transitions не записывались в обратном порядке. Queue item ID переносится в `MediaMetadata.extras` и позволяет атомарно удалить проигранный explicit queue item.
+Последовательный channel consumer нужен, чтобы соседние transitions не записывались в обратном порядке. Queue item ID переносится в `MediaMetadata.extras` и позволяет атомарно повернуть сохранённую очередь к фактически начавшему играть элементу. Переходы с причиной `PLAYLIST_CHANGED`, вызванные самой синхронизацией, не записываются обратно в Room.
 
 ## Синхронизация очереди
 
 Логическая очередь состоит из:
 
-1. текущей песни;
-2. explicit queue, созданной командами «следующей» и «добавить в очередь»;
-3. default library queue, циклически продолженной после текущей песни.
+1. текущей песни в позиции `0`;
+2. одноразовой explicit queue (`fromUser = true`);
+3. циклического default library tail (`fromUser = false`).
+
+При фактическом media transition список поворачивается так, чтобы новый current снова оказался в позиции `0`. Предыдущий explicit current удаляется, а default current сохраняется в хвосте цикла.
 
 `PlaybackQueueSynchronizer` различает:
 
@@ -303,9 +306,8 @@ Database version: 1. Схема экспортируется в `app/schemas`.
 
 | Таблица | Назначение |
 |---|---|
-| `queue_items` | Explicit playback queue и устойчивый порядок |
-| `player_state` | Текущая песня |
-| `defaultQueue_items` | Snapshot default queue |
+| `queue_items` | Полный playback order: current, explicit items и default cycle |
+| `player_state` | Зеркало текущей песни для восстановления metadata |
 | `editSong_items` | Пользовательские metadata overrides и старые значения |
 | `genre_names` | Системные и пользовательские жанры |
 | `image_storage` | SHA-256 и внутренний путь сохранённой обложки |
@@ -358,6 +360,5 @@ Release сейчас подписывается debug signing configuration и �
 - пустая MediaStore library воспринимается bootstrap state как бесконечная загрузка;
 - `SongEditRoute` декодируется в `AppNavHost` через неправильный route type;
 - edit save запускает вложенную ViewModel coroutine перед немедленным pop и может быть отменён вместе с ViewModel;
-- default queue записывается в Room, но aggregate repository использует текущий список песен вместо чтения сохранённого порядка;
 - `PlayerControllerProvider` и binding module находятся в незавершённом незакоммиченном наборе изменений;
 - собственные repository/application scopes не имеют внедряемого dispatcher/lifecycle abstraction.
