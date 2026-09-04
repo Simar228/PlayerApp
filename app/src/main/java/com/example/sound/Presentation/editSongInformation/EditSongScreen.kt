@@ -28,14 +28,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.sound.Domain.model.Genre
 import com.example.sound.Domain.model.Song
+import com.example.sound.Domain.state.EditSongUiState
 import com.example.sound.Presentation.editSongInformation.components.CustomInputField
 import com.example.sound.Presentation.editSongInformation.components.EditableGenreDropdown
 import com.example.sound.Presentation.editSongInformation.components.SongIconForEditSong
 import com.example.sound.Presentation.editSongInformation.components.TopAppBarForEditSong
 import com.example.sound.Presentation.editSongInformation.viewModel.EditSongEvent
-import com.example.sound.Presentation.editSongInformation.viewModel.EditSongUiState
 import com.example.sound.Presentation.editSongInformation.viewModel.EditSongViewModel
 import kotlinx.coroutines.launch
 
